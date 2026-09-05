@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>治理工作台 · 教育题目层级分类系统</title>
+<style>
+  :root { --primary:#2563EB; --ok:#16A34A; --warn:#D97706; --bad:#DC2626; --bg:#F1F5F9; --card:#fff; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:18px; }
+  header a { font-size:13px; color:var(--primary); text-decoration:none; }
+  main { flex:1; padding:16px 24px; max-width:1200px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:14px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .card h2 { font-size:15px; margin-bottom:10px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; color:#fff; }
+  .st-ACTIVE { background:var(--ok); } .st-STAGED { background:var(--warn); } .st-ARCHIVED { background:var(--muted); }
+  button { cursor:pointer; border:1px solid var(--border); border-radius:6px; padding:5px 12px; font-size:12px; background:#fff; color:var(--primary); }
+  button.danger { color:var(--bad); }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+  .kpi { background:var(--bg); border-radius:8px; padding:12px; text-align:center; }
+  .kpi .v { font-size:22px; font-weight:700; color:var(--primary); }
+  .kpi .k { font-size:12px; color:var(--muted); margin-top:4px; }
+  .muted { color:var(--muted); font-size:12px; }
+  .err { color:var(--bad); font-size:13px; min-height:16px; }
+  pre { background:var(--bg); padding:10px; border-radius:8px; font-size:12px; overflow:auto; max-height:260px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>治理工作台（V1 基础版）</h1>
+  <div><a href="/">返回分类页</a> · <a href="/api/docs">API 文档</a></div>
+</header>
+<main>
+  <div class="card">
+    <h2>服务状态</h2>
+    <div id="health" class="muted">加载中…</div>
+  </div>
+
+  <div class="card">
+    <h2>模型版本治理 <span class="muted">（STAGED → 评估门禁 → ACTIVE → 可回滚）</span></h2>
+    <table>
+      <thead><tr><th>版本</th><th>状态</th><th>学科 acc</th><th>题型 F1</th><th>知识点 F1</th><th>级联 acc</th><th>延迟 ms</th><th>注册时间</th><th>操作</th></tr></thead>
+      <tbody id="versionRows"><tr><td colspan="9" class="muted">加载中…</td></tr></tbody>
+    </table>
+    <div class="row" style="margin-top:10px;display:flex;gap:8px">
+      <button onclick="rollback()">回滚到上一版本</button>
+      <span class="err" id="verError"></span>
+    </div>
+    <p class="muted" style="margin-top:8px">
+      命令行流水线：scripts/migrate_model_weights.py → scripts/rebuild_model_version.py --gate --activate；
+      评估报告见 reports/evaluation/；本页激活动作与命令行等价（写入 MySQL active 指针）。
+    </p>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>最近低质量反馈（Bad Case 入口）</h2>
+    <table>
+      <thead><tr><th>时间</th><th>关联推理</th><th>题目</th><th>结果</th><th>修正建议</th><th>模型版本</th></tr></thead>
+      <tbody id="feedbackRows"><tr><td colspan="6" class="muted">加载中…</td></tr></tbody>
+    </table>
+    <p class="muted" style="margin-top:8px">导出命令：venv\Scripts\python scripts\export_bad_cases.py（人工复核后并入再训练数据）</p>
+  </div>
+
+  <div class="card">
+    <h2>最近分类留痕</h2>
+    <pre id="historyDump">加载中…</pre>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+async function api(path, options) {
+  const resp = await fetch(path, options);
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.error || (resp.status + ' ' + resp.statusText));
+  return data;
+}
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function loadHealth() {
+  try {
+    const h = await api('/api/v1/health');
+    $('health').innerHTML = `状态 <b style="color:var(--ok)">ok</b> · 服务模型版本 <b>${esc(h.model_version)}</b> ·
+      设备 ${esc(h.device)} · int8 量化 ${h.quantized ? '开' : '关'} ·
+      Milvus 查重 ${h.dedup_available ? '<b style="color:var(--ok)">可用</b>' : '<b style="color:var(--warn)">不可用</b>'}
+      ${h.dedup_unavailable_reason ? `（${esc(h.dedup_unavailable_reason)}）` : ''}`;
+  } catch (e) { $('health').innerHTML = `<b style="color:var(--bad)">服务未就绪：${esc(e.message)}</b>`; }
+}
+
+async function loadVersions() {
+  try {
+    const data = await api('/api/v1/models');
+    $('versionRows').innerHTML = data.versions.length ? data.versions.map(v => {
+      const m = v.metrics || {};
+      return `<tr>
+        <td><b>${esc(v.version)}</b></td>
+        <td><span class="badge st-${esc(v.status)}">${esc(v.status)}</span></td>
+        <td>${m.subject_acc ?? '—'}</td><td>${m.type_f1 ?? '—'}</td>
+        <td>${m.knowledge_f1 ?? '—'}</td><td>${m.cascade_acc ?? '—'}</td><td>${m.avg_latency_ms ?? '—'}</td>
+        <td class="muted">${esc(v.created_at)}</td>
+        <td><button onclick="activate('${esc(v.version)}')" ${v.status === 'ACTIVE' ? 'disabled' : ''}>激活</button></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="9" class="muted">暂无注册版本：先运行 scripts/migrate_model_weights.py 与 scripts/rebuild_model_version.py</td></tr>';
+  } catch (e) {
+    $('versionRows').innerHTML = `<tr><td colspan="9" class="muted">加载失败（数据库未初始化或服务未启动）：${esc(e.message)}</td></tr>`;
+  }
+}
+
+async function activate(version) {
+  $('verError').textContent = '';
+  if (!confirm(`确认激活版本 ${version}？旧 ACTIVE 版本将归档。`)) return;
+  try {
+    await api(`/api/v1/models/${version}/activate`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({validate_files: true})
+    });
+    loadVersions();
+  } catch (e) { $('verError').textContent = e.message; }
+}
+
+async function rollback() {
+  $('verError').textContent = '';
+  if (!confirm('确认回滚到最近一次归档版本？')) return;
+  try { await api('/api/v1/models/rollback', {method: 'POST'}); loadVersions(); }
+  catch (e) { $('verError').textContent = e.message; }
+}
+
+async function loadStats() {
+  try {
+    const s = await api('/api/v1/stats');
+    $('kpis').innerHTML = [
+      ['今日分类', s.total_processed], ['反馈正确', s.total_correct],
+      ['反馈错误', s.total_wrong], ['平均置信度', s.avg_confidence], ['题库总数', s.question_count],
+    ].map(([k, v]) => `<div class="kpi"><div class="v">${esc(v)}</div><div class="k">${k}</div></div>`).join('');
+  } catch (e) { $('kpis').innerHTML = '<div class="kpi muted">统计不可用</div>'; }
+}
+
+async function loadHistoryDump() {
+  try {
+    const items = await api('/api/v1/history?limit=5');
+    $('historyDump').textContent = JSON.stringify(items, null, 2);
+  } catch (e) { $('historyDump').textContent = '加载失败：' + e.message; }
+}
+
+async function loadFeedbackList() {
+  try {
+    // 通过 /api/v1/feedback 查询需要服务端支持 GET；此处用分析接口兜底展示
+    const a = await api('/api/v1/analysis');
+    const rows = Object.entries(a.weak_points || {}).slice(0, 10);
+    $('feedbackRows').innerHTML = rows.length ? rows.map(([s, c]) => `
+      <tr><td class="muted">—</td><td class="muted">—</td>
+      <td>薄弱学科：<b>${esc(s)}</b></td><td style="color:var(--bad)">错误 ${c} 条</td>
+      <td class="muted">正确率 ${(100 * (a.subject_correct_rates?.[s] || 0)).toFixed(1)}%</td>
+      <td class="muted">—</td></tr>`).join('')
+      : '<tr><td colspan="6" class="muted">暂无错误反馈记录</td></tr>';
+  } catch (e) {
+    $('feedbackRows').innerHTML = '<tr><td colspan="6" class="muted">加载失败（数据库未初始化或服务未启动）</td></tr>';
+  }
+}
+
+loadHealth(); loadVersions(); loadStats(); loadHistoryDump(); loadFeedbackList();
+</script>
+</body>
+</html>

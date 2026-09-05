@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教育题目层级分类系统</title>
+<style>
+  :root { --primary:#2563EB; --ok:#16A34A; --warn:#D97706; --bad:#DC2626; --bg:#F1F5F9; --card:#FFFFFF; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; }
+  header h1 { font-size:18px; }
+  header .meta { font-size:12px; color:var(--muted); }
+  main { flex:1; display:flex; gap:16px; padding:16px 24px; max-width:1200px; margin:0 auto; width:100%; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .left { flex:1.4; display:flex; flex-direction:column; gap:12px; }
+  .right { flex:1; display:flex; flex-direction:column; gap:12px; }
+  textarea { width:100%; height:140px; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:14px; resize:vertical; }
+  button { cursor:pointer; border:none; border-radius:8px; padding:9px 16px; font-size:14px; background:var(--primary); color:#fff; }
+  button.secondary { background:#fff; color:var(--primary); border:1px solid var(--border); }
+  button.ghost { background:#fff; color:var(--muted); border:1px solid var(--border); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .level { border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+  .level .label { font-size:17px; font-weight:600; margin:6px 0; }
+  .level .name { font-size:12px; color:var(--muted); }
+  .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; color:#fff; }
+  .band-high { background:var(--ok); } .band-medium { background:var(--warn); } .band-low { background:var(--bad); }
+  .hint { font-size:12px; color:var(--muted); margin-top:8px; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .dups li { font-size:12px; color:var(--warn); margin-left:16px; }
+  .history-item { border-top:1px dashed var(--border); padding:8px 0; font-size:13px; }
+  .history-item .tags span { background:var(--bg); border-radius:4px; padding:1px 6px; margin-right:6px; font-size:12px; }
+  .muted { color:var(--muted); font-size:12px; }
+  #error { color:var(--bad); font-size:13px; min-height:18px; }
+  input[type=text] { border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; width:100%; }
+  footer { text-align:center; padding:10px; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>教育题目层级分类系统</h1>
+  <div class="meta">模型版本：<span id="modelVersion">加载中…</span> · <a href="/admin">治理工作台</a> · <a href="/api/docs">API 文档</a></div>
+</header>
+<main>
+  <section class="left">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <strong>题目文本</strong><span class="muted" id="charCount">0 / 4000</span>
+      </div>
+      <textarea id="questionText" placeholder="粘贴或输入题目文本，例如：已知函数 f(x)=x²+1，求 f(2) 的值。"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button id="btnClassify">开始分类</button>
+        <button id="btnSave" class="secondary" disabled>存入题库</button>
+        <span id="error"></span>
+      </div>
+      <ul class="dups" id="duplicates"></ul>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <strong>人工反馈（写入再训练闭环）</strong>
+        <span class="muted">反馈会关联本次推理留痕与模型版本</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button id="btnCorrect" class="secondary" disabled>分类正确</button>
+        <button id="btnWrong" class="ghost" disabled>分类错误</button>
+        <input type="text" id="correctedSubject" placeholder="正确学科（选填）" style="width:150px">
+        <input type="text" id="correctedType" placeholder="正确题型（选填）" style="width:150px">
+        <input type="text" id="correctedKnowledge" placeholder="正确知识点（选填）" style="width:200px">
+      </div>
+    </div>
+    <div class="card" style="flex:1">
+      <strong>最近分类历史</strong>
+      <div id="history" style="margin-top:8px"><span class="muted">暂无记录</span></div>
+    </div>
+  </section>
+  <section class="right">
+    <div class="card" id="resultCard">
+      <strong>分类结果</strong>
+      <div class="result-grid" style="margin-top:12px">
+        <div class="level"><div class="name">学科</div><div class="label" id="rSubject">—</div><div class="muted" id="rSubjectConf"></div></div>
+        <div class="level"><div class="name">题型</div><div class="label" id="rType">—</div><div class="muted" id="rTypeConf"></div></div>
+        <div class="level"><div class="name">知识点</div><div class="label" id="rKnowledge" style="font-size:13px">—</div><div class="muted" id="rKnowledgeConf"></div></div>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <span class="badge" id="bandBadge" style="visibility:hidden"></span>
+      </div>
+      <div class="hint" id="reviewHint">置信度分级：high ≥0.80 可直接采信 / medium 0.60~0.80 建议复核 / low &lt;0.60 必须复核</div>
+      <div class="hint" id="latencyInfo"></div>
+    </div>
+    <div class="card">
+      <strong>今日统计</strong>
+      <div id="stats" class="muted" style="margin-top:8px">加载中…</div>
+    </div>
+  </section>
+</main>
+<footer>MySQL 持久化 · 模型版本治理 · 反馈再训练闭环 · <a href="/legacy-info" style="display:none"></a></footer>
+<script>
+const $ = (id) => document.getElementById(id);
+let lastResult = null;
+
+async function api(path, options) {
+  const resp = await fetch(path, options);
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.error || (resp.status + ' ' + resp.statusText));
+  return data;
+}
+
+function renderResult(r) {
+  lastResult = r;
+  $('rSubject').textContent = r.subject;
+  $('rType').textContent = r.q_type;
+  $('rKnowledge').textContent = r.knowledge;
+  $('rSubjectConf').textContent = '置信度 ' + r.confidences.subject;
+  $('rTypeConf').textContent = '置信度 ' + r.confidences.question_type;
+  $('rKnowledgeConf').textContent = '置信度 ' + r.confidences.knowledge_point;
+  const badge = $('bandBadge');
+  badge.style.visibility = 'visible';
+  badge.textContent = r.band + '（平均置信度 ' + r.avg_confidence + '）';
+  badge.className = 'badge band-' + r.band;
+  $('reviewHint').textContent = r.review_hint;
+  $('latencyInfo').textContent = '推理耗时 ' + r.latency_ms + ' ms' + (r.cached ? '（缓存命中）' : '') +
+    ' · 模型版本 ' + r.model_version;
+  $('btnCorrect').disabled = false; $('btnWrong').disabled = false; $('btnSave').disabled = false;
+  $('duplicates').innerHTML = '';
+}
+
+async function classify() {
+  const text = $('questionText').value.trim();
+  $('error').textContent = '';
+  if (!text) { $('error').textContent = '请输入题目文本'; return; }
+  $('btnClassify').disabled = true;
+  try {
+    const r = await api('/api/v1/classify', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text})
+    });
+    renderResult(r);
+    loadHistory();
+  } catch (e) { $('error').textContent = e.message; }
+  finally { $('btnClassify').disabled = false; }
+}
+
+async function sendFeedback(isCorrect) {
+  if (!lastResult) return;
+  $('error').textContent = '';
+  try {
+    await api('/api/v1/feedback', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        classification_id: lastResult.id,
+        correct: isCorrect,
+        corrected_subject: $('correctedSubject').value.trim() || null,
+        corrected_type: $('correctedType').value.trim() || null,
+        corrected_knowledge: $('correctedKnowledge').value.trim() || null
+      })
+    });
+    loadStats();
+    alert(isCorrect ? '已记录：分类正确' : '已记录：分类错误（可在治理工作台查看 Bad Case）');
+  } catch (e) { $('error').textContent = e.message; }
+}
+
+async function saveQuestion() {
+  if (!lastResult) return;
+  $('error').textContent = '';
+  try {
+    const r = await api('/api/v1/questions', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        text: $('questionText').value.trim(),
+        subject: lastResult.subject,
+        q_type: lastResult.q_type,
+        knowledge: lastResult.knowledge,
+        source: 'ai_input'
+      })
+    });
+    $('duplicates').innerHTML = r.duplicates.length
+      ? r.duplicates.map(d => `<li>疑似重复题：题库 #${d.question_id}，相似度 ${d.similarity}</li>`).join('')
+      : '<li style="color:var(--muted)">语义查重通过，无高度相似题目' + (r.dedup_indexed ? '' : '（查重索引未启用）') + '</li>';
+    loadStats();
+  } catch (e) { $('error').textContent = e.message; }
+}
+
+async function loadHistory() {
+  try {
+    const items = await api('/api/v1/history?limit=10');
+    $('history').innerHTML = items.length ? items.map(h => `
+      <div class="history-item">
+        <div>${(h.text_preview || '').slice(0, 60)}…</div>
+        <div class="tags" style="margin-top:4px">
+          <span>${h.subject_pred}</span><span>${h.type_pred}</span><span>${h.knowledge_pred}</span>
+          <span>置信 ${h.avg_confidence}</span><span>${h.confidence_band}</span><span>v ${h.model_version}</span>
+        </div>
+      </div>`).join('') : '<span class="muted">暂无记录</span>';
+  } catch (e) { $('history').innerHTML = '<span class="muted">加载失败：' + e.message + '</span>'; }
+}
+
+async function loadStats() {
+  try {
+    const s = await api('/api/v1/stats');
+    $('stats').innerHTML = `今日分类 <b>${s.total_processed}</b> · 正确 <b>${s.total_correct}</b> ·
+      错误 <b>${s.total_wrong}</b> · 平均置信度 <b>${s.avg_confidence}</b> · 题库 <b>${s.question_count}</b> 题`;
+  } catch (e) { $('stats').textContent = '统计加载失败（服务未启动或数据库未初始化）'; }
+}
+
+async function loadMeta() {
+  try {
+    const h = await api('/api/v1/health');
+    $('modelVersion').textContent = h.model_version + (h.quantized ? '（int8 量化）' : '') +
+      ' · 查重' + (h.dedup_available ? '可用' : '不可用');
+  } catch (e) { $('modelVersion').textContent = '服务未就绪'; }
+}
+
+$('btnClassify').addEventListener('click', classify);
+$('btnCorrect').addEventListener('click', () => sendFeedback(true));
+$('btnWrong').addEventListener('click', () => sendFeedback(false));
+$('btnSave').addEventListener('click', saveQuestion);
+$('questionText').addEventListener('input', (e) => {
+  $('charCount').textContent = e.target.value.length + ' / 4000';
+});
+$('questionText').addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') classify();
+});
+
+loadMeta(); loadHistory(); loadStats();
+</script>
+</body>
+</html>

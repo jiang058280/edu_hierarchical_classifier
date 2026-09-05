@@ -1,150 +1,187 @@
-# 教育题目层级分类系统
+# 教育题目层级分类系统（企业版）
 
-对输入的题目文本自动完成 **学科 → 题型 → 知识点** 三级分类，并输出各级置信度。
-基于本地已训练的 `bert-base-chinese` 模型进行迁移微调，采用 **共享主干 + 多任务三头** 结构，
-一次前向同时得到三级结果，CPU 动态量化推理 < 3 秒。
+对输入的题目文本自动完成 **学科 → 题型 → 知识点** 三级分类。基于本地微调的 `bert-base-chinese`（共享主干 + 多任务三头），一次前向同时输出三级结果与置信度。
 
-## 一、快速开始
+本仓库是 **v0.1-demo（Gradio 单体，见 `legacy/`）的企业级改造版**，工程模式对齐 `knowforge-rag-platform`：薄入口 + 分层核心包 + **模型版本治理** + **评测质量门禁** + **反馈再训练闭环** + MySQL 持久化 + Milvus 语义查重 + Docker 交付。
 
-```bash
-# 1. 创建虚拟环境（已在 D:\edu_hierarchical_classifier\venv）
-python -m venv venv
+> 改造范围与决策记录见《企业级改造计划.md》；本文档描述当前（改造后）架构。
 
-# 2. 安装依赖（清华镜像）
-venv\Scripts\pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+## 一、核心能力
 
-# 3. 下载数据（K-12EduBench，9 学科）
-venv\Scripts\python src\download_data.py
+| 能力 | 当前实现 |
+| --- | --- |
+| 三级分类 | 共享 BERT 主干 + 学科/题型 Linear 头 + 知识点 ResidualMLP 头，GPU 自动适配，CPU int8 动态量化 |
+| 模型版本治理 | `models/versions/<ver>/` + MySQL 注册表 + active 指针，STAGED → 门禁 → ACTIVE → 可回滚 |
+| 启动硬校验 | preflight 校验主干/标签/版本目录；active 版本文件缺失**拒绝启动**（消灭旧版"随机头静默服务"） |
+| 评测回归 | golden 测试集（`eval_sets/golden_test_set.json`，300 条固化）+ 指标报告 + 质量门禁脚本 |
+| 反馈闭环 | 反馈落库并关联推理留痕（含模型版本）→ Bad Case 导出 → 人工复核 → 再训练 |
+| 数据持久化 | 题库/分类留痕/反馈/按日统计全部入 MySQL（替代旧版内存变量与 JSON 文件） |
+| 语义查重 | 题目向量（BERT [CLS] 768 维）入 Milvus，录入时 top-K 相似提示（增强组件，可降级） |
+| API | FastAPI 正式 REST `/api/v1/*` + 旧契约 `/api/*` 别名 + OpenAPI 文档 + 限流 + 统一错误处理 |
+| 前端 | 原生静态页（无构建链）：分类页 `/` + 治理工作台 `/admin` |
+| 工程守护 | `check_project_guardrails.py` 阻止 Gradio 回归 / 硬编码路径 / 依赖未锁定 |
+| Docker 交付 | `docker compose up` 一键起 mysql + milvus + api |
 
-# 4. 数据清洗与标签映射
-venv\Scripts\python src\data_loader.py
+## 二、技术栈
 
-# 5. 模型评估（生成 logs\evaluation_report.json）
-venv\Scripts\python src\evaluate_models.py
+| 层 | 选型 |
+| --- | --- |
+| API | FastAPI + Uvicorn + Pydantic v2（pydantic-settings 配置，`EDU_` 前缀环境变量） |
+| 模型 | torch 2.11 + transformers 5.x，bert-base-chinese（GPU cu128 / CPU 量化自适应） |
+| 业务库 | MySQL 8.4（SQLAlchemy 2.0 Core + PyMySQL，DDL 集中在 `runtime_schema.sql`，不引入 Alembic） |
+| 查重 | Milvus 2.5 standalone（etcd + MinIO），COSINE 相似度 |
+| 前端 | 原生 HTML/JS/CSS（`static/index.html`、`static/admin.html`） |
+| 测试 | pytest（纯逻辑测试，不依赖权重与数据库） |
+| 交付 | Dockerfile + docker-compose（mysql/etcd/minio/milvus/api） |
 
-# 6. 多任务微调训练（自动检测 GPU/CPU）
-venv\Scripts\python src\train.py
-
-# 7. 测试集端到端验收（生成 logs\test_evaluation.json）
-venv\Scripts\python src\evaluate_test.py
-
-# 8. 启动后端（"智慧教研平台"后台 + 原分类器）
-venv\Scripts\python app.py
-# 浏览器直接访问 http://127.0.0.1:7860       → 智慧教研平台后台（推荐入口）
-# 原 Gradio 分类器独立访问 http://127.0.0.1:7860/classifier
-
-# 9. （可选）直接以 file:// 打开 platform.html 亦可
-#    左侧 iframe 自动指向 7860/classifier，右侧联动展示真实分类结果
-```
-
-## 二、系统架构
+## 三、目录结构
 
 ```
-用户输入（题目文本）
-        │
-        ▼
-共享编码器（BERT base 中文，冻结前 80% 层）
-  输出：文本语义向量 [CLS] (768维)
-        │
-        ├──────────────┬──────────────┐
-        ▼              ▼              ▼
-  学科分类头       题型分类头      知识点分类头
-  Linear+Softmax   Linear+Softmax   Linear+Softmax
-  输出：学科        输出：题型        输出：知识点
-  + 置信度          + 置信度          + 置信度
-        │              │              │
-        └──────────────┴──────────────┘
-                     ▼
-              返回三级分类结果 + 置信度
+edu_hierarchical_classifier/
+├── app.py                  # 薄入口：lifespan 预热（preflight→建库→active版本→模型预热）→ 路由注册
+├── edu_core/               # 核心包（对齐 qa_core 分层模式）
+│   ├── config/             #   settings（pydantic-settings）/ preflight / logging
+│   ├── inference/          #   model.py（三头结构）/ predictor.py（版本化加载+量化+embed）
+│   ├── data/               #   dataset.py（raw 清洗/标签映射/分层划分）
+│   ├── training/           #   train.py（多任务损失 + 早停 + 版本产物）
+│   ├── application/        #   service.py（分类编排）/ confidence.py（置信度分级）/ factory.py（单例）
+│   ├── storage/            #   runtime_schema.sql / bootstrap.py / stores.py（5 个 Store）
+│   ├── governance/         #   model_versions.py（注册/激活/回滚）
+│   ├── quality/            #   evaluation.py（golden set 回归）/ gate.py（门禁）
+│   ├── dedup/              #   milvus_client.py（语义查重，可降级）
+│   ├── observability/      #   阶段耗时
+│   └── api/                #   classify/questions/stats/models/pages 路由 + 限流 + 错误处理
+├── scripts/                # 运维脚本（见第六节命令表）
+├── tests/                  # pytest 纯逻辑测试
+├── static/                 # index.html 分类页 / admin.html 治理工作台 / katex
+├── eval_sets/              # golden_test_set.json、bad_cases.json
+├── reports/                # evaluation/（评估报告）verification/（发布验收）
+├── models/versions/<ver>/  # 三头权重 + manifest.json（权重不入 git，manifest 入 git）
+├── legacy/                 # v0.1-demo 旧版归档（Gradio 单体 + 旧 src + 旧前端，可运行）
+├── data/processed/         # train/val/test.csv + labels.json
+├── Dockerfile / docker-compose.yml / .env.example / requirements.txt（锁定版本）
+└── VERSIONING.md           # 版本与发布流程说明
 ```
 
-- **共享主干**：`bert-base-chinese`（12 层 / 768 维），冻结 embeddings 与前 80% 层，仅微调后 20% 层 + pooler。
-- **三个独立头**：学科（9 类）、题型（按规则推断的细化题型）、知识点（一级知识点 + 学科前缀）。
-- **多任务训练**：三头交叉熵加权求和（学科 0.4 / 题型 0.3 / 知识点 0.3）反向传播。
-- **CPU 加速**：动态量化（int8）、`no_grad`、输入 `lru_cache` 缓存、batch_size=1。
-
-## 三、模型选型说明
-
-用户提供多份训练好的中文文本分类模型（均为 THUCNews 新闻 10 类任务），经逐一探测识别：
-
-| 候选模型 | 架构 | 结论 |
-| :--- | :--- | :--- |
-| `003_bert/model/bert-base-chinese` | BERT 12 层 / 768 维（标准 HF） | ✅ **选中为主干** |
-| `003_bert/bert_model.pt` | BERT 12 层 + 新闻分类头 | 主干同源，头须剥离，作备选 |
-| `014_distill/stu_model.pt` | 蒸馏学生 BERT 4 层 / 240 维 | 非标准结构、容量不足，兜底 |
-| `012_quantization / 013_pruning` | `nn.Linear(10000,10000)` 演示玩具 | 与文本分类无关，排除 |
-| `001_randomforest / 002_FastText` | 传统 ML | 无法作共享主干，排除 |
-| `004_LLM` | 无本地权重 | 依赖外部服务，排除 |
-
-**选型理由**：bert-base-chinese 是全部候选深度模型的主干来源，标准格式加载最稳，
-中文通用语义适合教育题目迁移，CPU 量化后单条推理约 0.3~0.8s，满足 < 1.5s 硬性门槛。
-
-## 四、目录结构
+## 四、架构与主链路
 
 ```
-D:\edu_hierarchical_classifier\
-├── app.py                    # Gradio Web 界面（HEAD_JS 含 platform 桥接）
-├── platform.html             # 智慧教研平台后台（iframe 嵌入分类器 + 右侧联动模块）
-├── config.yaml               # 配置文件（硬件/路径/超参数）
-├── requirements.txt          # 依赖清单
-├── CLAUDE.md                 # 提示词文档（项目规范）
-├── tools\
-│   ├── platform_check.js     # platform.html 静态自检
-│   ├── platform_bridge_test.js  # platform.html 端到端联动自测（CDP）
-│   └── cdp_bridge_test.js    # Gradio 界面端到端自测（CDP）
-├── user_models\models_path.txt   # 原始模型路径与选型记录
-├── data\
-│   ├── raw\k12edubench\      # K-12EduBench 原始数据（9 学科 JSON）
-│   ├── processed\            # 清洗后 train/val/test.csv + labels.json
-│   └── ...
-├── models\
-│   ├── pretrained_backbone\bert-base-chinese\         # 迁移来的主干
-│   ├── pretrained_backbone\bert-base-chinese-finetuned\  # 微调后主干
-│   └── heads\                # 三个分类头权重
-├── src\
-│   ├── utils.py              # 工具函数（项目根路径/环境重定向/日志）
-│   ├── data_loader.py        # 数据加载、标签映射、划分
-│   ├── download_data.py      # 数据下载（GitHub + 镜像兜底）
-│   ├── model.py              # 多任务层级分类模型
-│   ├── train.py              # 多任务微调训练
-│   ├── predict.py            # 推理预测（动态量化）
-│   ├── evaluate_models.py    # 候选模型评估脚本
-│   └── evaluate_test.py      # 测试集端到端验收评估
-├── logs\                     # 评估报告、训练日志、运行日志、反馈记录
-└── venv\                     # Python 虚拟环境（D 盘隔离）
+浏览器 static/index.html
+    │  POST /api/v1/classify（限流 + Pydantic 校验 ≤4000 字）
+    ▼
+edu_core.api.classify ──► ClassificationService（application 层编排）
+    ├─ HierarchicalPredictor.predict()      # active 版本权重，GPU/量化自适应
+    ├─ confidence 分级                       # ≥0.80 high / 0.60~0.80 medium / <0.60 low
+    ├─ ClassificationStore.insert()          # 留痕：三级预测 + 置信度 + model_version + 耗时
+    └─ StatsStore.bump_processed()           # 按日累计（原子 upsert）
+    ▼
+响应：三级标签 + 置信度 + band + 复核建议（+ 录题时的 Milvus 查重提示）
 ```
 
-## 五、数据说明
+### 模型版本治理（对齐 knowforge 知识库版本状态机）
 
-- **K-12EduBench**（[GitHub](https://github.com/shida-edu4ai/K-12EduBench)）：3,259 道题，9 学科 × 三级知识点，含客观/主观题型与解析。
-- 标签映射：
-  - 学科 = 数据 `学科` 字段（数学/物理/化学/生物/语文/英语/历史/地理/政治）
-  - 题型 = 规则推断（客观题含选项→选择题，无选项→判断题；主观题含"填空"→填空题、含"证明"→证明题、其余→解答题）
-  - 知识点 = `一级知识点`，跨学科加前缀防冲突，小类并入"学科::其他"
-- 划分：训练 70% / 验证 15% / 测试 15%（按学科分层抽样）。
+```
+scripts/train_model.py --version vX
+    └─► models/versions/vX/{三头.pt, manifest.json}
+scripts/rebuild_model_version.py --version vX --gate --activate
+    ├─ 注册 STAGED（preflight 校验版本目录 + backbone_ref）
+    ├─ golden set 评估 → reports/evaluation/vX_evaluation.json
+    ├─ 质量门禁：subject_acc≥0.85 / type_f1≥0.85 / knowledge_f1≥0.40
+    │             cascade_acc≥0.65 / CPU 延迟≤1500ms
+    └─ 通过 → ACTIVE（MySQL active 指针）；旧 ACTIVE 自动 ARCHIVED，可回滚
+```
 
-## 六、实测验收结果
+## 五、快速开始
 
-训练环境：NVIDIA GeForce RTX 3050 6GB（GPU 全流程训练，全程约 5 分钟）；推理自动适配 GPU/CPU。
+### 5.1 本机运行（复用本机 MySQL）
 
-| 指标 | 目标 | 实测（测试集） | 达标 |
-| :--- | :--- | :--- | :--- |
-| 学科分类 Accuracy | > 85% | **97.2%** | ✅ |
-| 题型 F1-Macro | > 85% | **91.9%**（acc 96.6%） | ✅ |
-| 知识点 F1-Macro | 视数据量 | 55.5%（50 类小样本，acc 73.9%） | ⚠️ |
-| 级联准确率（三级全对） | 尽量高 | 71.3% | — |
-| 单条推理耗时 | < 3 s | **16.2 ms（GPU）** | ✅ |
+```powershell
+cd D:\edu_hierarchical_classifier
 
-> 知识点 F1 偏低的主因：K-12EduBench 仅 3,259 条样本、知识点 50 类，多数类样本极少。
-> 属小样本固有瓶颈，可引入更多数据或调低合并阈值改善（见 `data_loader.py`）。
+# 1) 配置（可复用 knowforge 的 MySQL 容器：host 127.0.0.1 / port 3306，会自动新建 edu_classifier 库）
+copy .env.example .env
 
-### 硬件策略
-- 代码自动检测：`device = torch.device("cuda" if torch.cuda.is_available() else "cpu")`，无需改业务逻辑。
-- CPU 模式下自动启用**动态量化**（int8）；GPU 模式下禁用量化以保精度。
-- 推理单条 batch=1 + `@lru_cache` 输入缓存 + `no_grad`。
+# 2) 初始化数据库（建库 + 6 张表）
+venv\Scripts\python scripts\init_db.py
 
-## 七、常见问题
+# 3) 迁移旧权重为首个受治理版本并激活（首次部署；含 50 条冒烟评估 + 门禁）
+venv\Scripts\python scripts\migrate_model_weights.py
+venv\Scripts\python scripts\rebuild_model_version.py --version v0.1-base --limit 50 --gate --activate
 
-- **推理超时**：检查 `config.yaml` 中 `use_dynamic_quantization`，必要时导出 ONNX 或切换蒸馏学生模型。
-- **数据集下载失败**：`download_data.py` 已内置国内镜像（ghproxy.net）兜底。
-- **标签不达预期**：3,259 条为小样本，可在 `data_loader.py` 中调低合并阈值或引入更多数据。
+# 4) 固化 golden 回归集（300 条）
+venv\Scripts\python scripts\export_golden_set.py
+
+# 5) 启动 API（preflight + 模型预热完成后才接收流量）
+venv\Scripts\python -m uvicorn app:app --host 127.0.0.1 --port 7860
+```
+
+访问：
+
+- 分类页：http://127.0.0.1:7860/
+- 治理工作台：http://127.0.0.1:7860/admin
+- API 文档：http://127.0.0.1:7860/api/docs
+
+### 5.2 Docker Compose（独立一套基础设施）
+
+```powershell
+copy .env.example .env
+docker compose --env-file .env up -d mysql etcd minio milvus
+docker compose --env-file .env build api
+docker compose --env-file .env run --rm api python scripts/init_db.py
+docker compose --env-file .env run --rm api python scripts/migrate_model_weights.py
+docker compose --env-file .env run --rm api python scripts/rebuild_model_version.py --version v0.1-base --limit 50 --gate --activate
+docker compose --env-file .env up -d api
+```
+
+> 注意：MySQL 宿主机端口默认映射 **3307**（避免与 knowforge 的 3306 冲突），Milvus 映射 19531。本机直跑 API 时用默认 3306/19530 即可。
+
+## 六、常用命令
+
+| 场景 | 命令 |
+| --- | --- |
+| 初始化数据库 | `venv\Scripts\python scripts\init_db.py` |
+| 训练新版本 | `venv\Scripts\python scripts\train_model.py --version v0.2-xxx [--epochs 12]` |
+| 注册+评估+门禁+激活 | `venv\Scripts\python scripts\rebuild_model_version.py --version v0.2-xxx --gate --activate` |
+| 单独评估 | `venv\Scripts\python scripts\evaluate_core_model.py --version v0.1-base` |
+| 门禁校验（CI 用） | `venv\Scripts\python scripts\quality\check_evaluation_gate.py --report reports\evaluation\v0.1-base_evaluation.json` |
+| 导出 Bad Case | `venv\Scripts\python scripts\export_bad_cases.py` |
+| 迁移旧反馈 | `venv\Scripts\python scripts\migrate_legacy_data.py` |
+| 工程守护检查 | `venv\Scripts\python scripts\check_project_guardrails.py` |
+| API 端到端冒烟 | `venv\Scripts\python scripts\api_smoke.py`（需 MySQL；Milvus 可选） |
+| 发布验收 | `venv\Scripts\python scripts\verify_release.py` |
+| 数据预处理 | `venv\Scripts\python -m edu_core.data.dataset` |
+| 单元测试 | `venv\Scripts\python -m pytest tests -q` |
+
+## 七、实测基线（v0.1-base，RTX 3050 6GB）
+
+| 指标 | 目标/门禁 | 实测（测试集） |
+| --- | --- | --- |
+| 学科 Accuracy | ≥ 0.85 | **97.2%** |
+| 题型 F1-Macro | ≥ 0.85 | **91.9%**（acc 96.6%） |
+| 知识点 F1-Macro | ≥ 0.40 | 55.5%（50 类小样本瓶颈，acc 73.9%） |
+| 级联准确率（三级全对） | ≥ 0.65 | 71.3% |
+| 单条推理耗时 | ≤ 1500ms | 16.2ms（GPU）/ ~125ms（CPU int8） |
+
+> 知识点 F1 偏低主因：K-12EduBench 仅 3,259 条、50 个知识点类。提升路径：复核修正数据回流（反馈闭环）→ 再训练新版本 → 门禁对比后激活。
+
+## 八、与旧版（legacy/）的差异
+
+| 维度 | 旧版 v0.1-demo | 本版 |
+| --- | --- | --- |
+| 入口 | Gradio 单体 1369 行 + 隐藏组件 REST hack | FastAPI 薄入口 + 分层包 |
+| 题库/反馈/统计 | 内存变量 + JSON 文件（重启丢、单日覆盖） | MySQL 持久化（按日累计） |
+| 模型权重 | models/heads 直接覆盖，版本不可追溯 | 版本目录 + manifest + 注册表 + active 指针 + 回滚 |
+| 权重缺失 | 静默用随机头服务（仅 WARN） | preflight fail-fast 拒绝启动 |
+| 评测 | 一次性脚本，结果不可比 | golden set 固化 + 报告落盘 + 门禁阻断 |
+| 反馈 | 无关联、无法再训练 | 关联 classification_id + model_version，可导出再训练 |
+| 接口 | CORS "*"、无限流、无文档 | 白名单 CORS、限流、OpenAPI、统一错误处理 |
+| 测试 | 7 个 CDP 散装脚本 | pytest 纯逻辑套件 + guardrails + verify_release |
+
+旧版运行方式见 `legacy/README.md`；两者不要同时启动（同端口 7860）。
+
+## 九、安全说明
+
+- `.env` 不提交（只提交 `.env.example` 占位模板）；
+- CORS 白名单可配置，默认拒绝通配符（guardrails 强制）；
+- 接口限流默认 120 次/分钟/客户端；
+- 模型权重、venv、缓存、原始数据集均不入 git（见 `.gitignore`）。

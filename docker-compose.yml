@@ -1,0 +1,128 @@
+# ============================================================
+# Edu Hierarchical Classifier · Docker Compose 编排
+# 用法：
+#   copy .env.example .env      （先准备配置，按需修改密码）
+#   docker compose --env-file .env up -d mysql etcd minio milvus
+#   docker compose --env-file .env build api
+#   docker compose --env-file .env run --rm api python scripts/init_db.py
+#   docker compose --env-file .env up -d api
+# ============================================================
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: edu-classifier-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${EDU_MYSQL_PASSWORD:-root123}
+      MYSQL_DATABASE: ${EDU_MYSQL_DB:-edu_classifier}
+    ports:
+      - "${MYSQL_PUBLISHED_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${EDU_MYSQL_PASSWORD:-root123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    container_name: edu-classifier-etcd
+    restart: unless-stopped
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    volumes:
+      - etcd_data:/etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health", "--endpoints=http://127.0.0.1:2379"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: edu-classifier-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: minio server /minio_data
+    volumes:
+      - minio_data:/minio_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  milvus:
+    image: milvusdb/milvus:v2.5.15
+    container_name: edu-classifier-milvus
+    restart: unless-stopped
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - milvus_data:/var/lib/milvus
+    ports:
+      - "${MILVUS_PUBLISHED_PORT:-19531}:19530"
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "--max-time", "10", "http://127.0.0.1:9091/healthz"]
+      interval: 15s
+      start_period: 180s
+      timeout: 15s
+      retries: 12
+
+  api:
+    build:
+      context: .
+    container_name: edu-classifier-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # 容器内视角：指向 compose 服务名
+      EDU_MYSQL_HOST: mysql
+      EDU_MYSQL_PORT: "3306"
+      EDU_MILVUS_URI: http://milvus:19530
+    ports:
+      - "${EDU_API_PORT:-7860}:7860"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./eval_sets:/app/eval_sets
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:7860/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 5
+
+volumes:
+  mysql_data:
+  etcd_data:
+  minio_data:
+  milvus_data:

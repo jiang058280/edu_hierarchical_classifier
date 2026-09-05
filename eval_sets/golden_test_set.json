@@ -1,0 +1,1809 @@
+{
+  "dataset": "K-12EduBench test split (golden regression subset)",
+  "source": "data\\processed\\test.csv",
+  "size": 300,
+  "seed": 42,
+  "exported_at": "2026-09-05 21:02:36",
+  "cases": [
+    {
+      "text": "主族元素 $W 、 X 、 Y 、 Z$ 的原子序数依次增加, 且均不大于 20. W、X $、 Z$ 最外层电子数之和为 $10 ; W$ 与 $\\mathrm{Y}$ 同族; $W$ 与 $Z$ 形成的化合物可与浓硫酸 反应，其生成物可腐蚀玻璃。下列说法正确的是（ ）\nA. 常温常压下 $X$ 的单质为气态\nB. $Z$ 的氢化物为离子化合物\nC. $Y$ 和 $Z$ 形成的化合物的水溶液呈碱性\nD. $W$ 与 $Y$ 具有相同的最高化合价",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "周王将子弟、功臣和臣服的先代贵族分封于各地，“制其畿疆而沟封之”，封国成为王朝的屏障。对此制度解读正确的是（　　）\nA．周王实现了权力的高度集中\nB．诸侯在封国享有世袭统治权\nC．血缘关系是分封的唯一依据\nD．维持了周朝四百余年的统治",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "关于 土壤 的形成原因，下列说法正确的是（ ）A. 选项四（写出正确答案的字母）  B. 选项一  C. 选项三  D. 选项二",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "12．（ 3分）民间谚语寓意深远，代代相传。凝聚着广大劳动人民的智慧。 “到\n什么山上唱什么歌 ”“看菜吃饭 ，量体裁衣 ”这两句谚语的哲学道理是 ：（　　）\n①矛盾的两个方面既相互对立，又相互统一\n②具体分析矛盾的特殊性是正确认识矛盾的重要前提\n③矛盾的普遍性与特殊性是具体的历史的统一\n④离开对具体矛盾的具体分析就不能正确解决矛盾。\nA．①②  B．①④  C．②④  D．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：抛物线 直线 上一点 P 到焦点 F 的距离为 5，求点 P 的坐标。 请选择：",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::平面解析几何"
+    },
+    {
+      "text": "请回答：在验证 圆周运动 守恒定律的实验中，下列操作正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "生长素是最早发现的一类促进植物生长的激素。《农桑辑要》是元朝司农司撰写的一部农业科学著作，其中描述“苗长高二尺之上，打去‘冲天心’叶叶不空，开花结实”。此项操作与生长素有关。下列分析正确的是（　　）\nA．生长素是由谷氨酸经过一系列反应转变形成的\nB．打去“冲天心”是通过促进侧芽合成生长素发挥作用\nC．该实例证明生长素具有促进棉花开花结实的作用\nD．田间除草，利用的是生长素浓度过高杀死植物的原理",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "William Hastie once suggested that history informs us of past mistakes ______ we can learn without repeating them.（　　）\nA．from which\nB．in which\nC．with whom\nD．for whom",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "请回答：下列句子中，没有 成语 语病的一项是（ ） A、 选项一 B、 选项二 C、 选项三 D、 选项四（填序号）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "题干：用标准 结晶 溶液滴定未知浓度的盐酸时，下列操作会使测定结果偏大的是（ ） A. 锥形瓶用待测液润洗 B. 滴定管用标准液润洗 C. 读数时仰视 D. 滴定前尖嘴处有气泡",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学实验"
+    },
+    {
+      "text": "斯塔夫里阿诺斯认为：“中世纪后期，十分重要的香料贸易并没有受到什么影响，关键问题是，意大利人和阿拉伯人垄断香料贸易引起了其他欧洲人极大的不满，他们热切地寻找能直接抵达东方的途径，以分享这笔厚利。”由此可见，地理大发现的现实原因是（　　）\nA．西欧封建社会商品经济的进一步发展\nB．欧洲对东方商品的渴求\nC．垄断贸易引发激烈的商业竞争\nD．奥斯曼帝国隔断东西方主要商路",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "15．（10 分）人们受经济利益驱动，砍伐热带雨林，种植橡胶、油棕等热带经 济作物．观测发现，在一些地区，人工种植的橡胶林内湿度明显低于雨林． 分析这些地区人工种植的橡胶林与雨林湿度低的原因",
+      "subject": "地理",
+      "question_type": "解答题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "停放在路边的车辆常被人插上烦人的“名片”，而“代开各类正式发票”正是这些“名片”推介的主要业务。“代开各类正式发票”的行为（　　）\n①用欺骗方法获得税收优惠\n②保证国家税款足额入库\n③破坏正常的税收征管秩序\n④违反法律，可能构成犯罪\nA．①③\nB．①④\nC．②③\nD．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "（判断正误）在四面体 ABCD 中，投影，求二面角 A-BC-D 的余弦值。（写出正确答案的字母）",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::立体几何"
+    },
+    {
+      "text": "（2016•新课标Ⅰ） 一平行电容器两极板之间充满云母介质，接在恒压直流电源上，若将云母介质移出，则电容器（　　）\nA．极板上的电荷量变大，极板间的电场强度变大\nB．极板上的电荷量变小，极板间的电场强度变大\nC．极板上的电荷量变大，极板间的电场强度不变\nD．极板上的电荷量变小，极板间的电场强度不变",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "1．（ 6分）下列与细胞相关的叙述，正确的是（ 　　）\nA．核糖体、溶酶体都是具有膜结构的细胞器\nB．酵母菌的细胞核内含有 DNA和RNA两类核酸\nC．蓝藻细胞的能量来源于其线粒体有氧呼吸过程\nD．在叶绿体中可进行 CO 2的固定但不能合成 ATP",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "Biologists from Boise State University have been making noise in the forests of the western American state of Idaho.They are making noise to study the value of quiet in nature.They want to know how people and animals react to noise pollution.   The researchers placed outdoor speakers on the side of a half-kilometer-long part of a road in the Boise National Forest.For two years，they played the sounds of passing cars through the speakers.Professor Jesse says they found the sounds caused migratory （迁徙的）birds to flee.The birds also failed to gain weight.   Recently，researchers played sounds of machines that are used to remove natural gas from the ground.That sound is heard in natural gas fields throughout the American West.Professor Barber says these experiments are designed to help researchers learn the effects of noise pollution on birds，insects，bats，and people.   \"We are testing the idea that these things are coupled -that as the soundscape gets louder，wildlife suffers.But that also feeds back on to how much people get out of that experience，how much they value it，and thus how much they are willing to protect that same place.\"   The research team also studied a group of volunteers who watch birds for fun.Mitch Levenhagen is a graduate student in the research team.He measured how much the artificial noise lessened the ability of the birdwatchers to recognize recorded bird songs.   The birdwatchers said the artificial noise affected their ability to recognize bird sounds more than they thought it would.Birdwatcher Jim Lyons said the experiment caused him to value quiet more.   \"I moved out of the city to a little place in the country where I wanted it to be quiet.I greatly value that.It is hard to find those places more and more.There are lots of ways to mitigate（减轻）sound.But it is trade-off.There is always a cost.And it comes down to people's values.What do we value more.\" said Volunteer Janice Engle.\n（1）What is the purpose of carrying out the research？\nA.To prevent people making any noise in their daily life.\nB.To find out the effect noise has on humans and animals.\nC.To call on many more people to protect the environment.\nD.To encourage people to keep quiet while they are in nature.\n（2）By playing sounds of machines，the researchers try to make the findings   .\nA.impressive\nB.unique\nC.instructive\nD.convincing\n（3）What have some volunteers realized after the experiment？\nA.The great importance of quiet in nature.\nB.The big price humans will pay for health.\nC.The great value of a sharp sense of hearing.\nD.The necessity of protecting wildlife in nature.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::阅读理解"
+    },
+    {
+      "text": "下列文学常识表述不正确的一项是（　　）\nA．三曹指的是汉魏时期曹操、曹丕、曹植父子。《短歌行》是曹操的一首四言诗，表达了作者对时光流逝的感慨以及建功立业的宏愿。\nB．陶渊明是东晋时期的著名诗人，他坚守气节，归隐田园，写作了大量田园诗，《归园田居》是其代表作，此外还有散文《桃花源记》等。\nC．我国诗歌创作在唐代达到高峰，涌现很多著名诗人，如在盛唐和晚唐出现了两个“李杜”，即李白、杜甫和李贺、杜牧。\nD．《窦娥冤》是元代戏剧家关汉卿的代表作，塑造了窦娥这样一个富有反抗精神的女性形象。京剧《六月雪》即取材于此。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：下列关于化学与生活的说法正确的是（ ） A. 可持续发展 B. 选项 C. 选项 D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "阅读材料，回答问题。\n材料一 早在14、15世纪，资本主义已经出现在意大利沿海城市，这个时期产生的文学、艺术作品都鲜明地表现出新的时代精神。如文艺复兴初期“三杰”之一的彼特拉克就在作品中写道：“你就应该是你自己的主宰”“我只是凡人，我只希望得到人世间的幸福”。16世纪中期到17世纪初，文艺复兴开始在西班牙和英国等国盛行，特别是在莎士比亚的戏剧中达到它的顶峰。人的伟大和卓越在莎士比亚的笔下得到最崇高的颂扬：“人是一件多么了不起的杰作！在理性上多么高贵！在才能上多么无限！多么文雅的举动！……宇宙的精华！万物的灵长！”\n--摘编自徐新《西方文化史》等\n材料二 从15世纪的最后几十年起，欧洲人开始拓展他们已知世界的前沿。向外拓展的理由是复杂的：寻找新的商业航线以及对冒险的追求……也是知性文化（它使文艺复兴显得非同寻常）变化的产物。阅读希腊文和学习古代科学及数学课本能力的恢复，激发了人们对宇宙和地球问题的新的大讨论。这些讨论使人意识到；不仅东方-中国、日本和盛产香料的岛国的财富可以通过西向航行而得到，而且其间的距离也可以被测算出来。最终，他们在大洋的另一边找到了无以计数的财富。\n--摘编自[美]玛格丽特•I.金《欧洲文艺复兴》\n（1）根据材料一和所学，写出文艺复兴的先驱，比较初期“三杰”与莎士比亚歌颂人性的不同表现形式。\n（2）根据材料二，结合所学，指出15世纪欧洲最早“拓展他们已知世界”前沿的两个国家。人文主义的核心内容是“人”的价值观，请分析新“商业航线”的开辟对文艺复兴时期“人”的价值观的积极影响。",
+      "subject": "历史",
+      "question_type": "解答题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "15．（ 10分）古乡沟位于青藏高原东南部， 上游地区有 6条冰川，沟谷有厚度\n达300多米的堆积物．中游河谷狭窄．冰川末端深入森林带．每年夏秋季常\n有冰川泥石流爆发，其破坏力在世界上是罕见的．\n分析古乡沟夏秋季节冰川泥石流破坏力巨大的原因．",
+      "subject": "地理",
+      "question_type": "解答题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "题干：下列关于 哲学 的辩证法原理，正确的是（ ）A. 以上都对（填序号）  B. 否定之否定  C. 质量互变  D. 对立统一",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "已知向量 $\\vec{a}$ 与 $\\vec{b}$ 垂直，若 $\\vec{a} = (6, -8)$，$|\\vec{b}| = 5$，且 $\\vec{b}$ 与向量 $(1, 0)$ 的夹角是锐角，则 $\\vec{b} = $ （ ）\nA．$(4, 3)$\nB．$(-4, -3)$\nC．$(3, 4)$\nD．$(-3, -4)$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：一定量的理想气体经历等压膨胀过程，等压，求气体对外做的功。（写出正确答案的字母）",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "（判断正误）关于 胚胎工程 干细胞的说法正确的是（ ） A. 具有全能性 B. 可以分裂分化 C. 分为胚胎干细胞和成体干细胞 D. 以上都对 请选择：",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "Growing up in Venezuela, there was never really much cause to learn English. For years I knew nothing but \"hello,\" until I started high school. For five years, I spent two hours a week in understanding the verb \"to be\"， numbers, colors, and the difference between saying \"good evening\" and \"good night\"．   I thought two hours a week was enough time to invest in learning a foreign language. I would always get top marks, and my teachers would regularly praise me. Even as an adult, I still thought I spoke the language, just by understanding English menus or translating common phrases.   Yep, that used to be me, walking like a queen among everyday Spanish speakers.   \"Bring it on, life.\" I said. \"I can handle whatever you've got I'm a rock star.\" But when I moved to Canada, life hit me so hard that it knocked me down. Years later, I am still recovering. Living in a new land, with different people, new rules, new weather, a new culture and language, I was no longer a queen.   Did I speak English？ No, not at all.   So, I went back to school, thinking that it was a challenge I would conquer. But the reality was different. English was more like a solid wall in my path. Even after getting a job, it took all my courage to stop myself from hiding in the washroom during my lunch break, crying, completely overwhelmed（不知所措的）and scared. Learning English, speaking, listening it hurt me. Not the language. Not the unkind people. It hurt because I wasn't good, despite my effort.   Now, after almost seven years in Canada, I've decided not to apologize for my accent, grammar mistakes, or pronunciation. I'm going to chase my dreams and enjoy a beautiful, rich, and fascinating language without being ashamed. Don't get me wrong. My brain still screams \"Give me a break!\" from time to time, but that's completely natural. I know it's going to take a while, but at least now I accept the person I am-not the perfect person I thought I was.\n（1）What do we learn about learning English in Venezuela？\nA．Everyone invested a lot of time in it.\nB．It didn't cost students much effort.\nC．The standard was very high in high school.\nD．It could bring a lot of benefits to students.\n（2）What happened after the author moved to Canada？\nA．She adjusted to the new environment.\nB．She regretted not working hard in English.\nC．She put her language talent to use.\nD．She expected to improve her English.\n（3）What can we infer from the last paragraph？\nA．The author has a realistic understanding of herself.\nB．The author has conquered English eventually.\nC．The author now can pass as a native speaker.\nD．The author is disappointed with her English.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::阅读理解"
+    },
+    {
+      "text": "（判断正误）下列句子中，使动 加点词的解释不正确的一项是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四（填序号）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::古代汉语知识"
+    },
+    {
+      "text": "请回答：化学在 资源利用 方面的应用，下列说法不正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "已知：关于 联合国 的原因，下列分析正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "目前，我国为保护棉农利益，控制国际棉花进口，国内的棉花价格约比国际市场 高 ；我国纺织行业工人工资一般为美国的 ，是越南、巴基斯坦等国的 3 倍．我国一些纺织企业为利用国际市场棉花，在国外建纺纱厂，并将产品（纱 线）运回国内加工，在我国同行业企业纷纷到越南、巴基斯坦等国建厂的情 况下，总部位于杭州的 K 企业独自在美国建纺纱厂．2015 年 4 月底，K 企业 在美国工厂生产的第一批 110 吨纱线运至杭州．据此完成下题．（6 分）如果 K 企业将纺纱厂建在越南、巴基斯坦等国，利润比建在美国高， 最主要的原因是越南、巴基斯坦等国（ ） A．离原料产地较近 B．离消费市场较近 C．劳动生产率较高 D．劳动力价格较低",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "近年来，国学受到人们越来越广泛的关注和重视。然而，艰涩高深的传统经典让许多人望而却步。适应市场的巨大需求，一些用通俗语言诠释经典的书籍、音视频动画等因其通俗易懂、幽默风趣、富有时代气息而备受大众欢迎。这说明（　　）\nA．中华传统文化具有鲜明的民族性\nB．教育在文化传承中具有重要作用\nC．传统文化对人的发展具有积极作用\nD．传统文化的具体内涵能够因时而变",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "题目: 计算定积分 算法 的值。",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::其他"
+    },
+    {
+      "text": "题干: 一辆汽车以 20 m/s 的速度匀速行驶, 突然刹车, 动量, 求刹车后 3s 内通过的位移。 请选择:",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "关于 PCR 技术 分离 的叙述，正确的是（ ） A. 需要DNA聚合酶 B. 需要引物 C. 需要模板DNA D. 以上都对（写出正确答案的字母）",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::生物技术实践"
+    },
+    {
+      "text": "请回答：The book ______ I bought yesterday is very interesting. A. that B. who C. what D. where 请选择：",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "阅读下面的材料，根据要求写作。\n本试卷现代文阅读材料Ⅱ提到，六百年的时光积淀了古城的沉厚，羽化出古城人精神的轻盈。其实，一座城，一个国家，一个民族都需要这样的“沉厚”与“轻盈”，人亦如此。\n请以“沉厚与轻盈”为话题，写一篇文章。\n要求：选准角度，确定立意，明确文体，自拟标题；不要套作，不得抄袭；不得泄露个人信息；不少于800字。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "（单选）在探究 实验设计 反应速率的影响因素的实验中，下列说法正确的是（ ） A. 温度越高反应越快 B. 浓度越大反应越快 C. 催化剂能加快反应 D. 以上都对",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学科学与探究"
+    },
+    {
+      "text": "(判断正误)一战 珍珠港 后建立的国际组织是( )A. 北约 B. 联合国 C. 国际联盟 D. 欧盟",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "浙江省青田县杨梅种植历史超过2000年，被称为“中国杨梅之乡”。杨梅不耐寒，最适宜的气温条件在年均温14～18℃之间，生长在海拔125～1500米的山坡或山谷中，喜土层深厚、富含石砾的酸性土壤。据此完成18～19题。\n浙江省青田县盛产杨梅的主要优势条件是（　　）\n①全年高温多雨\n②酸性土壤广布\n③低山丘陵为主\n④科技水平高\nA．①②\nB．①④\nC．②③\nD．②④",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "已知：关于 辩证法 的认识论，下列说法正确的是（ ） A、 实践是认识的基础 B、 认识对实践有指导作用 C、 认识是无限发展的 D、 以上都对",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：抛物线 准线 上一点 P 到焦点 F 的距离为 5，求点 P 的坐标。",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::平面解析几何"
+    },
+    {
+      "text": "5. (6 分) 一质点做匀速直线运动, 现对其施加一恒力, 且原来作用在质点上 的力不发生改变, 则（ )\nA. 质点速度的方向总是与该恒力的方向相同\nB. 质点速度的方向不可能总是与该恒力的方向垂直\nC. 质点加速度的方向总是与该恒力的方向相同\nD. 质点单位时间内速率的变化量总是不变",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "9．（ 10分）现有一未受人类干扰的自然湖泊，某研究小组考察了湖泊中处于食\n物链最高营养级的某鱼种群的年龄组成，结果如下表．\n年龄  0+ 1+ 2+ 3+ 4+ 5+ 6+ 7+ 8+ 9+ 10+ 11+ ≧12\n个体数  92 187  121  70 69 62 63 72 64 55 42 39 264\n注：表中 1+代表鱼的年龄大于等于 1，小于 2，其他以此类推．\n回答下列问题\n（1）通常，种群的年龄结构大致可以分为三种类型，分别是 　   　．研究表明\n：该鱼在 3+时达到性成熟（进入成年）， 9+时丧失繁殖能力（进入老年）根\n据表中数据可知幼年、成年、老年三个年龄组个体数的比例为 　   　，由此\n可推测该鱼种群数量的变化趋势是 　   　．\n（2）如果要调查这一湖泊中该鱼的种群密度，常用的调查方法是 　   　．该方\n法常用于调查 　   　强、活动范围广的动物的种群密度．\n（3）在该湖泊中，能量沿食物链流动时，所具有的两个特点是 　   　．",
+      "subject": "生物",
+      "question_type": "解答题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "One study finds that not all users are （相等的） because they have different requirements. （根据汉语提示单词拼写）",
+      "subject": "英语",
+      "question_type": "判断题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "（多选题）在 作文 的表达中，最恰当的一句是（ ） A、 选项 B、 选项 C、 选项 D、 选项",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "在一定条件下，把 amol X、bmol Y 混合，发生反应：X（g）+3Y（g）⇌2Z（g）达到平衡时，Z 的体积分数是 40%．则$\\frac ab$的范围是()\nA. ${\\frac{1}{5}<\\frac{a}{b}<2}$\nB. $\\frac{1}{4}<\\frac ab<\\frac{3}{2}$\nC. $\\frac{1}{3}<\\frac{a}{b}<1$\nD.$\\frac16<\\frac ab<\\frac43$",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学反应原理"
+    },
+    {
+      "text": "12．（4分）1992年，墨西哥签订《北美自由贸易协定》以后，又制定了一系列负面清单，\n如规定外资占商业银行的投资比例不得高于普通股本的30%，外资不得经营内陆港口、\n海运及空港等。这些规定旨在（）\nA．发展国家特色产业\nB．改善对外贸易的机制和环境\nC．保障国家经济安全\nD．巩固区域经济集团化的成果",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::现代世界"
+    },
+    {
+      "text": "14．（10 分）安仁古镇位于成都市大邑县境内，地处成都平原西部，距成都市区 39 千米， 距大邑县城 8.5 千米。古镇内现有保存完好的民国时期公馆 27 座、现代博物馆 30 余座， 在全国同类小镇中首屈一指，素有“中国博物馆小镇”之称。近年来，安仁古镇开展了 以博物馆为特色的观光旅游，游客人数逐年增加，但同时也存在游客很少留宿古镇的现 象。简述游客在安仁古镇很少留宿的主要原因，并为当地吸引游客留宿古镇提出合理建议。",
+      "subject": "地理",
+      "question_type": "解答题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "10．（ 4分） 2014年12月召开的中央经济工作会议分析了我国经济九个方面的\n趋势性变化，提出我国经济正在向形态更高级、分工更复杂、结构更合理的\n阶段演化 ，经济发展进入新常态 。从辩证法的观点看 ，“经济发展进入新常态\n”意味着（ 　　）\n①我国经济发展方式正在发生质的变化\n②我国经济发展呈现出新的阶段性特征\n③制约我国经济平稳健康发展的矛盾和问题已经解决\n④推动我国解决平稳健康发展的新的体制机制已经形成。\nA．①②  B．①④  C．②③  D．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "请回答：“必要条件”是“流程图”成立的（ ） A. 充分不必要条件 B. 必要不充分条件 C. 充要条件 D. 既不充分也不必要",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::其他"
+    },
+    {
+      "text": "7. (6 分) 静电场中, 一带电粒子仅在电场力的作用下自 $\\mathrm{M}$ 点由静止开始运动, $\\mathrm{N}$ 为粒子 运动轨迹上的另外一点, 则 $(\\quad)$\nA. 运动过程中，粒子的速度大小可能先增大后减小\nB. 在 $M 、 N$ 两点间，粒子的轨迹一定与某条电场线重合\nC. 粒子在 $M$ 点的电势能不低于其在 $\\mathrm{N}$ 点的电势能\nD. 粒子在 $\\mathrm{N}$ 点所受电场力的方向一定与粒子轨迹在该点的切线平行",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "关于 重组DNA 的应用，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项（写出正确答案的字母）",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "Organic food is very popular. It is also expensive. Some organic food costs twice as much as nonorganic food. Some parents and pet owners pay up to 200 percent more for organic food while some people think organic food is a waste of money.   There is one main difference between organic and non-organic food. Organic farms do not use agricultural chemicals, such as pesticides （杀虫剂）． This makes sure that the products are natural.   Some people think \"organic\" means \"locally grown\"． At the beginning, this was true. Over time organic farming became more difficult. The demand for organic food grew larger than the supply. Small companies had to sell out to large companies. There weren't enough organic materials. This made it difficult for many organic companies to stay in business. Today, many large companies have an organic line of products.   Is organic food more nutritious？ This is part of the debate. Many farmers and consumers believe it is.They think agricultural chemicals cause health problems, such as cancer. Many health experts disagree. Few studies prove that organic food prevents health problems. Health experts worry more about bacteria. These can come into contact with organic and non-organic food. Doctors recommend washing produce very carefully.   Most people agree that naturally grown food tastes better. Is tastier food worth the extra money？ This is a matter of opinion. Whether it is healthier or not may require more research. However, organic consumers argue it is better to be safe than sorry.\n（1）Which is the NOT the advantage of organic food for most people？\nA．safe.\nB．cheap.\nC．healthy.\nD．tasty.\n（2）What is the doctors' suggestion？\nA．Reduce the use of pesticides.\nB．Wash the food very carefully.\nC．Grow organic food on your own.\nD．Buy large companies' products.\n（3）Which of the following problems about organic food do people debate on？\nA．It is more nutritious.\nB．It tastes better.\nC．It contains more fat.\nD．It has more bacteria.\n（4）Where does this text probably come from？\nA．A chemistry paper.\nB．A restaurant menu.\nC．An advertisement.\nD．A health magazine.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::阅读理解"
+    },
+    {
+      "text": "请回答：把下列句子组成语意连贯的语段，关于 排序 的排序正确的一项是（ ） A、 选项 B、 选项 C、 选项 D、 选项 （注：请选择最佳选项）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "题干：实验室配制 250mL 0.1mol/L 的 蒸馏 溶液，需要使用的玻璃仪器有（ ）A. 烧杯、漏斗、容量瓶  B. 量筒、容量瓶、滴定管（填序号）  C. 烧杯、量筒、容量瓶  D. 烧杯、玻璃棒、容量瓶、胶头滴管",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学实验"
+    },
+    {
+      "text": "秦朝时，首创了文书的抬头制度，即规定了在书写文书时，把一些特定的名词或句子，如本朝代名、帝号或与皇帝言行有关的字等，在其前都要空一格或几格，或重新另起一行顶格书写。或另起一行高出数格书写。此举折射出秦朝（　　）\nA．中央集权的原则\nB．援法入礼的思想\nC．尊君抑臣的意识\nD．文臣治国的理念",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "（单选）关于 北斗 的遥感技术应用，下列说法正确的是（ ）A. 选项四  B. 选项一  C. 选项二  D. 选项三",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "（多选题）社会存在决定社会意识体现了 真理 的什么原理？（ ） A. 历史唯物主义 B. 辩证唯物主义 C. 唯心主义 D. 机械唯物主义 （注：请选择最佳选项）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "15. (5 分) 函数 $f(x)=\\cos \\left(3 x+\\frac{\\pi}{6}\\right)$ 在 $[0, \\pi]$ 的零点个数为",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "关于分子间 体积 的相互作用力，下列说法正确的是（ ） A、 选项 B、 选项 C、 选项 D、 选项",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "5．（6分）下列关于人体组织液的叙述，错误的是（）\nA．血浆中的葡萄糖可以通过组织液进入骨骼肌细胞\nB．肝细胞呼吸代谢产生的CO2可以进入组织液中\nC．组织液中的O2可以通过自由扩散进入组织细胞中\nD．运动时，丙酮酸转化成乳酸的过程发生在组织液中",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "（单选）Choose the best word to fill in the blank: The weather was ______ cold that nobody wanted to go out. A. so B. such C. too D. very（填序号）",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::完形填空"
+    },
+    {
+      "text": "9．（3 分）下列各句中，表达得体的一句是〔3 分〕（ ） A．他是个可怜的孤儿，小时候承蒙我父母照顾，所以现在经常来看望他 们．B．杨老师年过七旬仍然笔耕不辍，作为他的高足，我们感到既自豪又惭愧．C．这篇文章是我刚完成的，无论观点还是文字都不够成熟，请您不吝赐 教．D．由于路上堵车非常严重，我赶到约定地点的时候，对方早已恭候多 时．",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "可用来分离Fe^{3+}和Al^{3+}两种离子的试剂是____\nA: 盐酸\nB: 氢氧化钠溶液\nC: 氨水\nD: 硫氰化钾溶液",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学反应原理"
+    },
+    {
+      "text": "19世纪末20世纪初，非洲反帝斗争的主要领导者是旧式统治阶级，而亚洲和拉丁美洲则进入资产阶级领导的民族民主革命阶段。这说明这一时期亚非拉民族解放运动（　　）\nA．发展不平衡\nB．群众支持有差异\nC．中心在非洲\nD．斗争对象不一致",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "（多选题）关于 洋流 的洋流分布，下列说法正确的是（ ） A、 选项一 B、 选项二 C、 选项三 D、 选项四（写出正确答案的字母）",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "对于冷战结束后迅速发展的经济全球化趋势，有人予以肯定，也有人持否定态度。下列对当前经济全球化的影响，表述正确的是（　　）\n①经济全球化扩大了世界各国的贫富差距\n②经济全球化一定会使世界各国普遍受益\n③经济全球化导致风险全球化，加大全球经济发展的不稳定性\n④经济全球化是生产力发展的产物，它推动着生产力的发展\nA．①②③\nB．①②④\nC．①③④\nD．②③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "2020年3月14日是全球首个国际圆周率日（π Day）．历史上，求圆周率 $\\pi$ 的方法有多种，与中国传统数学中的“割圆术”相似，数学家阿尔•卡西的方法是：当正整数 $n$ 充分大时，计算单位圆的内接正 $6n$ 边形的周长和外切正 $6n$ 边形（各边均与圆相切的正 $6n$ 边形）的周长，将它们的算术平均数作为 $2\\pi$ 的近似值．按照阿尔•卡西的方法，$\\pi$ 的近似值的表达式是（  ）\nA. $3n \\left( \\sin 30^\\circ_n + \\tan 30^\\circ_n \\right)$\nB. $6n \\left( \\sin 30^\\circ_n + \\tan 30^\\circ_n \\right)$\nC. $3n \\left( \\sin 60^\\circ_n + \\tan 60^\\circ_n \\right)$\nD. $6n \\left( \\sin 60^\\circ_n + \\tan 60^\\circ_n \\right)$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "一根长为 0.5m 的直导线通有 2A 的电流，放在磁感应强度为 0.4T 的匀强磁场中，线圈，求导线受到的安培力。（写出正确答案的字母）",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "实验小组用核辐射消除某烟草细胞的细胞核，获得保留细胞质（含叶绿体）且具有链霉素性的烟草细胞甲，用酶去除烟草细胞甲和无链霉素抗性的烟草细胞乙的细胞壁，然后将二者的原生质体置于培养基上融合，获得杂种细胞丙。下列有关该过程的叙述，错误的是（　　）\nA．为了筛选出融合的杂种细胞，应在培养基中加入链霉素\nB．去核的烟草细胞甲能在含链霉素的培养基上进行增殖\nC．融合形成的杂种细胞丙同时具有烟草细胞甲和乙的遗传物质\nD．杂种细胞的形成体现了细胞膜的流动性",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "题目：Write an argumentative essay about whether students should focus more on writing.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::写作"
+    },
+    {
+      "text": "题目: 把下列句子组成语意连贯的语段, 关于 缩写 的排序正确的一项是( ) A、 选项 B、 选项 C、 选项 D、 选项(写出正确答案的字母)",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "（多选题）关于 铁 的两性，下列反应正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 （注：请选择最佳选项）",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::常见无机物及其应用"
+    },
+    {
+      "text": "6．（ 2分）梁启超在论述中国古代专制政治发展时说： “专制权稍薄弱，则有分\n裂，有分裂则有力征，有力征则有兼并，兼并多一次，则专制权高一度，愈\n积愈进。 ”从中国古代历史整体来看，这一论述中可以确认的是（ 　　）\nA．君主专制是国家统一的决定因素\nB．分裂动荡导致专制权力产生\nC．武力夺取政权有利于国家统一\nD．专制程度随着历史进程而不断加强",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "下列叙述中，正确的是：板块 植被 交界处形成的地貌是（ ）A. 选项  B. 选项  C. 选项  D. 选项",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "关于 权利 的政府职能，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "设数列 $\\{a_n\\}$ 满足 $a_{n+2} - 2a_{n+1} + a_n > 1$ 对任意的 $n \\in \\mathbb{N}^*$ 恒成立，则下列说法正确的是（  ）\nA．$a_{n+2} a_n > a_{n+1}^2$\nB．数列 $\\{a_n\\}$ 单调递增\nC．存在正整数 $M$，当 $n > M$ 时，$a_{n+1} > a_n + n$ 恒成立\nD．存在正整数 $M$，当 $n > M$ 时，$a_n > \\frac{n^2}{3}$ 恒成立",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "（多选题）一带电粒子以速度 v 垂直射入匀强磁场中，楞次定律，求粒子在磁场中做圆周运动的半径。（填序号）",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "请回答：分离 培养基 常用的方法是（ ）A. 凝胶色谱  B. 透析  C. 电泳  D. 以上都对",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::生物技术实践"
+    },
+    {
+      "text": "32. There’s  no way of knowing  why one man makes  an important  discovery\nanother  man,  also intelligent,  fails.\nA. since       B. if     C. as    D. while",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "阅读下面这首宋词，完成各题。\n阮郎归\n无名氏①\n春风吹雨绕残枝，落花无可飞。小池寒渌欲生漪，雨晴还日西。\n帘半卷，燕双归。讳愁无奈眉②．翻身整顿着残棋，沉吟应劫迟③．\n[注]①作者一作秦观。②讳愁：隐瞒内心的痛苦。③劫：围棋术语。\n末尾两句表现了词人什么样的情绪，是如何表现的，请简要阐述。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "已知：下列 可持续发展 的做法符合绿色化学理念的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 请选择：",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "请回答：下列关于 冷战 战争的影响，正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "已知：在 RS 地图上，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四 请选择：",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "关于 文化自觉 的文化传承，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "5. (5 分) 函数 $f(x)$ 在 $(-\\infty,+\\infty)$ 单调递减, 且为奇函数. 若 $f(1)=-1$ , 则满足 $-1 \\leqslant f(x-2) \\leqslant 1$ 的 $x$ 的取值范围是 $(\\quad)$\nA. $[-2,2]$\nB. $[-1,1]$\nC. $[0,4]$\nD. $[1,3]$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "（多选题）关于 等温 布朗运动，下列说法正确的是（ ） A、 是分子无规则运动的反映 B、 是液体分子的运动 C、 温度越高越明显 D、 以上都对",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "秀丽新小杆线虫发育过程中某阶段的体细胞有1090个，而发育成熟后体细胞只有959个。体细胞减少的原因是（　　）\nA．细胞凋亡\nB．细胞衰老\nC．细胞癌变\nD．细胞分裂",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "题干：Read the passage and fill in the blanks with the best choices. The story tells us that reading context is important.（填序号）",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::完形填空"
+    },
+    {
+      "text": "（一）论述类文本阅读（本题共3小题，9分）\n阅读下面的文字，完成下面小题。\n《中国金银器》是第一部中国古代金银器通史，囊括了器皿与首饰，着眼于造型与纹饰，\n究心于美术与工艺、审美与生活的关系。\n本书的研究旨趣，不在金银器的科学技术发展史，而在与社会生活史密切相关的造型、\n纹饰、风格的演变史，也可以说，它不是穷尽式的历史资料汇编，也不是用考古学的方法对\n器物分型、分式以划分时代，而是以目验实物为前提，从名物学入手，通过定名，以器物描\n述的方法，来展示工艺美术史与社会生活史中的金银器。\n中国古代金银器研究，是伴随现代考古学而生的一门新兴学问。传世文献展示的金银器\n史和出土文物呈现出来的金银器史，是不一样的。前者显示了数量颇多的名目和使用甚巨的\n数目，但提供具体形象的材料很少。考古发现的实物，就名目和数量而言，虽只是载籍的冰\n山一角，却是以形象示人；对于工艺美术要讨论的核心问题，即造型与纹饰，它提供了最为\n直观的实例。\n金银器兼具富与丽的双重品质。首先它是财富，其次它是一种艺术形态，然而通过销溶\n的办法又可使之反复改变样态以跟从时代风尚。相对于可入鉴藏的书画、金石、玉器、瓷器\n之雅，金银器可谓一俗到骨。它以它的俗，传播时代风尚。与其他门类相比，金银器皿和首\n饰的制作工艺都算不得复杂，这里便格外显示出设计的重要。\n从造型设计的角度来看，工艺美术是共性多、个性少、最为贴近生活的艺术。无论哪朝2哪代，祈福与怡情都是纹样设计的两大主旨，当然，不同时代表现的形式多有不同，亦即选\n择与创造的艺术形象不同，这也正是工艺美术史所要展示的一个主要内容。这里“史”的概\n念是指以贴近设计者和制作者装饰用心的感知，展示没有文字或鲜有文字却只是以成品来显\n示的设计史脉络，而不是贴着历史编年来勾画发展的线索。小说家说：“语言是我们的思维\n方式，是我们最基础、最直接的表达方式。语言也是一种建筑材料，许多意想不到的建筑物\n都是靠了语言一砖一瓦地搭建起来的。”历史学家则说：“我始终强调运用最基本的‘语文\n学’的学术方法，对传到我手中需要研究的那个文本作尽可能全面和深入的历史化和语境化\n处理，进而对它们作出最准确的理解和解读。”这两段话同样可以移用于作为艺术语汇的造\n型与纹饰。本书即是建立在对艺术语汇发生与演变的观察和分析之上。在这里呈现的是两类\n语言：一是物，即用造型和纹饰表达自身的艺术语言；一是文，即人对物的命名，此中包括\n了对物之本身和物所承载的意义的理解。\n金银器工艺的发展演进，关键在于品类的丰富以及与时代风尚紧密相关的造型和纹饰的\n设计之妙，技术的进步并非主导。纹样设计首先取决于工匠的慧心，付诸熟练掌握传统技术\n的巧手，乃其第二义。纹样设计所涉及的图式演变，也包括两项主要内容：一是金银器本身\n设计与制作具有连续性的工艺传统，一是设计者和制作者共处的风俗与共享的文学所形成的\n文化生态。因此可以说，中国金银器史，很大程度上也是一部古代社会风俗史。\n（摘编自扬之水《“更想工人下手难”（中国金银器）导言》）\n下列对原文论证的相关分析，不正确的一项是（）\nA.文章开宗明义，点明《中国金银器》一书的性质，概述了全书研究的对象和范畴。\nB.文章通过将金银器与书画、金石等对比，突出其品质特性，凸显了设计的重要。\nC.文章引用小说家、历史学家的话，来解释将造型和纹饰视作艺术语汇的研究思路。3D.文章末段重点论证了连续性的工艺传统对金银器技术、造型和纹样设计的影响。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "已知: 下列关于化学与生活的说法正确的是( ) A. 新能源 B. 选项 C. 选项 D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "根据所学知识, 回答下列问题: 下列 三星堆 的史料中, 属于第一手史料的是( ) A. 史书 B. 文物 C. 回忆录 D. 传说",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考五 探索历史的奥秘"
+    },
+    {
+      "text": "（多选题）关于 等高线 的遥感技术应用，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四 （注：请选择最佳选项）",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "作为消费金融领域的流量明星，2019年“双11”期间花呗（一款网络消费信贷产品）又玩出新高度，取消账户限制、助力提额、分期免息。相比以往，这次支付宝在消费金融方面明显加码。花呗此番操作（　　）\n①拓宽了居民获取财产性收入的途径\n②有利于降低网络消费信贷的风险\n③对网络购物的消费有一定促进作用\n④可能会刺激年轻消费者攀比和超前消费\nA．①②\nB．①④\nC．②③\nD．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "题目：求正四面体 圆锥 的外接球和内切球的半径之比。（写出正确答案的字母）",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::立体几何"
+    },
+    {
+      "text": "（多选题）关于 电势 中的楞次定律，下列说法正确的是（ ） A、 感应电流的磁场总是阻碍引起感应电流的磁通量变化 B、 选项二 C、 选项三 D、 选项四 （注：请选择最佳选项）",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "1．（6分）下列研究工作中由我国科学家完成的是（）\nA．以豌豆为材料发现性状遗传规律的实验\nB．用小球藻发现光合作用暗反应途径的实验\nC．证明DNA是遗传物质的肺炎双球菌转化实验\nD．首例具有生物活性的结晶牛胰岛素的人工合成",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "At the Chinese art festival, there are different stands_______ artists demonstrate their skills and teach the visitors.（　　）\nA．where\nB．which\nC．that\nD．when",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "（一）论述类文本阅读（本题共3小题，9分）\n阅读下面的文字，完成下面小题。\n把实物当作原物的倾向，在美术史领域根深蒂固。事实上，实物并不等于原物，我们需\n要对美术史中“原物”的概念进行反思，对美术馆藏品的直觉上的完整性提出质疑。这种反\n思和质疑并不是要否定这些藏品。恰恰相反，它们可以在更大程度上发挥藏品作为历史材料\n的潜在意义。一旦美术史家取消“实物”和“原物”之间的等号，他们就必须认真考虑和重\n构二者间的历史关系。这会引导他们发现很多以前不曾想到的问题，其核心就是美术的“历\n史物质性”。\n有研究者追溯郭熙《早春图》的渊源，提出这幅卷轴画原来是北宋宫殿一套建筑画中的\n一幅。邓椿《画继》记载，他祖上被赐予一个宅子，他父亲被任命为提举官时，朝廷派遣一\n个中官监修这所宅第。一天，邓椿的父亲看到裱工用“旧绢山水”擦拭桌子，他拿过来一看，\n发现竟是郭熙的作品。那位中官说：“昔神宗好熙笔，一殿专背（即‘裱’）熙作，上（徽\n宗）继位后，易以古画，退入库中者不止此尔。”邓父请求徽宗赏赐这些“退画”。徽宗答\n应了，并派人把废弃的郭熙壁障整车拉到邓宅。这个记载透露了宋神宗时期皇宫中“一殿专\n背熙作”的状态，这应该是郭熙创作《早春图》这类大幅山水时的状态。因此，任何讨论这\n幅画的构图、功能以及观看方式的文章都必须首先重构这种原始状态。这也就是说，目前人\n们在台北“故宫博物院”看到的《早春图》只是这幅画的“实物”而非“原物”。也许有人\n会说：如果研究者的关注点是郭熙的笔墨技法的话，这种研究则似不需要。但是笔墨离不开\n观看，而观看必然和绘画的形式和空间有关。\n邓椿的记载还引导我们思考另外一个问题，即郭熙绘画的“历史物质性”甚至在徽宗时\n期就已经发生了重要变化：从形式上说，这些画作从建筑绘画转变为卷轴画；从空间上说，\n它们从皇宫内的殿堂进入了私人宅第。从功能说，它们从宣扬皇权的政治性作品转化为私家\n收藏中的纯粹山水画；从观赏方式上说，它们从要求“远观”的宏大构图转变为鼓励“近视”\n的独幅作品。\n需要强调的是，这种“历史物质性”的转换并非是少数作品的特例。一幅卷轴画可能在\n它的流传和收藏过程中并没有发生形态上的重大变化，但是各代的藏家在上面盖上图章、写\n下题跋，尤其是乾隆等帝王把这类操作全面系统化之后，即使是形状未改但也是面貌已非。\n那些表面上并没有被改换面貌的艺术品，因为环境、组合和观看方式的变化，也会成为\n再造的历史实体。一面原来悬挂在墓室天顶上代表光明的铜镜被移到了美术馆的陈列柜里，\n和几十面其他同类器物一起展示，以呈现铜镜的发展史。一幅“手卷”变成了一幅“长卷”，\n因为观众再不能真正用手触摸它，一段一段地欣赏移动的场景……所有这些转化都可以成为\n美术史研究的课题，这些研究所探求的不再是一件作品的原始动机和创作，而是它的流传、\n收藏和陈列——它的持续的和变化中的生命。\n（摘编自巫鸿《实物的回归：美术的“历史物质性”》）\n1.下列关于原文内容的理解和分析，正确的一项是（）\nA.美术馆所收藏、陈列的部分艺术品的真实性值得怀疑，因为实物并不等同于原物。\nB.宋徽宗的美术趣味与神宗不同，这都是郭熙为宫廷创作的画流出皇宫的原因之一。\nC.历代藏家和帝王在古画上盖章、题跋，导致这些画作的原初状态已不可考。\nD.艺术品在流传中经历的各种转化和变化，使得它们获得了更有价值的生命。\n2.下列关于原文论证的相关分析，不正确的一项是（）\nA.文章明确反对美术史领域中将实物当作原物的倾向，并提供了新的理解和欣赏美术馆藏品\n的思路，富有启发意义。\nB.文章从多个角度探讨了艺术品在历史流传中可能发生的形式、形态、功能、环境、组合和\n观看方式等方面的变化。\nC.文章第二、三两段对《画继》所记掌故的讨论，是为了证明藏于台北“故宫博物院”的《早\n春图》并非“原物”。\nD.文章末尾一段举例阐明，一些外表没有发生变化的艺术品所经历的转化，也可以成为美术\n史研究关注的课题。\n3.根据原文内容，下列说法不正确的一项是（）\nA.一件艺术品的历史形态并不好自动地显现于它的现存状态，而是需要通过深入的历史研究\n来加以重构。\nB.郭熙的《早春图》很可能是北宋宫廷建筑画中的一幅，观看它时，只留意细部的笔墨技法，\n未必符合其最初的创作状态。\nC.从寺庙、墓葬中发现的壁画、石刻等，在它们从原址移出转入美术馆陈列后，将不可避免\n地被赋予新的属性和意义。\nD.考虑到艺术品普遍经历了“历史物质性”的转换，美术馆应当改变布展方式，还原它们本\n来的环境、组合和观看方式。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "已知：下列关于化学与生活的说法正确的是（ ） A. 绿色化学 B. 选项 C. 选项 D. 选项（写出正确答案的字母）",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "9．（ 4分）某博物馆收藏的一份传单写道： “彼得格勒城市及郊区的所有工人 、\n水兵、赤卫队和铁路组织的会议 ……决定，派我们中间的优秀分子加入 ‘为饥\n饿的彼得格勒到农村征粮，的队伍。 ”这一传单出现的历史背景应是（ 　　）\nA．政府的战争政策造成粮荒  B．新生的苏维埃政权面临困境\nC．农业集体化运动出现失误  D．德国法西斯大举入侵苏联",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::现代世界"
+    },
+    {
+      "text": "庄园经济是一种实现农业资源聚集化、生产规模化、经营多元化、管理企业化、\n建设生态化的经营组织模式．某县生产的优质铁观音茶获得“中国地理标志”\n认证．该县茶企业通过整合特色山水，建设集茶种植、茶叶加工储存、旅游\n和文化为一体的现代茶庄园．据此完成 下 题．\n（4 分）与传统的茶园相比，现代茶庄园的突出优势是（ ） A．品牌更多，环境更优 B．市场更广，产品价格更低\nC．产品更多，效益更高 D．投入更少，生产成本更低",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "请回答: 关于 真理 的哲学观点, 下列说法正确的是( ) A. 物质决定意识 B. 意识对物质有反作用 C. 物质是运动的 D. 以上都对",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "2. （5 分）设复数 $z$ 满足 $(1-i) z=2 i$, 则 $z=(\\quad)$\nA. $-1+i$\nB. $-1-i$\nC. $1+i$\nD. 1- $\\mathrm{i}$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "已知气体的初始状态为 气体，经过绝热膨胀后体积变为原来的 2 倍，求末态压强。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "(判断正误)关于 PCR 技术 无菌 的叙述, 正确的是( ) A. 需要DNA聚合酶 B. 需要引物 C. 需要模板DNA D. 以上都对 (注: 请选择最佳选项)",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::生物技术实践"
+    },
+    {
+      "text": "Reading Art：Art for Book Lovers is a celebration of an everyday object-the book，represented here in almost three hundred artworks from museums around the world.The image of the reader appears throughout history，in art made long before books as we now know them came into being. In artists' representations of books and reading，we see moments of shared humanity that go beyond culture and time.\nㅤIn this \"book of books，\" artworks are selected and arranged in a way that emphasizes these connections between different eras and cultures.We see scenes of children learning to read at home or at school，with the book as a focus for relations between the generations.Adults are portrayed （描绘） alone in many settings and posesabsorbed in a volume，deep in thought or lost in a moment of leisure.These scenes may have been painted hundreds of years ago，but they record moments we can all relate to.\nㅤBooks themselves may be used symbolically in paintings to demonstrate the intellect （才智），wealth or faith of the subject.Before the wide use of the printing press，books were treasured objects and could be works of art in their own right.More recently，as books have become inexpensive or even throwaway，artists have used them as the raw material for artworks-transforming covers，pages or even complete volumes into paintings and sculptures.\nㅤContinued developments in communication technologies were once believed to make the printed page outdated.From a 21st-century point of view，the printed book is certainly ancient，but it remains as interactive as any battery-powered e-reader.To serve its function，a book must be activated by a user：the cover opened，the pages parted，the contents reviewed，perhaps notes written down or words underlined.And in contrast to our increasingly networked lives where the information we consume is monitored and tracked，a printed book still offers the chance of a wholly private， \"off-line\" activity.\n（1）Where is the text most probably taken from？\nA.An introduction to a book.\nB.An essay on the art of writing.\nC.A guidebook to a museum.\nD.A review of modern paintings.\n（2）What are the selected artworks about？\nA.Wealth and intellect.\nB.Home and school.\nC.Books and reading.\nD.Work and leisure.\n（3）What do the underlined words \"relate to\" in paragraph 2 mean？\nA.Understand.\nB.Paint.\nC.Seize.\nD.Transform.\n（4）What does the author want to say by mentioning the e-reader？\nA.The printed book is not totally out of date.\nB.Technology has changed the way we read.\nC.Our lives in the 21st century are networked.\nD.People now rarely have the patience to read.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::语言应用"
+    },
+    {
+      "text": "8．（ 3分）下列各句中，没有语病的一句是（ 　　）\nA．为纪念抗曰战争暨世界反法西斯战争胜利 70周年，从现在起到年底，国\n家大剧院宣布将承办 31场精心策划的演出。\nB．根据国家统计局发布的数据 ，4月份我国居民消费价格指数出现自去年 12\n月以来的最大涨幅，但仍低于相关机构的预测。\nC．这部小说中的 “边缘人 ”是一个玩世不恭、富有破坏性却真实坦白的群体 ，\n人们面对这类形象时会引起深深的思索。\nD．为进一步保障百姓餐桌安全 ，国家对施行已超过 5年的《食品安全法 》作\n了修订，因加大了惩处力度而被冠以 “史上最严 ”的称号。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "已知：下列晶体中，第一电离能 属于离子晶体的是（ ） A、 金刚石 B、 氯化钠 C、 干冰 D、 铁",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：关于 辛亥革命 的历史意义，下列说法正确的是（ ）A. 选项四  B. 选项三  C. 选项一  D. 选项二",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代中国"
+    },
+    {
+      "text": "已知：水土流失 酸雨形成的主要原因是（ ）A. SO₂, NOx  B. 烟尘  C. 氟利昂",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "创立于1987年的M公司是一家100%由员工持股的民营企业，股东会是公司权力机构，对公司增资、利润分配、选举董事和监事等重大事项作出决策。由此可见，该公司（　　）\n①是股份有限公司\n②是有限责任公司\n③是以营利为目的的企业法人\n④股东以其全部财产对公司债务承担连带责任\nA．①③\nB．①④\nC．②③\nD．②④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "求值：sin²20° + cos²80° + sin20°·cos80°，其中涉及 象限角。",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "（判断正误）在验证 运动 守恒定律的实验中，下列操作正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "10．（ 9分）现有两个纯合的某作物品种：抗病高秆（易倒伏 ）和感病矮秆（抗\n倒伏）品种．已知抗病对感病为显性，高秆对矮秆为显性，但对于控制这两\n对相对性状的基因所知甚少．\n回答下列问题：\n（1）在育种实践中，若利用这两个品种进行杂交育种，一般来说，育种目的是\n获得具有 　   　优良性状的新品种；\n（2）杂交育种前， 为了确定 F2代的种植规模，需要正确预测杂交结果，若按照\n孟德尔遗传定律来预测杂交结果， 需要满足 3个条件：条件之一是抗病与感\n病这对相对性状受一对等位基因控制，且符合分离定律：其余两个条件是\n；\n（3）为了确定控制上述这两对性状的基因是否满足上述 3个条件，可用测交实\n验来进行验证，请简要写出该测交实验的过程．",
+      "subject": "生物",
+      "question_type": "解答题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "About five weeks ago,I noticed the skin of our pet lizard （蜥蜴） was growing dusty. It worried me. I reported the strange surface on the skin of the lizard to my husband and children the next morning. Seconds later,our lizard emerged from its tank with its old skin flowing behind it.\nI didn't think about it much until a morning last week when I knocked my favorite teapot off the table. It burst into hundreds of pieces. As I swept up the mess, I wondered why we had been breaking so many things over the months.\nThe destruction started three months ago. It was my husband's birthday. He had just lost his job. The uncertainty was starting to wear on us, so I wanted to do something special.\n\"Let's make a cake for Dad!\" I cried.\nMy kids screamed with joy. We baked, iced and sprinkled for most of the day.Candles on the cake! Balloons on the walls! Flowers on the table!\nTwo hours before my husband came back home from another job interview, my daughter climbed up to grab a glass vase from a high shelf. It fell and crashed beside the cake. Tiny pieces of glass were everywhere. She sobbed loudly as I threw the cake away. My husband had banana pudding for his birthday.\nThree days ago, the light in our living room suddenly went out. After several frustrating hours of unsuccessful attempts to fix it, my husband suggested watching the Michacl Jordan documentary（纪录片） series The Last Dance.\nThe poignancy（酸楚） of Jordan retiring from his beloved basketball to play baseball and what had pushed him to make such a tough decision took me by surprise. As I watched him take off his basketball uniform and replace it with a baseball uniform, I saw him leaving behind the layer that no longer served him, just as our lizard had. Neither of them chose the moment that had transformed them. But they had to live with who they were after everything was different. Just like us. I realized that we have to learn to leave the past behind.\nHumans do not shed skin（蜕皮） as easily as other animals. The beginning of change is upsetting. The process is tiring. Damage changes us before we are ready. I see our lizard, raw and nearly new.\nJordan said that no matter how it ends, it starts with hope. With our tender, hopeful skin, that is where we begin.\n（1）What can we learn about the pet lizard from Paragraph 1？\nA. Its tank grew dirty.\nB. Its old skin came off.\nC. It got a skin disease.\nD. It went missing.\n（2）Why did the author's husband have banana pudding for his birthday？\nA. The birthday cake was ruined.\nB. The author made good puddings.\nC. Pudding was his favorite dessert.\nD. They couldn't afford a birthday cake.\n（3）Why does the author mention The Last Dance in the passage？\nA. To prove a theory.\nB. To define a concept.\nC. To develop the theme.\nD. To provide the background.\n（4）The underlined part \"leaving behind the layer\" in Paragraph 8 can be understood as  .\nA. letting go of the past\nB. looking for a new job\nC. getting rid of a bad habit\nD. giving up an opportunity\n（5）What does the author most likely want to tell us？\nA. Love of family helps us survive great hardships.\nB. It's not the end of the world if we break things.\nC. We should move on no matter what happens.\nD. Past experiences should be treasured.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::阅读理解"
+    },
+    {
+      "text": "一、选择题（ 满分 9分）\n1．（ 9分）阅读下面的文字， 完成 1〜3题。\n人们常说 “小说是讲故事的艺术 ”，但故事不等于小说，故事讲述人与小说家\n也不能混为一谈。就传统而言，讲故事的讲述亲身经历或道听途说的故事，\n口耳相传，把它们转化为听众的经验；小说家则通常记录见闻传说，虚构故\n事，经过艺术处理，把它们变成小说交给读者。\n除流传形式上的简单差异外，早期小说和故事的本质区别并不明显，经历和\n见闻是它们的共同要素，在传媒较为落后的过去，作为远行者的商人和水手\n最适合充当故事讲述人的角色，故事的丰富程度与远行者的游历成正比。受\n此影响，国外古典小说也常以人物的经历为主线组织故事，《荷马史诗》《\n一千零一夜》都是描述某种特殊的经历和遭遇，《堂吉诃德》中的故事是堂\n吉诃德的行侠奇遇和所见所闻， 17世纪欧洲的流浪汉小说也体现游历见闻的\n连缀。在中国民间传说和历史故事为志怪类和史传类的小说提供了用之不竭\n的素材，话本等古典小说形式也显示出小说和传统故事的亲密关系。\n虚构的加强使小说和传统故事的区别清晰起来。小说中的故事可以来自想象\n。不一定是作者的亲历亲闻。小说家常闭门构思，作品大多诞生于他们的离\n群索居的时候，小说家可以闲坐在布宜诺斯艾利斯的图书馆中，或者在巴黎\n一间终年不见阳光的阁楼里，杜撰他们想象中的历险故事，但是，一名水手\n也许要历尽千辛万苦才能把在东印度群岛听到的事带回伦敦；一个匠人漂泊\n一生，积攒下无数的见闻、掌故或趣事，当他晚年作在火炉边给孩子们讲述\n这一切的时候，他本人就是故事的一部分，传统故事是否值得转述，往往只\n取决于故事本事的趣味性和可流传性，与传统的故事方式不同，小说家一般\n并不单纯转述故事 ，他是在从事故事的制作和生产 ，有深思熟虑的讲述目的 。\n就现代小说而言，虚构一个故事并非首要功能，现代小说的繁荣对应的故事\n不同程度的减损或逐渐消失，现代小说家对待故事的方式复杂多变，以实现\n他们特殊的叙事目的。小说家呈现人生，有时会写到难以言喻的个人经验，\n他们会调整讲故事的方式，甚至将虚构和表述的重心挪到故事之外。在这些\n小说家笔下，故事成了幌子，故事之外的附加信息显得更有意味。 16世纪末\n期以来，小说家对小说故事性的破坏日趋强烈。这时，一个故事的好坏并不\n看它的 “成色 ”如何，而是取决于讲故事的方式。契诃夫曾经把那些不好好讲\n故事的小说家称为 “耍弄蹩脚花招的人 ”，但这种花招的大量出现也有其内在\n的合理性 ﹣﹣他们要摆脱陈旧的故事模式，摆脱虚假的因果关系和矫揉造作\n的戏剧冲突，甚至摆脱故事本身。现代小说家认为，传统的故事模式早已失\n去了弹性和内在活力，也失去了起初的存在价值，那些千百年来一直在给小\n说提供养料的故事模式已经成为制约想象力的障碍之一。\n（摘编自格非《塞壬的歌声》）\n根据原文内容，下列说法不正确的一项是\nA．传统的故事讲述人如果把自己的故事记录下来，进行加工整理，就能形成一\n种和早期小说接近的文字，有些讲述人也会成为小说家。\nB．现代小说家尝试用新的方式讲故事，会削弱小说的故事性，这将降低小说对\n虚构的依赖，小说的个人表达功能却会因此得到强化。\nC．契诃夫不大认可 “不好好讲故事的小说家 ”，对他们的做法评价不高，由此可\n知当时这股写作潮流与他的创作理念相悖。\nD．现代小说的发展加剧了故事在小说中的衰变 ，与此同时 ，随着现代传媒的不\n断发展，传统的故事讲述方式也可能消亡。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "题目：进行 配制溶液 实验时，下列安全措施不必要的是（ ）A. 穿实验服  B. 戴护目镜  C. 在通风橱中操作  D. 戴防毒面具（填序号）",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学实验"
+    },
+    {
+      "text": "9．（ 4分）公元前 5世纪剧作家阿里斯托芬提到，雅典政府有时让行使警察职\n能的公共奴隶，用染成红色的绳子驱使公民去参加大会。若有人因此在衣服\n上留下红色痕迹，他将被处以罚款。这反映出当时的雅典（ 　　）\nA．公民大会形同虚设  B．民众失去政治热情\nC．参政是公民的义务  D．参政丧失民众信任",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "题干: 关于 地图 的遥感技术应用, 下列说法正确的是( )A、 选项四  B、 选项三  C、 选项一  D、 选项二",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "题目：我国处理 依法治国 民族关系的基本原则是（ ） A. 民族平等 B. 民族团结 C. 各民族共同繁荣 D. 以上都对 （注：请选择最佳选项）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "1. （5 分）设 $z=\\frac{1-i}{1+i}+2 i$, 则 $|z|=(\\quad)$\nA. 0\nB. $\\frac{1}{2}$\nC. 1\nD. $\\sqrt{2}$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "（判断正误）关于 欧姆定律 中的楞次定律，下列说法正确的是（ ） A. 感应电流的磁场总是阻碍引起感应电流的磁通量变化 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "2．（ 6分）下列关于呼吸作用的叙述，正确的是（ 　　）\nA．无氧呼吸的终产物是丙酮酸\nB．有氧呼吸产生的 [H]在线粒体基质中与氧结合生成水\nC．无氧呼吸不需要 O2的参与．该过程最终有 [H]的积累\nD．质量相同时，脂肪比糖原有氧氧化释放的能量多",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "\"Paragraph 1：A few weeks later，when I almost forgot the contest，there came the news.I was informed that I won the first prize in the writing contest and that there would be an award presentation in two days.I was so happy to hear the news that I immediately shared it with my teacher. 【高分句型一】\"\"I knew you'd win!I am proud of you.You made it!\"\" he said excitedly.Then came the big day.When I was invited to the stage to receive the award，I expressed my thanks to my teacher.I said， \"\"It's you who make me fall in love with writing，my social studies teacher.Without your recognition and guidance，I couldn't have written this article.Again thank you very much!\"\"（作者获得比赛一等奖，在颁奖典礼上作者表达了对社会老师的感激）\nParagraph 2：I went to my teacher's office after the award presentation.My teacher was waiting for me.Holding my hands，he said \"\"Congratulations!You are a good writer，so keep writing.\"\" \"\"You know I didn't like writing before，but now I am crazy about it!I will try my best to create good works.\"\" I said seriously.Since then，I have written many good works and now I am a famous writer.I owe my success to my social teacher who is a beacon in my life on the road to writing.【高分句型二】（老师鼓励作者继续写作，自此作者坚持写作取得了成功，作者将这一切归功于自己的老师）\"",
+      "subject": "英语",
+      "question_type": "判断题",
+      "knowledge_point": "英语::阅读理解"
+    },
+    {
+      "text": "阅读下面这段文字，从中提取四个关键词。\n新媒体是相对于传统媒体而言的，其信息通过多媒体形式（至少有文字、语音、音乐、图片、影像）进行传播；多媒体信息通过多平台进行传播，多平台至少包括电脑、手机和电视，每个平台都有支持多媒体信息传播的能力；无论什么媒体、什么平台，都用一个技术体系和网络进行传播，也就是互联网体系；新媒体的经营范围不仅仅局限在信息传播领域，还可以扩大到基于信息的其他服务领域，例如网络游戏、网络软件、网络商务和网络服务等。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "关于 假设 的实验探究，下列控制变量的方法正确的是（ ） A、 选项 B、 选项 C、 选项 D、 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学科学与探究"
+    },
+    {
+      "text": "14．（12分）阅读材料，完成下列要求。\n材料\n如表摘自1995年7～8月对江苏昆山、浙江乐清的部分农民进行的调查统计，调\n查对象中近60%为18～35岁的青壮年。\n表1995年7～8月江苏昆山、浙江乐清部分农民调查统计\n单位：%\n选择意向明确的统计结果\n你是否同意以下说法很赞同比较赞同 说不准 不太赞同很不赞同\n农民的孩子应以种田\n为本2.9 4.3 8.2 23.0 61.1\n父母在，不远游 7.2 15.1 21.8 34.9 20.8\n改革虽然有风险，但比\n吃大锅饭强45.4 29.2 17.5 5.0 2.6\n富贵贫贱是命定的 6.8 11.2 15.4 25.1 41.2\n重新选择职业意向明确的统计结果\n经商去乡镇企业工作读书上大学去大城市打工继续种田\n如果有机会重作选择，35.2 14.1 31.8 2.7 8.5你将选择\n﹣﹣据周晓虹《传统与变迁》\n根据材料并结合所学知识，就材料整体或其中任意一点拟定一个论题，并予以阐述。（要\n求：论题明确，持论有据，论证充分，表达清晰。）",
+      "subject": "历史",
+      "question_type": "解答题",
+      "knowledge_point": "历史::现代世界"
+    },
+    {
+      "text": "下列叙述中，正确的是：在 地理信息 地图上，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "3．（ 3分）在政府大力扶持下，我国新能源产业发展迅猛。 截至 2009年底，中\n国风电装机容量累计达到 2129万千瓦，位居世界第三 。从经济角度看 ，政府\n扶持新能源产业是因为（ 　　）\n①经济快速发展对能源需求巨大     ②开发新能源有利于可持续发展\n③中国能源供给结构单一           ④可开发利用的新能源种类众多。\nA．①②  B．②③  C．①④  D．②④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "某校文艺部有 4 名学生，其中高一、高二年级各 2 名．从这 4 名学生中随机选 2 名组织校文艺汇演，则这 2 名学生来自不同年级的概率为（ ）\nA．$\\frac{1}{6}$\nB．$\\frac{1}{3}$\nC．$\\frac{1}{2}$\nD．$\\frac{2}{3}$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：一物体做平抛运动，初速度为 10 m/s，重力，求物体落地时的速度大小和方向。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "关于 胚胎工程 干细胞的说法正确的是（ ） A. 具有全能性 B. 可以分裂分化 C. 分为胚胎干细胞和成体干细胞 D. 以上都对",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "26. The result  is not very important  to us, but if we do win, then so much         .\nA. the best          B. best              C. better           D. the better",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::语言应用"
+    },
+    {
+      "text": "8．（ 3分）下列各句中，没有语病的一句是（ 　　）\nA．最近相关部门对两个小区的住房进行空气质量检测 ，结果有一半住房甲醛\n超标，而引发甲醛超标最主要的原因是居民不合适的装修造成的．\nB．李先生认为服饰公司侵犯了自己的权利，将之诉至法院，要求停止伤害 ，\n并提出 30000元人民币的经济索赔和 2000元人民币的精神损害抚慰金．\nC．长沙、株洲、湘潭城市群建设的启动 ，对道路、交通、媒体、通讯等行业\n提出了新的要求，与此相关，长沙商业圈无疑也将面对重新洗牌的机会．\nD．国家质检总局提出， “十一五 ”期间要形成 10个左右拥有自主知识产权、\n国际竞争力较强、知名度较高、在国际市场占有一定份额的世界级品牌．",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：下列关于 范德华力 氢键的说法正确的是（ ）A. 是特殊的化学键  B. 影响物质的熔沸点 请选择：  C. 比化学键弱  D. 只存在于分子间",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "明成祖设立内阁。他的主要职责是（　　）\nA．辅佐皇帝处理政务\nB．直接领导六部\nC．代理皇帝批阅奏章\nD．管理少数民族事务",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：下列关于 污染 可持续发展的叙述，正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四（填序号）",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "2019年10月1日，中国移动，中国电信和中国联通三大运营商已经将商业5G服务带到国内40个城市，预计2020年全面实现5G商用。据此回答7-8题。\n随着5G服务商业化运营，智能手机将着重发力于两个方向：一是5G手机成为各大手机厂商争抢的新赛道，二是折叠屏手机有望实现量产。总之，各大手机厂商会不断变化花样想要重新调动用户的换机热情。这说明（　　）\n①消费升级有助于推动供给侧结构性改革\n②创新商品有助于刺激人们增加消费支出\n③增强发展的新动力有助于改变消费方式\n④促进产品创新有助于扩大市场的占有率\nA．①②\nB．①③\nC．②③\nD．②④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "厦门地铁1号线从镇海路站到文灶站有 $5$ 个站点．甲、乙同时从镇海路站上车，假设每一个人自第二站开始在每个站点下车是等可能的，则甲乙在不同站点下车的概率为（ \\, ）\nA．$\\frac{1}{3}$\nB．$\\frac{2}{3}$\nC．$\\frac{3}{4}$\nD．$\\frac{4}{5}$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "（判断正误）关于 原子光谱 的干涉和衍射现象，下列说法正确的是（ ）A. 光也能干涉和衍射  B. 干涉和衍射是波特有的现象  C. 只有波才有干涉和衍射  D. 以上都对 （注：请选择最佳选项）",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::其他"
+    },
+    {
+      "text": "2.选择合适的试剂有助于达到实验目的。下列关于生物学实验所用试剂的叙述，错误的是\n（）A.鉴别细胞的死活时，台盼蓝能将代谢旺盛的动物细胞染成蓝色\nB.观察根尖细胞有丝分裂中期的染色体，可用龙胆紫溶液使其着色\nC.观察RNA在细胞中分布的实验中，盐酸处理可改变细胞膜的通透性\nD.观察植物细胞吸水和失水时，可用蔗糖溶液处理紫色洋葱鳞片叶外表皮",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "已知：This is ______ useful book on verb. A. a B. an C. the D. /",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "题干：仿照下面的示例，围绕 表达 写一句话，要求使用相同的修辞手法。（写出正确答案的字母）",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "我国嫦娥五号探测器带回 $1.731 \\mathrm{~kg}$ 的月球土壤, 经分析发现其构成与地球士壤类似土壤 中含有的短周期元素 $W 、 X 、 Y 、 Z$, 原子序数依次增大, 最外层电子数之和为 $15, X 、 Y$ 、 $\\mathrm{Z}$ 为同周期相邻元素, 且均不与 $\\mathrm{W}$ 同族, 下列结论正确的是\nA. 原子半径大小顺序为 $\\mathrm{W}>\\mathrm{X}>\\mathrm{Y}>\\mathrm{Z}$\nB. 化合物 XW 中的化学键为离子键\nC. $\\mathrm{Y}$ 单质的导电性能弱于 $\\mathrm{Z}$ 单质的\nD. $\\mathrm{Z}$ 的氧化物的水化物的酸性强于碳酸",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "11．（ 3分） 20世纪 30年代，美国每周有成千上万的人去电影院，轻歌曼舞的\n幻想型影片备受欢迎，当红童星秀兰邓波儿通常在电影中扮演孤儿去感化富\n人。这一现象（ 　　）\nA．表明了新政已使全国重现繁荣的景象\nB．体现了民众身陷危机淡定应对的精神\nC．反映了民众逃避现实来求慰藉的心态\nD．说明了现代主义艺术得到社会的认可",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::现代世界"
+    },
+    {
+      "text": "请回答：关于 北斗 的遥感技术应用，下列说法正确的是（ ）A. 选项四 B. 选项一 C. 选项三 D. 选项二",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "关于 人大代表 的政府职能, 下列说法正确的是( )A. 选项四 (注: 请选择最佳选项)  B. 选项一  C. 选项三  D. 选项二",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "下列叙述中，正确的是：函数 f(x) = 三角恒等变换 的图象的一条对称轴方程是（ ） A. x=π/2 B. x=π C. x=3π/2 D. x=2π",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "在光电效应实验中，原子物理，求光电子的最大初动能。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::其他"
+    },
+    {
+      "text": "2．（6分）马铃薯块茎储藏不当会出现酸味，这种现象与马铃薯块茎细胞的无氧呼吸有关。\n下列叙述正确的是（）\nA．马铃薯块茎细胞无氧呼吸的产物是乳酸和葡萄糖\nB．马铃薯块茎细胞无氧呼吸产生的乳酸是由丙酮酸转化而来\nC．马铃薯块茎细胞无氧呼吸产生丙酮酸的过程不能生成ATP\nD．马铃薯块茎储藏库中氧气浓度的升高会增加酸味的产生",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "34. You have  to move  out of the way         the truck  cannot  get past you.\nA. so              B. or           C. and             D. but",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::语言应用"
+    },
+    {
+      "text": "题目：与例句中 使动 句式相同的一项是（ ）A、 选项一  B、 选项三  C、 选项四  D、 选项二",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::古代汉语知识"
+    },
+    {
+      "text": "（单选）将足量的 两性氢氧化物 加入到氯化铁溶液中，观察到的现象是（ ） A. 产生白色沉淀 B. 产生红褐色沉淀 C. 溶液变蓝色 D. 无明显现象",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::常见无机物及其应用"
+    },
+    {
+      "text": "（单选）一战 核武器 后建立的国际组织是（ ） A. 联合国 B. 国际联盟 C. 欧盟 D. 北约",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "随着工业化、城市化的飞速发展，耕地不断被挤占，但 2004 年以来，我国粮食\n总量仍连续增长．据此完成下题．\n（4 分）河南省和黑龙江省都是我国产粮大省．两省相比，黑龙江省粮食商\n品率高的主要原因是（ ） A．耕地面积广 B．生产规模大 C．机械化水平高 D．人口较少",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "题目：关于 依法治国 的主权国家，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项（写出正确答案的字母）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "(判断正误)已知 tan α = 3, 求 弧度 的值。 请选择:",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "请回答：一根长为 0.5m 的直导线通有 2A 的电流，放在磁感应强度为 0.4T 的匀强磁场中，磁场，求导线受到的安培力。（填序号）",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "近年来随着肥胖人数增多，减肥药受到追捧。2021年美国肥胖症周大会上公布了肥胖症新药Wegovy（一种多肽）。数据显示：接受Wegovy治疗的成人患者，在2年研究期间实现了显著和持续的体重减轻。下列叙述正确的是（　　）\nA．Wegovy既可以口服也可以注射\nB．组成Wegovy的基本单位是甘油和脂肪酸\nC．Wegovy加热后和双缩脲试剂不能发生紫色反应\nD．Wegovy分子中有“-N-C-C-N-C-C-…”的重复结构",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "The word spelling has ______ syllables. A. 1 B. 2 C. 3 D. 4（填序号）",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::其他"
+    },
+    {
+      "text": "按要求作答。不少于700字。将题目写在答题卡上。不透露所在学校及个人信息。\n“无人区”指不适合人类居住或尚未有人踏足的地区，其含义在使用中被不断丰富。近些年很多行业和领域都提出要勇闯“无人区”，以期实现“从0到1”的突破。\n请以“勇闯‘无人区’”为题目，写一篇议论文。\n要求：论点明确，论据充实，论证合理；语言流畅，书写清晰。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "下列叙述中，正确的是：关于 数据分析 的实验探究，下列控制变量的方法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学科学与探究"
+    },
+    {
+      "text": "商鞅变法 宗教改革 的主要内容包括（ ） A、 废井田开阡陌 B、 奖励耕织 C、 实行连坐法 D、 以上都对 （注：请选择最佳选项）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考一 历史上的重大改革"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：下列关于 生态 可持续发展的叙述，正确的是（ ）A. 选项一  B. 选项二  C. 选项四  D. 选项三",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "（判断正误）关于 辩证法 矛盾分析法，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项（填序号）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "已知 $(1+x)^n$ 的展开式中，唯有 $x^3$ 的系数最大，则 $(1+x)^n$ 的系数和为___．",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "5. (6 分) 假设地球可视为质量均匀分布的球体, 已知地球表面重力加速度在 两极的大小为 $g_{0}$, 赤道的大小为 $g$; 地球自转的周期为 $\\mathrm{T}$, 引力常量为 $G$. 则 地球的密度为 ( $)$\nA. $\\frac{3 \\pi g_{0}-g}{G T^{2} g_{0}}$\nB. $\\frac{3 \\pi g_{0}}{G T^{2} g_{0}-g}$\nC. $\\frac{3 \\pi}{\\mathrm{GT}^{2}}$\nD. $\\frac{3 \\pi g_{0}}{G T^{2} g}$",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "5．（6分）已知果蝇的长翅和截翅由一对等位基因控制。多只长翅果蝇进行单对交配（每个\n瓶中有1只雌果蝇和1只雄果蝇），子代果蝇中长翅：截翅＝3：1．据此无法判断的是（）\nA．长翅是显性性状还是隐性性状\nB．亲代雌蝇是杂合子还是纯合子\nC．该等位基因位于常染色体还是X染色体上\nD．该等位基因在雌蝇体细胞中是否成对存在",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "The exchange student found our   （校园） more beautiful after the spring rain. （根据汉语提示单词拼写）",
+      "subject": "英语",
+      "question_type": "判断题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "（多选题）下列各句中，加点的 语病 成语使用恰当的一项是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "已知某晶胞为面心立方结构, 金属键, 则每个晶胞中含有的原子数为( ) A. 1 B. 2 C. 4 D. 8",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "关于 考古 的历史研究方法，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四 （注：请选择最佳选项）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考五 探索历史的奥秘"
+    },
+    {
+      "text": "已知：导致 可持续发展 荒漠化的主要人为原因是（ ） A、 过度放牧 B、 过度开垦 C、 滥伐森林 D、 以上都对（填序号）",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "关于 主权 的主权国家，下列说法正确的是（ ）A. 选项  B. 选项  C. 选项 （注：请选择最佳选项）  D. 选项",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "已知正三棱锥 法向量 的体积为 2√3, 求棱锥的高。(写出正确答案的字母)",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::立体几何"
+    },
+    {
+      "text": "一辆汽车以 20 m/s 的速度匀速行驶，突然刹车，功率，求刹车后 3s 内通过的位移。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "3．（ 6分）番茄幼苗在缺镁的培养液中培养一段时间后，与对照组相比，其叶\n片光合作用强度下降，原因是（ 　　）\nA．光反应强度升高，暗反应强度降低\nB．光反应强度降低，暗反应强度降低\nC．光反应强度不变，暗反应强度降低\nD．光反应强度降低，暗反应强度不变",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::分子与细胞"
+    },
+    {
+      "text": "下列叙述中，正确的是：Write a letter to your friend about argumentative. Your letter should include at least three points.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::写作"
+    },
+    {
+      "text": "阅读下面这首宋诗，完成下列各题。\n礼部贡院阅进士就试  欧阳修\n紫案焚香暖吹轻，广庭清晓席群英。\n无哗战士衔枚勇，下笔春蚕食叶声。\n乡里献贤先德行，朝廷列爵待公卿。\n自惭衰病心神耗，赖有群公鉴裁精。\n（1）下列对这首诗的赏析，不恰当的两项是〔 5分〕　   　。\nA．诗的第一句写出了考场肃穆而又怡人的环境，衬托出作者的喜悦心情。\nB．第三句重点在表现考生奋勇争先、一往无前，所以把他们比作战士。\nC．参加礼部考试的考生都由各地选送而来，道德品行是选送的首要依据。\nD．朝廷对考生寄予了殷切的期望，希望他们能够成长为国家的栋梁之材。\nE．作者承认自己体弱多病的事实，表示选材工作要依靠其他考官来完成。\n（2）本诗的第四句 “下笔春蚕食叶声 ”广受后世称道 ，请赏析这一句的精妙之处 。\n〔6分〕",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "在探究 数据分析 反应速率的影响因素的实验中，下列说法正确的是（ ） A. 温度越高反应越快 B. 浓度越大反应越快 C. 催化剂能加快反应 D. 以上都对（写出正确答案的字母）",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学科学与探究"
+    },
+    {
+      "text": "有宋代学者云：“周之子孙，苟不至狂惑者，皆剖土分域，为南面之君。”这反映的政治制度是（　　）\nA．禅让制\nB．分封制\nC．三省六部制\nD．皇帝制度",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "2022年3月21日，日本政府对于福岛第一核电站持续积聚的核污染水计划将其稀释至低于标准浓度后，于2023年8月24日开始将其排放入海。据此完成23～24小题。\n核废水排放到海洋中可能造成的影响有（　　）\n①影响海洋生物，导致生物变异，威胁人类健康\n②会直接导致全球性的气候变化和生态破坏\n③排海后，其传播速度、影响范围和环境风险都将不可控\n④会以长久、复杂的方式影响海洋环境\nA．①②③\nB．②③④\nC．①③④\nD．①②④",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "乡村振兴战略的实施，正在让农业成为有奔头的产业，让农民成为有吸引力的职业，让农村成为安居乐业的美丽家园。据此完成11～12题。\n乡村振兴战略推动了人才、土地、资本等要素在城乡间双向流动，吸引了更多农民工返乡创业就业，促进了城乡共同繁荣。做好农民工返乡创业就业工作需要政府（　　）\nA．提高自身素质和技能，积极应对劳动力市场的变化\nB．破除妨碍就业的体制机制弊端，统一安排农民工就业\nC．实施就业优先战略和积极就业政策，完善就业服务\nD．扩大企业生产规模，增加更多的就业岗位",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "16. （5 分) 已知函数 $f(x)=2 \\sin x+\\sin 2 x$, 则 $f(x)$ 的最小值是",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "在验证 加速度 守恒定律的实验中，下列操作正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "在 物种 杂交实验中, F₂ 代出现 3:1 的性状分离比, 其原因是在减数分裂时( ) A. 等位基因分离 B. 非同源染色体自由组合 C. 基因突变 D. 染色体变异",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "（多选题）It is suggested that he ______ the apposition plan at once. A. carry out B. carries out C. carried out D. has carried out",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "7．（ 3分）下列各句中，加横线的成语使用恰当的一项是（ 　　）\nA．这位姑娘天生就眼睛深凹 ，鼻梁挺直 ，头发卷曲 ，身材苗条 ，好似芝兰玉\n树，在黄皮肤黑眼睛的国度里，很容易被人认出．\nB．为化解部分旅客的不满情绪 ，他们设立了 “旅客投诉中心 ”，此举说明他们\n不光有良好的服务意识，还有 闻过则喜 的雅量．\nC．一名惯偷在车站行窃后正要逃跑 ，两位守候多时的反扒队员突然拦住他的\n去路，二人 上下其手 地将他摁倒，结果人赃俱获．\nD．旧的梦想总是被新的梦想代替 ，很少有人能 从一而终 地记住自己做过的华\n丽缥缈的梦，因为现实需要人们不断调整梦想．",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "已知 勒夏特列 的反应热为 ΔH = -92.4 kJ/mol，关于该反应，下列说法正确的是（ ）A. 放热反应  B. 吸热反应  C. 降压有利于正向（填序号）  D. 升温有利于正向",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学反应原理"
+    },
+    {
+      "text": "9．（4分）公元前5世纪，雅典公民获得更多表达自己想法的机会，公民的成功\n“依赖于在大型公共集会上谈话、论辩与说服的能力”。据此可知，在当时雅\n典（）\nA．公民必须能言善辩 B．参政议政十分活跃\nC．民主政治出现危机 D．内乱引发思想纷争",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "在全球气候变暖的背景下，我国东北长白山高山苔原带矮小灌木的冻害反而加剧\n，调查发现，长白山雪期缩短；冻害与坡度密切相关，而与海拔基本无关；\n西北坡为冻害高发区．据此完成下题．\n（4 分）在高山苔原带，与坡度密切相关，而与海拔基本无关的指标是（ ） A．大气温度 B．降水量 C．积雪厚度 D．植被覆盖度",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "关于 人大代表 的政党制度，下列说法正确的是（ ） A. 中国共产党领导的多党合作和政治协商制度 B. 选项 C. 选项 D. 选项",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "21. （12 分) 已知函数 $f(x)=\\frac{a \\ln x}{x+1}+\\frac{b}{x}$, 曲线 $y=f(x)$ 在点 $(1, f(1))$ 处的 切线方程为 $x+2 y-3=0$.\n(I) 求 $a 、 b$ 的值;\n（II ）如果当 $x>0$, 且 $x \\neq 1$ 时, $f(x)>\\frac{\\ln x}{x-1}+\\frac{k}{x}$, 求 $k$ 的取值范围.",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "（判断正误）在如图所示的电路中，楞次定律，求通过 R₁ 的电流。 （注：请选择最佳选项）",
+      "subject": "物理",
+      "question_type": "判断题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "9．（ 12分）某岛屿栖息着狐和野兔，生态系统相对稳定．后来有人登岛牧羊 、\n捕食野兔和狐，狐也捕食羔羊．第五年，岛上狐濒临灭绝，但野兔数量大大\n超过人登岛前的数量． 第6年，野兔种群爆发了由兔瘟热病毒引起的瘟疫，\n其数量骤减．回答问题：\n（1）人与狐的种间关系是 　   　，兔瘟热病毒与野兔的种间关系是 　   　．\n（2）画出由人、羊、狐、野兔和牧草组成的食物网．\n（3）人登岛后的第 5年，与登岛前相比，野兔种内斗争强度 　   　（增加、减\n小、不变）\n（4）一般情况下，被捕食者传染病的流行程度将随捕食者种群密度的增加而\n（增强、减弱、不变）",
+      "subject": "生物",
+      "question_type": "解答题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "请回答：Complete the following summary of the passage about application.（写出正确答案的字母）",
+      "subject": "英语",
+      "question_type": "解答题",
+      "knowledge_point": "英语::写作"
+    },
+    {
+      "text": "请回答：与例句中 倒装句 句式相同的一项是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四 （注：请选择最佳选项）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::古代汉语知识"
+    },
+    {
+      "text": "$\\mathrm{W} 、 \\mathrm{X} 、 \\mathrm{Y} 、 \\mathrm{Z}$ 均为短周期元素且原子序数依次增大, 元素 $\\mathrm{X}$ 和 $\\mathrm{Z}$ 同 族。盐 YZW 与浓盐酸反应, 有黄绿色气体产生, 此气体同冷烧碱溶液作用, 可得到含 $Y Z W$ 的溶液。下列说法正确的是（）\nA. 原子半径大小为 $\\mathrm{W}<\\mathrm{X}<\\mathrm{Y}<\\mathrm{Z}$\nB. $\\mathrm{X}$ 的氢化物水溶液酸性强于 $\\mathrm{Z}$ 的\nC. $\\mathrm{Y}_{2} \\mathrm{~W}_{2}$ 与 $\\mathrm{ZW}_{2}$ 均含有非极性共价键\nD. 标准状况下 $\\mathrm{W}$ 的单质状态与 $\\mathrm{X}$ 的相同",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "法国大革命中 启蒙运动 的颁布标志着（ ） A. 选项 B. 选项 C. 选项 D. 选项（填序号）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：在 GPS 地图上，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "钱的时间效应是指金钱本身的购买力是会随着时间的推移而下降的，所以理财不是想不想、会不会的问题，而是必须学习、必须做的事情。下列关于债券与股票的说法中，正确的是（　　）\n①股票是所有权凭证，债券是债务凭证\n②都承诺按约支付一定利息并到期偿还本金\n③债券的安全性和收益率都要比股票大\n④都是有价证券，都以获得一定收益为目的\nA．①③\nB．①④\nC．②④\nD．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "若双曲线\n$$ \\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1 \\quad (a > 0, b > 0) $$\n与直线 $y = \\sqrt{3} x$ 没有公共点，则该双曲线的离心率 $e$ 的取值范围是（  ）\nA．$(1, 2]$\nB．$(1, 2)$\nC．$(1, \\sqrt{5}]$\nD．$(1, \\sqrt{5})$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::平面解析几何"
+    },
+    {
+      "text": "铀核可以发生衰变和裂变，铀核的（　　）\nA．衰变和裂变都能自发发生\nB．衰变和裂变都不能自发发生\nC．衰变能自发发生而裂变不能自发发生\nD．衰变不能自发发生而裂变能自发发生",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::其他"
+    },
+    {
+      "text": "在 分离 发酵过程中, 影响发酵产物产量的主要因素不包括( ) A. 温度 B. pH C. 溶氧量 D. 光照强度(写出正确答案的字母)",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::生物技术实践"
+    },
+    {
+      "text": "（单选）The book ______ I bought yesterday is very interesting. A. that B. who C. what D. where",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "已知：下列各句中，不含 意动 词类活用现象的一项是（ ）A. 选项二  B. 选项四（填序号）  C. 选项一  D. 选项三",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::古代汉语知识"
+    },
+    {
+      "text": "苯是重要的化工原料，其分子结构具有对称美，下列说法正确的是（　　）\nA．苯分子中只含有碳碳单键\nB．苯能与溴水发生取代反应\nC．苯分子中所有原子位于同一平面\nD．苯能使KMnO4溶液褪色",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::常见有机物及其应用"
+    },
+    {
+      "text": "关于 拿破仑 新航路开辟的意义，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 （注：请选择最佳选项）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "已知: 关于 污染 全球变暖的影响, 下列说法正确的是( )A. 选项  B. 选项(填序号)  C. 选项  D. 选项",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "已知：下列关于 公民 的人民代表大会制度，正确的是（ ） A. 我国的根本政治制度 B. 保证人民当家作主 C. 实行民主集中制 D. 以上都对 （注：请选择最佳选项）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "（单选）一批产品中有 10 件正品、3 件次品，从中任取 3 件，求 条件概率 的概率。（写出正确答案的字母）",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "题目：一辆汽车以 20 m/s 的速度匀速行驶，突然刹车，向心力，求刹车后 3s 内通过的位移。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "（判断正误）已知豌豆的高茎(D)对矮茎(d)为显性，翻译，求子代中矮茎的比例。 （注：请选择最佳选项）",
+      "subject": "生物",
+      "question_type": "判断题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "（多选题）It is suggested that he ______ the clause plan at once. A、 carry out B、 carries out C、 carried out D、 has carried out",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "一、解答题（ 共1小题，满分 9分）\n1．（ 9分）阅读下面的文字，完成下列各题。\n艺术品的接受在过去并不被看作是重要的美学问题， 20世纪解释学兴起，\n一个名为 “接受美学 ”的美学分支应运而生，于是研究艺术品的接受成为艺术\n美学中的显学。\n过去，通常只是从艺术家的立场出发，将创作看作艺术家审美经验的结晶过\n程，作品完成就意味着创作完成。而从接受美学的角度来看，这一完成并不\n说明创作已经终结，它只说明创作的第一阶段告一段落，接下来是读者或观\n众、听众的再创作。由于未被阅读的作品的价值包括审美价值仅仅是一种可\n能的存在，只有通过阅读，它才转化为现实的存在，因此对作品的接受具有\n艺术本体的意义。也就是说，接受者也是艺术创作的主体之一。\n艺术文本即作品对于接受者来说具有什么意义呢？接受美学的创始人、德国\n的伊瑟尔说艺术文本是一个 “召唤结构 ”，因为文本有 “空白 “空缺 ”“否定 ”三个\n要素。所谓 “空白 ”是说它有一些东西没有表达出来 ，作者有意不写或不明写 ，\n要接受者用自己的生活经验与想象去补充；所谓 “空缺 ”，是语言结构造成的\n各个图象间的空白。接受者在阅读文本时要把一个个句子表现的图象片断连\n接起来，整合成一个有机的图象系统；所谓 “否定 ”指文本对接受者生活的现\n实具有否定的功能，它能引导接受者对现实进行反思和批判。由此可见，文\n本的召唤性需要接受者呼应和配合，完成艺术品的第二次创作，正如中国古\n典美学中的含蓄与简洁，其有限的文字常常引发出读者脑海中的丰富意象。\n接受者作为主体，他对文本的接受不是被动的，海德格尔提出 “前理解 ”，即\n理解前的心理文化结构，这种结构影响着理解。理解不可能是文本意义的重\n现，而只能是文本与前理解 ”的统一。这样，文本与接受仍呈现出一种相互作\n用的关系：一方面文本在相当度上规定了接受者理解的范围、方向，让理解\n朝它的本义靠拢；另一方面，文本不可能将接受者完全制约住、规范住，接\n受者必然会按照自己的方式去理解作品，于是不可避免地就会出现误读或创\n造。从某种意义上说，理解就是误读，创造也是误读，不要希望所有的接受\n者都持同样的理解，也不要希望所有的理解都与艺术家的本旨一致，那样并\n不意味着艺术作品的成功。\n文本一经产生就成为历史，它所表达的思想感情、所反映的生活，都只能是\n过去的，而理解总是现在进行时。当我们接受历史上的艺术作品时，我们当\n然可以设身处地想象古人的生活，体验古人的思想感情，但我们毕竞是现代\n人，只能按照我们现在的心理文化结构去理解古人。当然，任何理解都只能\n是个体的理解 ，但个体毕竞是与群体相通的 ，所以个体的理解中也有普遍性 。\n理解作为现实的行为具有通向实践的品格，艺术品正是通过理解走向现实，\n并在生活中发挥作用的，不是别的，正是理解擦亮了艺术品的生命之光。\n（摘编自陈望衡《艺术是什么》）\n下列关于原文内容的表述，不正确的一项是\nA．在过去，艺术品的接受并不属于美学的研究范围，而当接受美学诞生以后，\n关于艺术品的接受的研究就成为艺术美学中的一门显学。\nB．在接受美学诞生以前，人们一般的认识是：整个创作过程就是艺术家的审美\n经验不断结晶的过程，艺术品一旦形成，创作也就大功告成。\nC．接受美学认为 ，艺术品在艺术家手中产生出来 ，这只是艺术创作的第一阶段 ，\n读者、观众、听众对艺术品的接受是艺术创作的继续。\nD．通过读者 、观众和听众的接受 ，艺术作品的价值才从一种可能的存在转化为\n现实的存在，从这个意义上说，接受也属于艺术创作的一部分。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "（多选题）乙醇发生 醚 反应的化学方程式正确的是（ ）A. 选项  B. 选项 请选择：  C. 选项  D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::常见有机物及其应用"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：工业革命 德意志统一 首先发生在哪个国家？A. 德国 请选择：  B. 法国  C. 英国  D. 美国",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "已知：关于 RS 的遥感技术应用，下列说法正确的是（ ）A. 选项一  B. 选项二  C. 选项四（填序号）  D. 选项三",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::其他"
+    },
+    {
+      "text": "2．（ 4分）某地政府逐步将市政道路、地下管网、污水和垃圾处理、土壤和水\n土修复等公益类项目和非运营类项目向社会开放 ，允许企业参股投资和经营 。\n这一做法的目的在于（ 　　）\n①发挥不同所有制经济的优势\n②提高公益类项目的运营效率\n③让市场决定公共资源的配置\n④逐步建立国有资本退出机制。\nA．①②  B．①③  C．②④  D．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "3. (5 分) 等比数列 $\\left\\{a_{n}\\right\\}$ 的前 $n$ 项和为 $S_{n}$, 已知 $S_{3}=a_{2}+10 a_{1}, a_{5}=9$, 则 $a_{1}=(\\quad)$\nA. $\\frac{1}{3}$\nB. $-\\frac{1}{3}$\nC. $\\frac{1}{9}$\nD. $-\\frac{1}{9}$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "已知：在如图所示的电路中，洛伦兹力，求通过 R₁ 的电流。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "已知：关于 干细胞 干细胞的说法正确的是（ ） A. 具有全能性 B. 可以分裂分化 C. 分为胚胎干细胞和成体干细胞 D. 以上都对",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "（单选）Which sentence contains conditional?A. She runs fast.  B. The man who is talking is my teacher.  C. He is tall.  D. I like apples.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "题干：下列关于 近义词 的标点符号使用，正确的一项是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四（填序号）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "已知: 在探究 对照 反应速率的影响因素的实验中, 下列说法正确的是( ) A. 温度越高反应越快 B. 浓度越大反应越快 C. 催化剂能加快反应 D. 以上都对",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学科学与探究"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：关于 慕尼黑阴谋 的原因，下列分析正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四（写出正确答案的字母）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "已知：下列关于 天气系统 地形的叙述，正确的是（ ）A. 选项二  B. 选项四  C. 选项三  D. 选项一",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "近年来，中国电影市场的主旋律电影如《湄公河行动》《战狼 2》《红海行动》《我和我的祖国》等，依靠扎实的故事与人物塑造，传达主流价值观，引发了观众的强烈共鸣，几乎占据了同一时段电影口碑、票房与社会关注度的巅峰。这一现象表明（　　）\n①顺应时代要求和人民真正需要的文化才有生命力\n②能够吸引观众的文化才是我们所倡导的大众文化\n③电影产业可以做到社会效益和经济效益的统一\n④我国社会主义文化坚持百花齐放、百家争鸣\nA．①③\nB．①④\nC．②③\nD．②④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "1. (5 分) 已知 $z=(m+3)+(m-1) i$ 在复平面内对应的点在第四象限, 则实 数 $m$ 的取值范围是 $(\\quad)$\nA. $(-3,1)$\nB. $(-1,3)$\nC. $(1,+\\infty)$\nD. $(-\\infty,-3)$",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "8. （6 分) 我国发射的“嫦娥三号”登月探测器靠近月球后, 先在月球表面附近的 近似轨道上绕月运行, 然后经过一系列过程, 在离月面 $4 \\mathrm{~m}$ 高处做一次悬停 ( 可认为是相对于月球静止), 最后关闭发动机, 探测器自由下落, 已知探测 器的质量约为 $1.3 \\times 10^{3} \\mathrm{~kg}$, 地球质量约为月球的 81 倍, 地球半径约为月球的 3.7 倍, 地球表面的重力加速度大小约为 $9.8 \\mathrm{~m} / \\mathrm{s}^{2}$, 则此探测器 ( $）$\nA. 在着陆前的瞬间, 速度大小约为 $8.9 \\mathrm{~m} / \\mathrm{s}$\nB. 悬停时受到的反冲击作用力约为 $2 \\times 10^{3} \\mathrm{~N}$\nC. 从离开近月圆轨道到着陆这段时间内, 机械能守恒\nD. 在近月圆轨道上运行的线速度小于人造卫星在近地圆轨道上运行的线速度",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "2．（6分）在证明 DNA是遗传物质的过程中 ，T2噬菌体侵染大肠杆菌的实验发\n挥了重要作用。下列与该噬菌体相关的叙述，正确的是（ 　　）\nA．T2噬菌体也可以在肺炎双球菌中复制和增殖\nB．T2噬菌体病毒颗粒内可以合成 mRNA和蛋白质\nC．培养基中的32P经宿主摄取后可出现在 T2噬菌体的核酸中\nD．人体免疫缺陷病毒与 T2噬菌体的核酸类型和增殖过程相同",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "题干：Read the passage and fill in the blanks with the best choices. The story tells us that context is important.",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::完形填空"
+    },
+    {
+      "text": "学校迎来一个外国高中学生交流团。这些外国学生对中国戏剧很感兴趣。请在《窦娥冤》和《雷雨》两部作品中任选一部，向外国学生做个介绍。要求：突出作品特点；适合交流对象；表达得体； 150字左右。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "（判断正误）化学在 化学与生活 方面的应用，下列说法不正确的是（ ）A、 选项（填序号） B、 选项 C、 选项 D、 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：关于 一战 的原因，下列分析正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "当 反气旋 锋面过境时，可能出现的天气现象是（ ） A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "10月14日，深圳经济特区建立40周年庆祝大会在广东省深圳市隆重举行。党中央对深圳改革开放、创新发展寄予厚望。去年8月，党中央出台了支持深圳建设中国特色社会主义先行示范区的意见，全面部署了有关工作。建设中国特色社会主义先行示范区之所以选择深圳，一个很重要的原因就是，深圳具有先试先行的创新文化基因。深圳经济特区在发展过程中，形成了敢闯敢试、敢为人先、埋头苦干的特区精神。“时间就是金钱，效率就是生命”“空谈误国，实干兴邦”“敢为天下先”“改革创新是深圳的根、深圳的魂”这些口号言简意赅，深入人心。\n今天，在新一轮先试先行中，深圳需要进一步创新文化观念，弘扬特区精神，凝练出符合新时代中国特色社会主义和代表全球先进城市的文化理念，聚智汇民，凝聚发展力量，为深圳经济社会发展提供强大的精神动力。\n运用中华民族精神的有关知识并结合材料，说明弘扬特区精神对深圳经济社会发展的意义。",
+      "subject": "政治",
+      "question_type": "解答题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：已知 cos(α + β) = 弧度，求 tan α · tan β 的值。 请选择：",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::三角函数"
+    },
+    {
+      "text": "在 波长 核反应中，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::其他"
+    },
+    {
+      "text": "关于 灭菌 的灭菌方法，下列说法正确的是（ ） A、 培养基用高压蒸汽灭菌 B、 接种环用灼烧灭菌 C、 操作空间用紫外线消毒 D、 以上都对",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::生物技术实践"
+    },
+    {
+      "text": "Write a short essay of about 120 words on the topic: The Importance of application.(填序号)",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::写作"
+    },
+    {
+      "text": "阅读下面内容，完成各题。\n2020年“双11”，不少平台都把直播带货作为增加用户、带动销量的发力点。专家指出，运用“直播+电商”这种新兴的网购引流方式，消费者对于网红流量的关注度、对于商品的兴趣度、对于体验互动的认知度都有了不同程度的加强，越来越多的消费者通过观看网络直播下单购物。主播们的卖力讲解，真切的体验分享，商品直观的__________，刷屏的评论，也让消费者乐于下单。\n不过，中消协投诉部主任陈剑表示，（　　）。据中消协统计，消费者反映的“槽点”主要有：直播带货商家未能充分履行证照信息公示义务；部分主播在直播带货过程中____________存在夸大宣传产品功效或使用极限词等违规宣传问题；产品_________，兜售“三无”产品、假冒伪劣商品等；部分商品售后无保障，消费者难享“三包”权利等。为此，中消协提示，坚定理性消费心态，切记量需而入，____________。要尽量选择正规平台且具有专业选品团队的头部主播，尽量选择有品质保证且有售后保障的商家和商品，同时不要被直播间营造的“超高性价比”“热卖”“抢购”“秒杀”等气氛所感染，避免冲动下单，盲目消费。\n（1）依次填入文中横线上的词语，全都恰当的一项是\nA.表现 涉嫌 鱼目混珠 精打细算\nB.呈现 涉嫌 货不对板 量入为出\nC.表现 涉及 货不对板 量入为出\nD.呈现 涉及 鱼目混珠 精打细算\n（2）下列填入文中括号内的语句，衔接最恰当的一项是\nA.在直播带货“光鲜”的背后，还存在着许多不规范之处，一桩桩带货主播“翻车”事件也引发了不少消费者吐槽。在销售量不断攀升的同时，暗藏一些消费陷阱\nB.在销售量不断攀升的同时，一桩桩带货主播“翻车”事件也引发了不少消费者吐槽，在直播带货“光鲜”的背后，暗藏一些消费陷阱，还存在着许多不规范之处\nC.在直播带货“光鲜”背后，还存在着许多不规范之处，暗藏一些消费陷阱，在销售量不断攀升的同时，一桩桩带货主播“翻车”事件也引发了不少消费者吐槽\nD.在销售量不断攀升的同时，还存在着许多不规范之处，暗藏一些消费陷阱，在直播带货“光鲜”的背后，一桩桩带货主播“翻车”事件也引发了不少消费者吐槽\n（3）文中画横线的句子有语病，下列修改最恰当的一项是\nA.平台通过“直播+电商”这种新兴的网购引流方式，使消费者对网红流量的关注度、对商品的兴趣度、对体验互动的认知度都有了不同程度的提升\nB.运用“直播+电商”这种新兴的网购引流方式，消费者对网红流量的关注度、对商品的兴趣度、对体验互动的认知度都有了不同程度的改变\nC.通过“直播+电商”这种新兴的网购引流方式，使消费者对于网红流量的关注度、对于商品的兴趣度、对于体验互动的认知度都有了不同程度的改变\nD.平台“直播+电商”这种新兴的网购引流方式，消费者对于网红流量的关注度、对于商品的兴趣度、对于体验互动的认知度都有了不同程度的提升",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：已知 分子，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 请选择：",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学基本概念和基本理论"
+    },
+    {
+      "text": "题目：关于 农奴制改革 的改革背景，下列说法正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四（填序号）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考一 历史上的重大改革"
+    },
+    {
+      "text": "2021年，我国酸雨区面积占国土总面积的3.8%，比2020年下降了一个百分点。云贵高原曾经是我国的主要酸雨区，通过治理，现今酸雨污染明显减轻。据此完成35～36题。\n我国酸雨治理成效显著，主要采取的有效措施有（　　）\n①减少汽车尾气排放\n②加强工业尾气回收\n③植树造林吸收CO2\n④提高清洁能源比重\nA．①②③\nB．②③④\nC．①③④\nD．①②④",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "题干：社会存在决定社会意识体现了 实践 的什么原理？（ ） A. 历史唯物主义 B. 辩证唯物主义 C. 唯心主义 D. 机械唯物主义（写出正确答案的字母）",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::其他"
+    },
+    {
+      "text": "已知函数 $f(x) = 3x^2 - 5x + 2$，则 $f\\left(-\\sqrt{2}\\right) = \\cdots$。",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "已知: 一定量的理想气体经历等压膨胀过程, 绝热, 求气体对外做的功。 请选择:",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "生物学研究中会用到模式生物，它们通常具有生长繁殖周期短、遗传信息清楚、生命力顽强等特点。果蝇可作为模式生物，193年、1946年、195年和2011年，6位研究果蝇的科学家先后4次获得诺贝尔奖。果蝇的正常翅和缺刻翅由位于Ⅹ染色体上的一对等位基因（\nA\na\n）控制，Y染色体上没有它的等位基因。某科研小组用射线照射一对正常翅果蝇产生的受精卵，由这些受精卵发育成的F1个体中出现了一只缺刻翅雌性（只考虑一种类型的变异），将该果蝇与纯合正常翅的雄果蝇杂交产生F2。回答下列问题：\n（1）果蝇作为模式生物，除题干中的特点外，还包括 。\n（2）若缺刻翅的出现是基因突变的结果，当F2中出现缺刻翅时，并不能确定是否发生了显性突变（基因a突变为基因A），原因是 。若想证明缺刻翅的出现是发生显性基因突变的结果，可采取的简单做法是 ，结果为 时，缺刻翅基因为A。\n（3）若F2中正常翅缺刻翅=2：1，显微镜下观察到F1中该缺刻翅雌蝇体内有五种形态的染色体，则这种变异属于 ，解释出现以上结果的原因： 。",
+      "subject": "生物",
+      "question_type": "判断题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "题干：— Shall we go to the cinema tonight? — ______ A. That's a good idea. B. No, I don't. C. Yes, please. D. I'm fine. （注：请选择最佳选项）",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::语言应用"
+    },
+    {
+      "text": "(单选)与例句中 古今异义 句式相同的一项是( ) A. 选项一 B. 选项二 C. 选项三 D. 选项四 (注: 请选择最佳选项)",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::古代汉语知识"
+    },
+    {
+      "text": "设$N_A$为阿伏加 德罗常数的值。下列说法正确的是\nA: 7.1g$Cl_2$与足量铁反应，转移电子数目为0.3$N_A$\nB: 标准状况下，36g水含有原子的数目为6$N_A$\nC: 0.1mol苯中含有的碳碳双键数目为0.3$N_A$\nD: 0.1mol的白磷($P_4$)或四氯化碳($CCl_4$)中所含的共价键数均为0.4$N_A$",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学基本概念和基本理论"
+    },
+    {
+      "text": "14．（ 12分）阅读材料，完成下列要求。\n材料   有历史学者为说明近代以来科学技术在生产力发展中的作用，引用了如下\n公式：\n生产力 =科学技术×（劳动力 +劳动工具 +劳动对象 +生产管理）\n这一公式表明，科学技术有乘法效应，它能放大生产力诸要素。\n﹣﹣摘编自齐世荣总主编《世界史》\n运用世界近现代史的史实，对上述公式进行探讨。\n（说明：可以就科学技术与公式中一个或多个要素之间的关系进行论证 ；也可以\n对公式进行修改、补充、否定或提出新公式，并加以论述，要求观点明确、\n史论结合、史实准确。）",
+      "subject": "历史",
+      "question_type": "解答题",
+      "knowledge_point": "历史::近代世界"
+    },
+    {
+      "text": "下列属于 工业 农业地域类型的特点的是( ) A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "1．（ 3分） 2010年某企业的生产条件处于全行业平均水平，其单位产品的价值\n量为 132元，产量为 10万件。如果 2011年该企业的劳动生产率提高 10%，\n而全行业的劳动生产率提高 20%，其他条件不变 ，则该企业 2011年生产的商\n品价值总量为（ 　　）\nA．1452万元  B．1320万元  C．1210万元  D．1100万元",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "下列叙述正确的是（ \\, ）\nA. 相关关系是一种确定性关系，一般可分为正相关和负相关\nB. 回归直线一定过样本点的中心 $(\\bar{x}, \\bar{y})$\nC. 在回归分析中，$R^2$ 为 0.98 的模型比 $R^2$ 为 0.80 的模型拟合的效果好\nD. 某同学研究卖出的热饮杯数 $y$ 与气温 $x$（℃）的关系，得到回归方程 $y = -2.35x + 146.7$，则气温为 2°C 时，一定可卖出 142 杯热饮",
+      "subject": "数学",
+      "question_type": "选择题",
+      "knowledge_point": "数学::代数"
+    },
+    {
+      "text": "题目：关于 线圈 中的楞次定律，下列说法正确的是（ ） A. 感应电流的磁场总是阻碍引起感应电流的磁通量变化 B. 选项二 C. 选项三 D. 选项四（写出正确答案的字母）",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "（多选题）在 基因 杂交实验中，F₂ 代出现 3:1 的性状分离比，其原因是在减数分裂时（ ） A. 等位基因分离 B. 非同源染色体自由组合 C. 基因突变 D. 染色体变异 （注：请选择最佳选项）",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "（多选题）Choose the best word to fill in the blank: The weather was ______ cold that nobody wanted to go out. A. so B. such C. too D. very 请选择：",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::完形填空"
+    },
+    {
+      "text": "下列叙述中，正确的是：把下列句子组成语意连贯的语段，关于 综合性学习 的排序正确的一项是（ ） A、 选项 B、 选项 C、 选项 D、 选项",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "关于 轨道 的化学键类型，下列说法正确的是（ ）A. 只有共价键  B. 只有离子键  C. 只有金属键（填序号）  D. 既有离子键又有共价键",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::物质结构与性质"
+    },
+    {
+      "text": "7．（4分）1948年10月底，中共中央要求各地通过党校、军校以及其他方式，对干部进行\n培训，在条件可能的情况下开办正规大学，尽快使干部熟悉政治、经济、文化各方面的\n管理和技术。这一做法的目的是（）\nA．推动土地改革进一步深入\nB．为工作重心的转移做准备\nC．重视科学和文化以推进工业化建设\nD．提高执政能力以发展社会主义生产",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::近代中国"
+    },
+    {
+      "text": "第二次世界大战后，美国通过大量技术投入和大规模专业化生产，成为世界最大\n的大豆生产国和出口国．巴西自 20 世纪 70 年代开始种植大豆，在积极培育\n优良品种的同时，鼓励农民组建农场联合体，实现了大豆的规模化生产与经\n营．目前，巴西的大豆产量、出口量仅次于美国．中国曾是世界最大的大豆\n生产国和出口国，近些年大豆的质量下降（品种退化，出油率低），生产成\n本较高，成为世界最大的大豆进口国．据此完成 3～5 题．\n5．（4 分）中国要提高大豆质量需（ ） A．加大科技投入 B．扩大种植面积\nC．增加劳动力投入 D．加大化肥使用量",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::人文地理"
+    },
+    {
+      "text": "\"某大学一女生认为“修养学识是要有，但是如今的社会就是先敬衣冠后敬人，再有修养，如果穿着不上档次，出门吃饭买东西连服务员都不热情。退一步讲，别的同学都有， 我要是没有，怎么抬得起头？”该女生的观点反映了____\n①部分青年人在消费过程中存在着错误        ②攀比心理和从众心理\n③重视物质享受，忽视精神追求   ④追求标新立异和与众不同，盲目追求时尚与流行\nA: ①②③\nB: ①③④\nC: ①②④\nD: ②③④\"",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "（多选题）已知双曲线 焦点 的渐近线方程为 y = ±2x，求双曲线的离心率。（填序号）",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::平面解析几何"
+    },
+    {
+      "text": "（判断正误）关于分子间 等压 的相互作用力，下列说法正确的是（ ）A. 选项  B. 选项  C. 选项  D. 选项 请选择：",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "10．（ 12分）已知果蝇的灰体和黄体受一对等位基因控制，但这对相对性状的\n显隐性关系和该等位基因所在的染色体是未知的．同学甲用一只灰体雌蝇与\n一只黄体雄蝇杂交，子代中 ♀灰体：♀黄体：♂灰体：♂黄体为 1：1：1：1．同\n学乙用两种不同的杂交实验都证实了控制黄体的基因位于 X染色体上，并表\n现为隐性．请根据上述结果，回答下列问题：\n（1）仅根据同学甲的实验， 能不能证明控制黄体的基因位于 X染色体上，并表\n现为隐性？\n（2）请用同学甲得到的子代果蝇为材料设计两个不同的实验，这两个实验都能\n独立证明同学乙的结论．（要求：每个实验只用一个杂交组合，并指出支持\n同学乙结论的预期实验结果．） 　   　．",
+      "subject": "生物",
+      "question_type": "解答题",
+      "knowledge_point": "生物::遗传与进化"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：It is suggested that he ______ the inversion plan at once. A. carry out B. carries out C. carried out D. has carried out",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::句法"
+    },
+    {
+      "text": "下列各句中加点成语使用恰当的一项是（　　）\nA．互联网+时代，社会快速发展，创客辈出，越是在这种时候，我们越要登高自卑脚踏实地。\nB．虽然面临的困难和不利因素很多，但是，作为这项改革实验的始作俑者，我们有信心也有能力把这项工作进行下去，并且做得越来越好。\nC．春节期间，随着大量外来务工人员返乡，一些大城市十室九空，进入“空城模式马路空荡、路人零星、商铺紧锁……\nD．适当运用古词语，可以使语言表达既简洁鲜明，又古朴典雅，但是如果理解有误，使用不当，反而被人贻笑大方。",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::基础知识"
+    },
+    {
+      "text": "下列叙述中，正确的是：设 NA 为阿伏加德罗常数的值，下列关于 化合价 的说法正确的是（ ）A. 选项  B. 选项  C. 选项（写出正确答案的字母）  D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学基本概念和基本理论"
+    },
+    {
+      "text": "据图可知，“一五”计划的特点是（　　）\nA．全面实现工业化\nB．优先发展重工业\nC．形成全国交通网\nD．以东北作为重心",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::现代世界"
+    },
+    {
+      "text": "题目：板块 地形 交界处形成的地貌是（ ） A、 选项 B、 选项 C、 选项 D、 选项",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "2019年1～9月，我国境内投资者共对全球164个国家和地区的5016家境外企业进行了非金融类直接投资，累计实现投资5551.1亿元人民币，同比增长3.8%。这说明我国（　　）\n①积极参与生产全球化\n②坚持走出去的发展战略\n③是解决全球治理困境的根本性力量\n④积极参与国际竞争与合作\nA．①②\nB．①③\nC．②④\nD．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::经济生活"
+    },
+    {
+      "text": "13. (5 分) 设 $y=f(x)$ 为区间 $[0,1]$ 上的连续函数, 且恒有 $0 \\leqslant f(x) \\leqslant 1$, 可 以用随机模拟方法近似计算积分 $\\int_{0}^{1} \\mathrm{f}(\\mathrm{x}) \\mathrm{dx}$, 先产生两组（每组 $\\mathrm{N}$ 个）区间 $[0$ ，1] 上的均匀随机数 $x_{1}, x_{2}, \\ldots x_{N}$ 和 $y_{1}, y_{2}, \\ldots y_{N}$, 由此得到 $N$ 个点 $\\left(x_{i}, y_{i}\\right)($ $i=1,2, \\ldots, N)$, 再数出其中满足 $y_{i} \\leqslant f\\left(x_{i}\\right) \\quad(i=1,2, \\ldots, N)$ 的点数 $N_{1}$, 那么由随机模拟方案可得积分 $\\int_{0}^{1} \\mathrm{f}(\\mathrm{x}) \\mathrm{dx}$ 的近似值为",
+      "subject": "数学",
+      "question_type": "判断题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "题干：在 速度 作用下，若物体做匀速圆周运动，则下列说法正确的是（ ）A. 选项一  B. 选项二  C. 选项三  D. 选项四",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::力学"
+    },
+    {
+      "text": "6．（6分）生态系统的物质循环包括碳循环和氮循环等过程。下列有关碳循环的叙述，错误\n的是（）\nA．消费者没有参与碳循环的过程\nB．生产者的光合作用是碳循环的重要环节\nC．土壤中微生物的呼吸作用是碳循环的重要环节\nD．碳在无机环境与生物群落之间主要以CO2形式循环",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "阅读下面短文 ，从短文后面各题锁哥的四个选项 (A、B、C和D)中选出可以\n填入空白处的最佳选项，并在答题卡上将该项涂黑。\nMichael  Greenberg  is a very popular  New  Yorker.  He is not famous  in sports  or\nthe  arts. But people  in the streets   36  him, especially  those  who are    37  .\nFor those  people,  he is “Gloves ” Greenberg.  How  did he get that  38  ?\nHe looks  like any other businessman,  wearing  a suit and carrying  a briefcase  (公\n文箱 ). But he’s  39   . His briefcase  always  has some  gloves .\nIn winter,  Mr. Greenberg  does not  40  like other  New  Yorkers,  who look at\nthe sidewalk  and  41  the street.  He looks  around  at   42  . He stops  when  he\n43  someone  with no gloves.  He gives  them  a pair and then he   44  , looking  for\nmore  people  with cold   45  .\nOn winter  days,  Mr. Greenberg    46  gloves.  During  the rest of the year,  he    47  gloves.  People  who have  heard  about  him   48  him gloves,  and he has many\nin his apartment.\nMr. Greenberg     49   doing  this 21 years  ago. Now,  many  poor New  Yorkers\nknow  him and    50  his behavior.  But people  who don’t know  him are sometimes\n51    him. They  don’t realize  that he just wants  to make  them    52   .\nIt runs in the   53   . Michael ’s father  always  helped  the poor as he believed  it\nmade  everyone  happier.  Michael  Greenberg  feels  the   54   . A pair of gloves  may\nbe a   55   thing,  but it can make  a big difference  in winter.\n36. A. know  about   B. learn  from   C. cheer  for   D. look after\n37. A. old    B. busy     C. kind    D.poor\n38. A. iob    B. name     C. chance      D. message\n39. A.calm     B. different    C. crazy     D. curious\n40. A. act    B. sound    C. feel    D. dress\n41. A. cross  over   B. drive  along   C. hurry  down   D. keep  off\n42. A. cars    B. people    C. street  numbers  D. traffic  lights\n43. A. helps     B. chooses    C. greets     D. sees\n44. A. holds  up   B. hangs  out   C. moves  on   D. turns  around\n45. A. hands     B. ears    C. faces     D. eyes\n46. A. searches  for   B. stores  up   C. gives  away    D. puts on\n47. A. borrows     B. sells     C. returns    D. buys\n48. A. call     B. send    C. lend    D. show\n49. A. delayed     B. remembered    C. began     D. enjoyed\n50. A. understand    B. dislike    C. study     D. excuse\n51. A. sorry  for   B. satisfied  with  C. proud  of   D. surprised  by\n52. A. smart     B. rich    C. special    D. happy\n53. A. city    B. family    C. neighborhood   D. company\n54. A. honor     B. pain    C. same     D. cold\n55. A. small     B. useful    C. delightful    D. comforting",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::完形填空"
+    },
+    {
+      "text": "题目：把下列句子组成语意连贯的语段，关于 得体 的排序正确的一项是（ ） A、 选项 B、 选项 C、 选项 D、 选项（填序号）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "下列叙述中，正确的是：化学在 新能源 方面的应用，下列说法不正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 （注：请选择最佳选项）",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::其他"
+    },
+    {
+      "text": "宋朝时，“取士不问家世，婚姻不问阀阅”取代了传统的“选士必论族姓阀阅”、“家之婚姻，必由于谱系”。出现这一历史现象的根本原因是（　　）\nA．门阀士族逐渐腐朽衰落\nB．科举制选拔了大量人才\nC．经济发展推动社会变迁\nD．统治者重文轻武的政策",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::古代世界"
+    },
+    {
+      "text": "（多选题）关于 生物多样性 全球变暖的影响，下列说法正确的是（ ） A. 选项 B. 选项 C. 选项 D. 选项 请选择：",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::环境保护"
+    },
+    {
+      "text": "8．（4分）2014年10月，习近平书记在文艺工作座谈会上指出 ，艺术可以放飞\n想象的翅膀 ，但是一定要脚踩坚实的大地 。文艺创作方法有一百条 、一千条，\n但最根本、最关键、最牢靠的办法是扎根人民、扎根生活。从唯物史观看，\n这是因为（ 　　）：\n①文艺的源泉是人民群众的生产生活\n②文艺的发展取决于文艺创作方法的创新\n③文艺反映社会生活的形式与风格是统一的\n④文艺反映并服务于人民群众生产生活的一种社会意识形式。\nA．①②  B．①④  C．②③  D．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::文化生活"
+    },
+    {
+      "text": "已知：正方体 ABCD-A₁B₁C₁D₁ 的棱长为 2，求点 A 到平面 B₁CD₁ 的距离。（写出正确答案的字母）",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::立体几何"
+    },
+    {
+      "text": "根据所学知识, 回答下列问题: 理想变压器原、副线圈匝数之比为 法拉第, 求副线圈的输出电压。",
+      "subject": "物理",
+      "question_type": "解答题",
+      "knowledge_point": "物理::电磁学"
+    },
+    {
+      "text": "下列生物实验探究中运用的原理，前后不一致的是（　　）\nA．建立物理模型研究DNA结构——研究减数分裂染色体变化\nB．运用同位素标记法研究卡尔文循环——研究酵母菌呼吸方式\nC．运用减法原理研究遗传物质——研究抗生素对细菌选择作用\nD．孟德尔用假说演绎法验证分离定律——摩尔根研究伴性遗传",
+      "subject": "生物",
+      "question_type": "选择题",
+      "knowledge_point": "生物::现代生物科技专题"
+    },
+    {
+      "text": "题干: This is ______ useful book on voice. A、 a B、 an C、 the D、 /",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::词法"
+    },
+    {
+      "text": "请回答：在 缩写 的表达中，最恰当的一句是（ ）A、 选项  B、 选项  C、 选项  D、 选项（写出正确答案的字母）",
+      "subject": "语文",
+      "question_type": "选择题",
+      "knowledge_point": "语文::其他"
+    },
+    {
+      "text": "请回答：下列鉴别 结晶 的方法可行的是（ ） A. 选项 B. 选项 C. 选项 D. 选项",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学实验"
+    },
+    {
+      "text": "下列叙述中, 正确的是: 关于 社会生活 时期的社会生活, 下列说法正确的是( ) A. 选项 B. 选项 C. 选项 D. 选项 请选择:",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::其他"
+    },
+    {
+      "text": "近年来，位于高纬的西伯利亚地区气候发生了明显变化，土地覆被也随之变化，平地上 的耕地明显减少，洼地上的草地大量转化为湿地，越年积雪（积雪期超过一年）面积减少。 据此完成下题。\n湿地面积增加主要是因为当地（ ） A．洪水暴涨 B．退耕还湿 C．地面沉降 D．冻土融化",
+      "subject": "地理",
+      "question_type": "选择题",
+      "knowledge_point": "地理::自然地理"
+    },
+    {
+      "text": "7．（ 4分）在联合国成立 70周年峰会上，国家主席习近平宣布中国成立 “南南\n合作援助基金 ”，增加对最不发达国家投资 ，免除对有关最不发达国家 、内陆\n发展中国家 、小岛屿发展中国家截至 2015年底到期未还的政府间无息贷款债\n务。这些措施（ 　　）\n①体现了中国作为一个发展中大国的奉献与担当\n②坚持并弘扬了联合国宪章的宗旨和原则\n③维护了发展中国家优先发展的权利\n④奠定了南南合作的经济基础。\nA．①②  B．①③  C．②④  D．③④",
+      "subject": "政治",
+      "question_type": "选择题",
+      "knowledge_point": "政治::政治生活"
+    },
+    {
+      "text": "请回答：某工厂生产的零件尺寸服从 古典概型，若超过±3σ 则判为不合格，求合格率。",
+      "subject": "数学",
+      "question_type": "解答题",
+      "knowledge_point": "数学::排列组合与概率统计"
+    },
+    {
+      "text": "根据所学知识，回答下列问题：关于分子间 体积 的相互作用力，下列说法正确的是（ ）A. 选项  B. 选项  C. 选项 （注：请选择最佳选项）  D. 选项",
+      "subject": "物理",
+      "question_type": "选择题",
+      "knowledge_point": "物理::热学"
+    },
+    {
+      "text": "8．（ 9分）为了探究某种复方草药对某种细菌性乳腺炎的疗效是否与机体免疫\n功能增强有关，某研究小组将细菌性乳腺炎模型小鼠随机分为实验组（草药\n灌胃）、空白对照组（蒸馏水灌胃）和阳性对照组（ 免疫增强剂 A灌胃），\n并检测免疫指标。回答下列问题：\n（1）研究发现：实验组小鼠吞噬细胞的吞噬能力显著高于阳性对照组，极显著\n高于空白对照组，这一结果至少可说明该草药增强了小鼠的非特异性免疫功\n能，非特异性免疫的特点是 　   　。\n（2）研究还发现： 实验组小鼠的 T细胞含量显著高于空白对照组，与阳性对照\n组相近。这一结果说明： 该草药可能通过提高小鼠 T细胞含量来增强其特异\n性免疫功能。通常，在细胞免疫中， 效应 T细胞的作用是 　   　。\n（3）在特异性免疫中， T细胞可产生 　   　因子，受到抗原刺激的 　   　细\n胞可在该因子的作用下，增殖分化为浆细胞，浆细胞产生 　   　，参与体液\n免疫过程。",
+      "subject": "生物",
+      "question_type": "解答题",
+      "knowledge_point": "生物::稳态与环境"
+    },
+    {
+      "text": "下列叙述中，正确的是：Which of the following words has the same sound as syllable? A. cat B. city C. car D. cup（填序号）",
+      "subject": "英语",
+      "question_type": "选择题",
+      "knowledge_point": "英语::其他"
+    },
+    {
+      "text": "阅读下面这首宋诗，完成下列各题。\n除夜野宿常州城外①（其二）\n苏轼\n南来三见岁云徂，直恐终身走道途。\n老去怕看新历日，退归拟学旧桃符。\n烟花已作青春意，霜雪偏寻病客须。\n但把穷愁博长健，不辞最后饮屠苏②。\n[注]①宋神宗熙宁六年，苏轼奉命前往常州、润州。当年除夕之夜宿于常州城外运河边，于是作诗二首。②古俗，正月初一，一家人先幼后长依次饮屠苏酒。\n（1）下列对这首诗的赏析，不正确的一项是\nA.首联直抒胸臆，写自己外放已三年，感叹自己恐将终生谪居在外，奔走于宦途中。\nB.第三句勾勒出年老的心境：人老了，易伤感于年华流逝，所以不想去看新的年历。\nC.辟邪的桃符一年一换，诗人准备学写旧桃符，表明他有抛却不如意的仕途的打算。\nD.颈联中将过去的青春美好和当前的容颜衰老相对比，流露出诗人历经沧桑的痛苦。\n（2）这首诗的尾联体现了诗人怎样的情怀？请简要分析。",
+      "subject": "语文",
+      "question_type": "解答题",
+      "knowledge_point": "语文::阅读与鉴赏"
+    },
+    {
+      "text": "NA是阿伏加德罗常数的值。下列说法正确的是（　　）\nA．标准状况下，22.4L苯中含有6NA个碳氢键\nB．3.2g O2和O3混合气体中含有电子数1.6NA\nC．1L 1mol/L NaClO溶液中的阴离子数为NA\nD．一定条件下密闭容器中，1mol H2和1mol I2充分反应，转移电子数为2NA",
+      "subject": "化学",
+      "question_type": "选择题",
+      "knowledge_point": "化学::化学基本概念和基本理论"
+    },
+    {
+      "text": "下列叙述中，正确的是：下列关于 冷战 战争的影响，正确的是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四 （注：请选择最佳选项）",
+      "subject": "历史",
+      "question_type": "选择题",
+      "knowledge_point": "历史::选考三 20 世纪的战争与和平"
+    },
+    {
+      "text": "[地理--选修 6：环境保护 10分] 15．农用大棚长期处于封闭或半封闭状态。随着使用年限增长，我国北方不少大棚内土壤次 生盐渍化逐渐显现，影响作物产量和品质。究其原因主要有：灌溉水含盐量高；过量施 用化肥等。 提出治理大棚土壤次生盐渍化的合理建议。",
+      "subject": "地理",
+      "question_type": "解答题",
+      "knowledge_point": "地理::环境保护"
+    }
+  ]
+}
