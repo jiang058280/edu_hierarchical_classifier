@@ -1,0 +1,45 @@
+原始模型文件夹路径（只读，严禁移动或修改）：
+d:\pycharm\ccpython\toumanfen\003_bert\model\bert-base-chinese
+
+═══════════════════════════════════════════════════════
+【模型选型结论】2026-08-15 重新扫描 toumanfen 后确认
+═══════════════════════════════════════════════════════
+
+【选中模型】
+  名称：bert-base-chinese（标准 HuggingFace 中文 BERT base）
+  路径：d:\pycharm\ccpython\toumanfen\003_bert\model\bert-base-chinese\（只读）
+  架构：BERT（BertForMaskedLM → 复用作主干 BertModel）
+  hidden_size：768 ｜ num_hidden_layers：12 ｜ vocab_size：21128
+
+【候选模型全量扫描结果】（D:\pycharm\ccpython\toumanfen\）
+  003_bert/model/bert-base-chinese/  → 标准 BERT 12 层 768 维 ✓ 选中为主干
+  003_bert/model/bert_model.pt       → BertLiner = BERT12 + Linear(768,10) 新闻头（主干同源，头须剥离）
+  014_distill/model/bert_model.pt    → 蒸馏教师，结构同上（12 层）
+  014_distill/model/stu_model.pt     → 蒸馏学生 = BERT 4 层 hidden=240（非标准结构）
+  014_distill/model/distill_model.pt → 蒸馏学生模型（同 4 层 240 维）
+  012_quantization/model/*.pt        → nn.Linear(10000,10000) 演示玩具，排除
+  013_pruning/model/*.pt             → nn.Linear(10000,10000) 演示玩具，排除
+  001_randomforest/model/*.pkl       → TF-IDF + 随机森林（传统 ML，非 Transformer），排除
+  002_FastText/model/*.bin           → FastText（非 Transformer，无法作共享主干），排除
+  004_LLM/                           → 无本地模型权重文件，排除
+
+【选中理由】
+  1. 标准 HF 格式，transformers 可直接加载与迁移微调，最稳定；
+  2. 它是全部候选深度模型（教师/学生）的主干来源，"最正宗"的中文预训练表示；
+  3. 12 层 CPU 动态量化后单条推理约 0.3~0.8s，满足硬性门槛 <1.5s 与验收 <3s；
+  4. 中文通用语义，适合教育题目（学科/题型/知识点）迁移。
+
+【排除理由摘要】
+  - 蒸馏学生（4 层 240 维）：非标准结构、加载复杂、容量不足，难达 F1>85%；
+  - FastText/随机森林：无法作为共享主干复用，仅适合传统特征分类；
+  - 量化/剪枝模型：均为 nn.Linear 演示玩具，与文本分类无关；
+  - 004_LLM：无本地权重，依赖外部服务，不满足练手/本地 CPU 定位。
+
+【兜底链路】（若 12 层推理超时）
+  ① 导出 ONNX 加速 → ② 切换蒸馏学生 4 层模型（014_distill/stu_model.pt）
+
+【主干迁移完整性校验】2026-08-15
+  models/pretrained_backbone/bert-base-chinese/ 已含全部必需文件：
+  config.json ✓  configuration.json ✓  README.md ✓
+  tokenizer_config.json ✓  tokenizer.json ✓  vocab.txt ✓  model.safetensors ✓
+  全部 4 个关键文件 SHA256 与源一致，已通过 from_pretrained 冒烟测试。

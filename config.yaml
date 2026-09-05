@@ -1,0 +1,53 @@
+# 教育题目层级分类系统 - 配置文件
+# 对应文档第九节配置文件模板
+
+# 硬件配置
+# 实际 device 由代码自动检测：torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# 本字段用于记录/手动指定：改 "cuda" 强制 GPU，改 "cpu" 强制 CPU（并启用动态量化）
+hardware:
+  device: "auto"                   # auto=自动检测（有 GPU 用 cuda，否则 cpu）
+  use_dynamic_quantization: true   # CPU 模式下自动开启 int8 量化（GPU 模式自动关闭）
+  onnx_export: false               # 若 CPU 仍慢，改为 true 导出 onnx 加速
+
+# 路径配置（全部基于项目根目录）
+paths:
+  project_root: "D:/edu_hierarchical_classifier"
+  # 用户在 Trae 中打开的原始模型文件夹路径（只读，严禁移动/修改）
+  user_models_source: "d:/pycharm/ccpython/toumanfen/003_bert/model/bert-base-chinese"
+  # 候选模型评估时扫描的父目录（包含多个候选模型）
+  user_models_parent: "d:/pycharm/ccpython/toumanfen"
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  backbone_save: "models/pretrained_backbone"
+  heads_save: "models/heads"
+  logs: "logs"
+
+# 模型配置
+model:
+  # 评估后选中的基线模型：bert-base-chinese（来自 003_bert 文件夹）
+  backbone_name: "bert-base-chinese"
+  backbone_path: "models/pretrained_backbone/bert-base-chinese"
+  hidden_size: 768
+  num_hidden_layers: 12
+  freeze_layers: 0.8                # 冻结前 80% 层（约 10 层），微调后 20%（约 2 层）
+  max_seq_length: 256               # 数据中位数 174 字符，74% 超 128，故提升到 256 覆盖 73% 样本
+
+# 训练配置
+training:
+  batch_size: 8                     # 序列加长后降低 batch，避免 CPU 内存溢出
+  learning_rate: 2.0e-5             # 注意：YAML 科学计数法需带小数点，否则被解析为字符串
+  epochs: 12
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  early_stopping_patience: 5
+
+# 评估筛选门槛
+evaluation:
+  max_inference_time_ms: 1500       # 硬性耗时门槛（毫秒）
+  min_f1_threshold: 0.7             # 最低 F1 门槛，低于此值使用兜底模型
+
+# 标签配置（从数据中自动生成，这里仅为示例）
+labels:
+  subjects: ["数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "语文"]
+  types: {}                         # 按学科动态生成
+  knowledge_points: {}              # 按学科动态生成

@@ -1,0 +1,12 @@
+# Education Hierarchical Classifier - dependencies
+# Install: venv\Scripts\pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+torch>=2.2.0
+transformers>=4.40.0
+safetensors>=0.4.0
+gradio>=4.0.0
+pandas>=2.0
+numpy>=1.24
+pyyaml>=6.0
+scikit-learn>=1.3
+requests>=2.28

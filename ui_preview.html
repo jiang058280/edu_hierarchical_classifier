@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教育题目分层分类系统</title>
+<style>
+/* ================= 重置与全局 ================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  overflow: hidden;               /* 硬性：禁止页面滚动 */
+}
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+               "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: radial-gradient(1200px 800px at 20% 10%, #F5F7FF 0%, #DDE3F0 100%);
+  color: #1A1A2E;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ================= 全屏 Flex 列骨架：导航 → 主内容 → 页脚 ================= */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------- 1. 顶部导航（50px） ---------- */
+.navbar {
+  flex: 0 0 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.85);   /* 底部 1px 分割线 */
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.nav-logo { font-size: 20px; line-height: 1; }
+.nav-title { font-size: 18px; font-weight: 700; letter-spacing: 0.02em; }
+.nav-right { display: flex; align-items: center; }
+.btn-history {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(91, 111, 245, 0.35);
+  background: transparent;
+  color: #5B6FF5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn-history:hover {
+  transform: translateY(-1px);
+  background: rgba(91, 111, 245, 0.08);
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.16);
+}
+
+/* ---------- 2. 主内容区（flex:1，左右两栏） ---------- */
+.main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  overflow: hidden;
+}
+.left  { flex: 0 0 68%; width: 68%; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.right { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+
+/* 通用玻璃卡片 */
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 14px;
+}
+.card-title { font-size: 14px; font-weight: 700; color: #1A1A2E; margin-bottom: 10px; }
+.lbl {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4A4A6A;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.lbl.mt { margin-top: 10px; }
+
+/* ---------- 左栏：输入卡片（固定高度由内容撑开） ---------- */
+.input-card { flex: 0 0 auto; }
+textarea#inputText {
+  width: 100%;
+  height: 100px;
+  resize: none;
+  border: 1px solid #E0E4F0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1A1A2E;
+  box-shadow: inset 0 2px 6px rgba(26, 26, 46, 0.04);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+textarea#inputText:focus {
+  border-color: #5B6FF5;
+  box-shadow: 0 0 0 3px rgba(91, 111, 245, 0.14), inset 0 2px 6px rgba(26, 26, 46, 0.03);
+}
+textarea#inputText::placeholder { color: #A0A8B8; }
+
+/* 快捷示例：3 列 CSS Grid，按钮 32px 圆角 16px */
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.example-grid button {
+  height: 32px;
+  border-radius: 16px;
+  border: 1px solid rgba(91, 111, 245, 0.22);
+  background: rgba(255, 255, 255, 0.72);
+  color: #4A4A6A;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+              background 0.2s ease, border-color 0.2s ease;
+}
+.example-grid button:hover {
+  transform: translateY(-2px);
+  background: rgba(91, 111, 245, 0.1);
+  border-color: #5B6FF5;
+  color: #5B6FF5;
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.16);
+}
+.example-grid button:active { transform: translateY(0); }
+
+/* 操作按钮组 */
+.action-row { display: flex; gap: 8px; margin-top: 8px; }
+.btn-go {
+  flex: 3;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #5B6FF5, #7B8FFA);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-go:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 111, 245, 0.42);
+}
+.btn-go:active { transform: translateY(0); }
+.btn-clear {
+  flex: 1;
+  height: 40px;
+  border: 1px solid rgba(91, 111, 245, 0.35);
+  border-radius: 8px;
+  background: transparent;
+  color: #5B6FF5;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn-clear:hover {
+  transform: translateY(-2px);
+  background: rgba(91, 111, 245, 0.06);
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.12);
+}
+.btn-clear:active { transform: translateY(0); }
+
+/* ---------- 左栏：分类结果区（占据剩余所有高度） ---------- */
+.result-card { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.result-body { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.result-empty { color: #A0A8B8; font-size: 13px; letter-spacing: 0.03em; }
+.result-loading { display: flex; align-items: center; gap: 5px; color: #A0A8B8; font-size: 13px; }
+.ldot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, #7B8FFA, #4A5CF7); animation: ldot 1s ease-in-out infinite; }
+.ldot:nth-child(2) { animation-delay: 0.16s; }
+.ldot:nth-child(3) { animation-delay: 0.32s; }
+@keyframes ldot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.35; } 30% { transform: translateY(-8px); opacity: 1; } }
+
+/* 结果时间轴：圆点 + 标签 + 迷你圆环 + 数值 */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.tl-node { display: flex; flex-direction: column; align-items: center; padding: 0 8px; }
+.tl-head { display: flex; align-items: center; gap: 6px; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+.tl-dot.blue   { background: #5B6FF5; box-shadow: 0 0 6px rgba(91, 111, 245, 0.5); }
+.tl-dot.orange { background: #FFB74D; box-shadow: 0 0 6px rgba(255, 183, 77, 0.5); }
+.tl-dot.cyan   { background: #4DD0E1; box-shadow: 0 0 6px rgba(77, 208, 225, 0.5); }
+.tl-label { font-size: 12px; font-weight: 600; color: #4A4A6A; letter-spacing: 0.05em; }
+.tl-line {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 0;
+  border-top: 2px dashed #C7CDDC;   /* 浅灰虚线连线 */
+  margin-top: 9px;
+}
+.mini-ring-wrap { position: relative; width: 45px; height: 45px; margin-top: 12px; }
+.mini-ring { display: block; }
+.ring-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tl-value { font-size: 13px; font-weight: 600; color: #1A1A2E; margin-top: 8px; }
+
+/* ---------- 右栏：结果反馈 ---------- */
+.feedback-card { flex: 0 0 auto; }
+.fb-btns { display: flex; gap: 10px; }
+.fb-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid #E0E4F0;
+  background: #F2F4FA;              /* 浅灰底 */
+  color: #4A4A6A;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+              background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.fb-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(91, 111, 245, 0.14);
+}
+.fb-btn.ok-active {
+  background: linear-gradient(135deg, #34D399, #22C55E);
+  border-color: #16A34A;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.32);
+}
+.fb-btn.bad-active {
+  background: linear-gradient(135deg, #F87171, #EF4444);
+  border-color: #DC2626;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.32);
+}
+.fb-counts { margin-top: 10px; font-size: 12px; color: #4A4A6A; text-align: center; letter-spacing: 0.02em; }
+.fb-counts b { font-weight: 700; }
+.fb-counts .ok-num { color: #22C55E; }
+.fb-counts .bad-num { color: #EF4444; }
+
+/* ---------- 右栏：今日统计（填满剩余） ---------- */
+.stats-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.stats-row { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: space-around; }
+.stat-col { text-align: center; }
+.stat-num { font-size: 26px; font-weight: 700; color: #5B6FF5; line-height: 1.2; }
+.stat-num .pct { font-size: 18px; }
+.stat-cap { font-size: 11px; color: #A0A8B8; margin-top: 6px; }
+.subj-dots { display: flex; gap: 7px; justify-content: center; }
+.subj-dots span {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+.subj-dots .dot-s { background: linear-gradient(135deg, #FF8FAE, #FF6F91); }
+.subj-dots .dot-m { background: linear-gradient(135deg, #7B8FFA, #4A5CF7); }
+.subj-dots .dot-e { background: linear-gradient(135deg, #FFD08C, #FFB74D); }
+
+/* ---------- 3. 底部页脚（28px） ---------- */
+.footer {
+  flex: 0 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #A0A8B8;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- 轻量 Toast ---------- */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(26, 26, 46, 0.82);
+  color: #fff;
+  font-size: 13px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 99;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== 顶部导航（50px） ===== -->
+  <header class="navbar">
+    <div class="nav-left">
+      <span class="nav-logo">🏫</span>
+      <span class="nav-title">教育题目分层分类</span>
+    </div>
+    <div class="nav-right">
+      <button class="btn-history" id="btnHistory">📋 历史记录</button>
+    </div>
+  </header>
+
+  <!-- ===== 主内容区 ===== -->
+  <main class="main">
+
+    <!-- 左栏 68% -->
+    <section class="left">
+      <div class="card input-card">
+        <label class="lbl" for="inputText">输入题目</label>
+        <textarea id="inputText" placeholder="粘贴或输入题目文本..."></textarea>
+
+        <label class="lbl mt" for="exampleGrid">快捷示例</label>
+        <div class="example-grid" id="exampleGrid"></div>
+
+        <div class="action-row">
+          <button class="btn-go" id="btnClassify">🚀 开始分类</button>
+          <button class="btn-clear" id="btnClear">清空</button>
+        </div>
+      </div>
+
+      <div class="card result-card">
+        <div class="card-title">分类结果</div>
+        <div class="result-body" id="resultBody">
+          <div class="result-empty">⏳ 等待分类...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右栏 32% -->
+    <section class="right">
+      <div class="card feedback-card">
+        <div class="card-title">📌 结果反馈</div>
+        <div class="fb-btns">
+          <button class="fb-btn" id="fbOk">✅ 结果正确</button>
+          <button class="fb-btn" id="fbBad">❌ 结果错误</button>
+        </div>
+        <div class="fb-counts">
+          正确：<b class="ok-num" id="countOk">0</b> ｜ 错误：<b class="bad-num" id="countBad">0</b>
+        </div>
+      </div>
+
+      <div class="card stats-card">
+        <div class="card-title">📊 今日统计</div>
+        <div class="stats-row">
+          <div class="stat-col">
+            <div class="stat-num" id="statCount">0</div>
+            <div class="stat-cap">今日分类</div>
+          </div>
+          <div class="stat-col">
+            <div class="stat-num"><span id="statConf">--</span><span class="pct">%</span></div>
+            <div class="stat-cap">平均置信度</div>
+          </div>
+          <div class="stat-col">
+            <div class="subj-dots">
+              <span class="dot-s">语</span><span class="dot-m">数</span><span class="dot-e">英</span>
+            </div>
+            <div class="stat-cap">学科分布</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== 底部页脚（28px） ===== -->
+  <footer class="footer">© 2026 教育题分层分类系统 · 数据仅用于教育研究</footer>
+
+</div>
+
+<!-- 轻量提示 -->
+<div id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+// 9 学科快捷示例（短句）
+const EXAMPLES = {
+  '语文': '下列句子中，没有语病的一项是（ ）',
+  '数学': '已知函数 f(x)=x²+1，求 f(2) 的值。',
+  '英语': 'He usually ______ to school by bike.',
+  '物理': '一辆汽车以 20m/s 的速度匀速行驶，求刹车后 3s 内的位移。',
+  '生物': '下列关于细胞中蛋白质的叙述，正确的是（ ）',
+  '历史': '唐朝由盛转衰的转折点是（ ）',
+  '地理': '下列关于温带季风气候的描述，正确的是（ ）',
+  '政治': '下列关于价格的说法正确的是（ ）',
+  '化学': '下列物质中，属于有机物的是（ ）',
+};
+// 学科 → 题型 / 知识点 映射（用于模拟分类）
+const SUBJECT_META = {
+  '语文': { types: ['现代文阅读', '文言文阅读', '作文'],   points: ['病句辨析', '古诗词鉴赏', '议论文写作'] },
+  '数学': { types: ['选择题', '填空题', '解答题'],         points: ['函数定义域', '三角函数', '数列'] },
+  '英语': { types: ['单选题', '完形填空', '阅读理解'],       points: ['时态语态', '词汇辨析', '主旨大意'] },
+  '物理': { types: ['选择题', '计算题'],                   points: ['力学', '电磁学', '热学'] },
+  '生物': { types: ['选择题', '填空题'],                   points: ['细胞结构', '遗传规律', '生态系统'] },
+  '历史': { types: ['选择题', '材料解析'],                 points: ['中国古代史', '近代史', '世界史'] },
+  '地理': { types: ['选择题', '综合题'],                   points: ['气候', '地形', '地球运动'] },
+  '政治': { types: ['选择题', '简答题'],                   points: ['经济学', '政治常识', '哲学'] },
+  '化学': { types: ['选择题', '实验题'],                   points: ['有机化学', '无机化学', '化学平衡'] },
+};
+const SUBJECT_ORDER = ['语文', '数学', '英语', '物理', '生物', '历史', '地理', '政治', '化学'];
+
+// 迷你圆环参数
+const RING_R = 17, RING_C = 2 * Math.PI * RING_R;
+
+/* ================= 状态 ================= */
+let stats = { count: 0, confSum: 0 };   // 今日统计
+let feedback = { ok: 0, bad: 0 };       // 反馈计数
+
+/* ================= DOM ================= */
+const $ = (id) => document.getElementById(id);
+const inputText = $('inputText');
+const resultBody = $('resultBody');
+
+/* ================= 工具 ================= */
+function rand(min, max) { return Math.random() * (max - min) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// 置信度 → 环色（绿 / 橙 / 红）
+function ringColor(conf) {
+  return conf >= 0.9 ? '#22C55E' : conf >= 0.7 ? '#FFB74D' : '#EF4444';
+}
+
+// 轻量 Toast
+let toastTimer = null;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// 迷你圆环：环描边 + 中心数字递增动画
+function animateRing(ringFg, numEl, targetPct) {
+  const target = Math.min(100, Math.max(0, targetPct));
+  const color = ringColor(target / 100);
+  const dur = 650, t0 = performance.now();
+  ringFg.style.stroke = color;
+  function step(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 3);              // ease-out
+    ringFg.style.strokeDashoffset = RING_C * (1 - (target / 100) * e);
+    numEl.textContent = Math.round(target * e) + '%';
+    numEl.style.color = color;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ================= 渲染 ================= */
+function renderEmpty() {
+  resultBody.innerHTML = '<div class="result-empty">⏳ 等待分类...</div>';
+}
+function renderLoading() {
+  resultBody.innerHTML = '<div class="result-loading">'
+    + '<span class="ldot"></span><span class="ldot"></span><span class="ldot"></span>'
+    + '<span style="margin-left:6px">正在分类...</span></div>';
+}
+
+// 模拟一次分类结果
+function simulateClassify(text) {
+  // 简单规则：命中示例学科关键词则用该学科，否则随机
+  let subject = pick(SUBJECT_ORDER);
+  for (const s of SUBJECT_ORDER) {
+    if (text && text.includes(s)) { subject = s; break; }
+  }
+  const meta = SUBJECT_META[subject];
+  return {
+    subject,
+    type: pick(meta.types),
+    point: pick(meta.points),
+    conf: {
+      subject: rand(0.88, 0.98),
+      type: rand(0.82, 0.95),
+      point: rand(0.74, 0.93),
+    },
+  };
+}
+
+// 渲染结果时间轴
+function renderResult(r) {
+  const nodes = [
+    { dot: 'blue',   label: '学科',   value: r.subject, conf: r.conf.subject },
+    { dot: 'orange', label: '题型',   value: r.type,    conf: r.conf.type },
+    { dot: 'cyan',   label: '知识点', value: r.point,   conf: r.conf.point },
+  ];
+  const html = '<div class="timeline">'
+    + nodes.map((n, i) => `
+        <div class="tl-node">
+          <div class="tl-head"><span class="tl-dot ${n.dot}"></span><span class="tl-label">${n.label}</span></div>
+          <div class="mini-ring-wrap">
+            <svg class="mini-ring" width="45" height="45" viewBox="0 0 45 45" aria-label="${n.label}置信度">
+              <circle cx="22.5" cy="22.5" r="${RING_R}" stroke="#E5E9F5" stroke-width="5" fill="none"/>
+              <circle class="ring-fg" cx="22.5" cy="22.5" r="${RING_R}" stroke="#5B6FF5" stroke-width="5" fill="none"
+                      stroke-dasharray="${RING_C.toFixed(2)}" stroke-dashoffset="${RING_C.toFixed(2)}"
+                      stroke-linecap="round" transform="rotate(-90 22.5 22.5)"/>
+            </svg>
+            <span class="ring-num">0%</span>
+          </div>
+          <div class="tl-value">${n.value}</div>
+        </div>
+        ${i < 2 ? '<div class="tl-line"></div>' : ''}`).join('')
+    + '</div>';
+  resultBody.innerHTML = html;
+
+  // 逐个触发圆环动画
+  resultBody.querySelectorAll('.tl-node').forEach((node, i) => {
+    const ringFg = node.querySelector('.ring-fg');
+    const numEl = node.querySelector('.ring-num');
+    setTimeout(() => animateRing(ringFg, numEl, nodes[i].conf * 100), i * 140);
+  });
+}
+
+// 更新今日统计
+function updateStats(conf) {
+  stats.count += 1;
+  stats.confSum += (conf.subject + conf.type + conf.point) / 3;
+  $('statCount').textContent = stats.count;
+  $('statConf').textContent = stats.count ? Math.round(stats.confSum / stats.count * 100) : '--';
+}
+
+/* ================= 交互事件 ================= */
+// 1. 生成 9 个快捷示例按钮（顺序固定）
+const grid = $('exampleGrid');
+SUBJECT_ORDER.forEach((s) => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = s;
+  btn.addEventListener('click', () => {
+    inputText.value = EXAMPLES[s];
+    inputText.focus();
+  });
+  grid.appendChild(btn);
+});
+
+// 2. 开始分类：模拟加载 → 随机结果 → 更新统计
+$('btnClassify').addEventListener('click', () => {
+  const text = inputText.value.trim();
+  if (!text) { toast('请先输入题目文本'); inputText.focus(); return; }
+  renderLoading();
+  setTimeout(() => {
+    const r = simulateClassify(text);
+    renderResult(r);
+    updateStats(r.conf);
+  }, 450);
+});
+
+// 3. 清空
+$('btnClear').addEventListener('click', () => {
+  inputText.value = '';
+  renderEmpty();
+});
+
+// 4. 反馈：正确 / 错误（计数 +1，高亮）
+const fbOk = $('fbOk'), fbBad = $('fbBad');
+function setFeedback(activeBtn, otherBtn, isOk) {
+  activeBtn.classList.add(isOk ? 'ok-active' : 'bad-active');
+  otherBtn.classList.remove('ok-active', 'bad-active');
+  feedback[isOk ? 'ok' : 'bad'] += 1;
+  $('countOk').textContent = feedback.ok;
+  $('countBad').textContent = feedback.bad;
+}
+fbOk.addEventListener('click', () => setFeedback(fbOk, fbBad, true));
+fbBad.addEventListener('click', () => setFeedback(fbBad, fbOk, false));
+
+// 5. 历史记录 → 提示
+$('btnHistory').addEventListener('click', () => toast('历史记录功能开发中，敬请期待'));
+</script>
+</body>
+</html>

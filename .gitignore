@@ -1,0 +1,38 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# ===== 虚拟环境与本地缓存（体积大，不入库）=====
+venv/
+.huggingface_cache/
+.torch_cache/
+.pip_cache/
+.edge_profile/
+
+# ===== 模型权重（体积大不入库；版本目录结构、manifest 与评估报告入库）=====
+models/pretrained_backbone/
+models/heads/
+models/versions/**/*.pt
+models/versions/**/*.bin
+models/versions/**/*.safetensors
+
+# ===== 原始数据集（可用 scripts 重新下载；processed 清洗产物入库）=====
+data/raw/
+
+# ===== 运行时产物 =====
+logs/
+reports/
+*.log
+
+# ===== 环境配置（只提交 .env.example）=====
+.env
+.env.compose
+.env.local
+
+# ===== 杂项 =====
+*.tmp
+.DS_Store
+Thumbs.db

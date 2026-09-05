@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧教研平台</title>
+<style>
+/* ================= 全局 ================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+               "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  color: #1A1A2E;
+  background: #F4F6FA;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; }
+:root { --primary: #5B6FF5; --primary-grad: linear-gradient(135deg, #5B6FF5, #7B8FFA); }
+
+/* ================= 平台骨架：侧边 220 / 顶栏 60 / 状态栏 32，100vh 无滚动 ================= */
+.platform { height: 100vh; display: flex; overflow: hidden; }
+
+.sidebar {
+  flex: 0 0 220px; width: 220px; min-width: 0;
+  display: flex; flex-direction: column;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 2px 0 16px rgba(31, 41, 91, 0.05);
+  transition: flex-basis 0.25s ease, width 0.25s ease;
+  z-index: 30;
+}
+.sidebar.collapsed { flex-basis: 64px; width: 64px; }
+
+.side-head {
+  flex: 0 0 60px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid rgba(31, 41, 91, 0.06);
+}
+.fold-btn {
+  flex: 0 0 30px; height: 30px; border: none; border-radius: 8px;
+  background: rgba(91, 111, 245, 0.08); color: #5B6FF5;
+  font-size: 12px; transition: transform 0.25s ease, background 0.2s ease;
+}
+.fold-btn:hover { background: rgba(91, 111, 245, 0.16); }
+.sidebar.collapsed .fold-btn { transform: rotate(180deg); }
+.side-logo { display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap; }
+.logo-ico { font-size: 20px; }
+.logo-txt { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
+
+.side-nav { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+.side-nav::-webkit-scrollbar { width: 0; }
+.nav-item {
+  width: 100%; height: 42px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 12px;
+  border: none; border-radius: 8px;
+  background: transparent; color: #4A4A6A; font-size: 13px; font-weight: 500; text-align: left;
+  overflow: hidden; white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-item:hover { background: rgba(91, 111, 245, 0.07); color: #5B6FF5; }
+.nav-item.active { background: rgba(91, 111, 245, 0.12); color: #5B6FF5; font-weight: 600; }
+.n-ico { flex: 0 0 auto; font-size: 16px; width: 20px; text-align: center; }
+.n-txt { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.n-arrow { flex: 0 0 auto; font-size: 10px; color: #A0A8B8; transition: transform 0.25s ease; }
+.nav-group.open .n-arrow { transform: rotate(180deg); }
+
+.sub-nav { display: flex; flex-direction: column; gap: 2px; padding: 2px 0 2px 16px; max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+.nav-group.open .sub-nav { max-height: 160px; }
+.sub-item {
+  width: 100%; height: 34px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px;
+  border: none; border-radius: 8px;
+  background: transparent; color: #6A6A88; font-size: 12.5px; text-align: left;
+  overflow: hidden; white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.sub-item:hover { background: rgba(91, 111, 245, 0.07); color: #5B6FF5; }
+.sub-item.active { background: rgba(91, 111, 245, 0.1); color: #5B6FF5; font-weight: 600; }
+.s-ico { flex: 0 0 auto; font-size: 13px; width: 18px; text-align: center; }
+.s-txt { overflow: hidden; text-overflow: ellipsis; }
+
+.sidebar.collapsed .side-logo .logo-txt,
+.sidebar.collapsed .nav-item .n-txt,
+.sidebar.collapsed .nav-item .n-arrow,
+.sidebar.collapsed .sub-nav,
+.sidebar.collapsed .side-foot .n-txt { display: none; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 0; }
+.sidebar.collapsed .nav-item.has-sub { padding: 0; }
+.side-foot {
+  flex: 0 0 44px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  border-top: 1px solid rgba(31, 41, 91, 0.06);
+  color: #A0A8B8; font-size: 11px;
+  overflow: hidden; white-space: nowrap;
+}
+
+/* ================= 工作区 ================= */
+.workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  flex: 0 0 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+  z-index: 20;
+}
+.tb-left { display: flex; align-items: center; gap: 6px; }
+.crumb { font-size: 13px; color: #6A6A88; }
+.crumb-root { color: #1A1A2E; font-weight: 700; }
+.crumb-cur { color: #5B6FF5; font-weight: 600; }
+.crumb-sep { color: #B8BFD0; font-size: 11px; }
+.tb-right { display: flex; align-items: center; gap: 14px; }
+.klass-picker { position: relative; display: flex; align-items: center; gap: 6px; }
+.kp-label { font-size: 12px; color: #A0A8B8; }
+.klass-picker select {
+  appearance: none; -webkit-appearance: none;
+  height: 30px; padding: 0 26px 0 10px;
+  border: 1px solid rgba(91, 111, 245, 0.3); border-radius: 8px;
+  background: rgba(255, 255, 255, 0.85); color: #1A1A2E;
+  font-size: 13px; font-weight: 600; cursor: pointer; outline: none;
+}
+.kp-arrow { position: absolute; right: 8px; pointer-events: none; font-size: 10px; color: #5B6FF5; }
+.icon-btn {
+  position: relative; width: 34px; height: 34px;
+  border: none; border-radius: 8px;
+  background: transparent; font-size: 17px;
+  transition: background 0.2s ease;
+}
+.icon-btn:hover { background: rgba(91, 111, 245, 0.08); }
+.red-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #EF4444; border: 2px solid #fff;
+}
+.avatar {
+  position: relative; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--primary-grad); color: #fff;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 8px rgba(91, 111, 245, 0.35);
+}
+.av-badge {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #22C55E; border: 2px solid #fff;
+}
+
+/* ================= 主内容区 ================= */
+.main {
+  flex: 1; min-height: 0;
+  display: flex; gap: 14px; padding: 14px;
+  overflow: hidden;
+}
+.main-left {
+  flex: 0 1 60%; width: 60%; min-width: min(760px, calc(100% - 340px)); min-height: 0;
+  position: relative;
+  display: flex; overflow: hidden;
+}
+.frame-wrap {
+  flex: 1; min-width: 0; min-height: 0;
+  border-radius: 8px; overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 32px rgba(31, 41, 91, 0.08);
+}
+.frame-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* 后端未启动引导层 */
+.backend-overlay {
+  position: absolute; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(244, 246, 250, 0.96);
+  border-radius: 8px;
+}
+.backend-overlay[hidden] { display: none !important; }
+.bo-card { text-align: center; padding: 30px 40px; }
+.bo-ico { font-size: 40px; margin-bottom: 14px; }
+.bo-title { font-size: 15px; font-weight: 700; color: #1A1A2E; margin-bottom: 10px; }
+.bo-desc { font-size: 13px; color: #6A6A88; line-height: 1.8; margin-bottom: 18px; }
+.bo-desc code {
+  background: rgba(91, 111, 245, 0.1); color: #5B6FF5;
+  padding: 2px 8px; border-radius: 6px; font-size: 12px;
+}
+.bo-btn {
+  height: 36px; padding: 0 22px; border: none; border-radius: 8px;
+  background: var(--primary-grad); color: #fff;
+  font-size: 13px; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.bo-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(91,111,245,0.42); }
+
+/* ================= 右侧新增模块 ================= */
+.main-right {
+  flex: 1 1 320px; min-width: 320px; min-height: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow: hidden;
+}
+.card {
+  background: rgba(255, 255, 255, 0.66);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(31, 41, 91, 0.06);
+  padding: 12px 14px;
+}
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.card-title { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+.demo-badge {
+  font-size: 10px; font-weight: 600; color: #B45309;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 7px; border-radius: 999px;
+}
+
+/* —— 本次分类摘要 —— */
+.summary-card { flex: 0 0 auto; }
+.sum-empty { font-size: 12.5px; color: #A0A8B8; padding: 8px 0; }
+.sum-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; }
+.si-label { font-size: 12px; color: #A0A8B8; }
+.si-value { font-size: 13px; font-weight: 600; color: #1A1A2E; }
+.diff { padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.diff.easy { background: rgba(34, 197, 94, 0.12); color: #16A34A; }
+.diff.mid  { background: rgba(245, 158, 11, 0.14); color: #B45309; }
+.diff.hard { background: rgba(239, 68, 68, 0.12); color: #DC2626; }
+
+/* —— 三级标签确认 —— */
+.label-card { flex: 0 0 auto; }
+.lbl-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(31, 41, 91, 0.08); }
+.lbl-row:last-child { border-bottom: none; }
+.lbl-name {
+  flex: 0 0 56px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(91, 111, 245, 0.1); color: #5B6FF5;
+  font-size: 12px; font-weight: 600; border-radius: 6px;
+}
+.lbl-main { flex: 1; min-width: 0; }
+.lbl-value { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.lbl-text { font-size: 13px; font-weight: 700; color: #1A1A2E; }
+.lbl-empty-text { color: #A0A8B8; font-weight: 400; }
+.fix-btn {
+  height: 22px; padding: 0 8px; margin-left: 6px;
+  border: 1px solid rgba(91, 111, 245, 0.3); border-radius: 6px;
+  background: transparent; color: #5B6FF5;
+  font-size: 11px; font-weight: 500;
+  transition: background 0.2s ease;
+}
+.fix-btn:hover { background: rgba(91, 111, 245, 0.1); }
+.fixed-badge {
+  font-size: 10px; font-weight: 600; color: #16A34A;
+  background: rgba(34, 197, 94, 0.12);
+  padding: 1px 6px; border-radius: 999px;
+}
+.conf-row { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.conf-bar {
+  flex: 1; height: 6px; border-radius: 3px;
+  background: #E5E9F5; overflow: hidden;
+}
+.conf-fill { height: 100%; border-radius: 3px; background: var(--primary-grad); transition: width 0.4s ease; }
+.conf-num { flex: 0 0 38px; text-align: right; font-size: 10px; color: #A0A8B8; }
+
+/* —— 处理动作 —— */
+.action-card { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.btn-primary, .btn-ghost, .btn-muted {
+  width: 100%; height: 36px;
+  border-radius: 8px; font-size: 13px; font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn-primary {
+  border: none;
+  background: var(--primary-grad); color: #fff;
+  box-shadow: 0 4px 12px rgba(91, 111, 245, 0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(91,111,245,0.42); }
+.btn-ghost {
+  border: 1px solid rgba(91, 111, 245, 0.4);
+  background: transparent; color: #5B6FF5;
+}
+.btn-ghost:hover { transform: translateY(-2px); background: rgba(91, 111, 245, 0.06); box-shadow: 0 4px 12px rgba(91,111,245,0.16); }
+.btn-muted {
+  border: 1px solid #D5DAE8;
+  background: #F2F4FA; color: #6A6A88;
+}
+.btn-muted:hover { transform: translateY(-2px); background: #EAEEF7; }
+
+/* —— 分类历史 —— */
+.history-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.hist-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
+.hist-list::-webkit-scrollbar { width: 5px; }
+.hist-list::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.hist-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 41, 91, 0.07);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.hist-item:hover { border-color: rgba(91, 111, 245, 0.4); background: rgba(91, 111, 245, 0.05); }
+.hi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.hi-time { font-size: 11px; color: #A0A8B8; }
+.hi-live {
+  font-size: 10px; font-weight: 700; color: #16A34A;
+  background: rgba(34, 197, 94, 0.12); padding: 0 6px; border-radius: 999px;
+}
+.hi-sum { font-size: 12.5px; font-weight: 600; color: #1A1A2E; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hi-meta { display: flex; align-items: center; gap: 10px; }
+.hi-subj {
+  font-size: 11px; font-weight: 600; color: #5B6FF5;
+  background: rgba(91, 111, 245, 0.1);
+  padding: 1px 8px; border-radius: 999px;
+}
+.hi-conf { font-size: 11px; color: #A0A8B8; }
+.hist-empty { font-size: 12.5px; color: #A0A8B8; text-align: center; padding: 20px 0; }
+
+/* ================= 底部状态栏 ================= */
+.statusbar {
+  flex: 0 0 32px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  font-size: 11px; color: #6A6A88;
+}
+.st-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #CBD2E0; margin-right: 5px; vertical-align: 1px; }
+.st-dot.online { background: #22C55E; box-shadow: 0 0 5px rgba(34, 197, 94, 0.6); }
+.st-dot.offline { background: #EF4444; }
+.statusbar b { color: #1A1A2E; font-weight: 600; }
+.st-sep { color: #CBD2E0; }
+.st-spacer { flex: 1; }
+.st-fb b { color: #5B6FF5; }
+
+/* ================= 通知面板 ================= */
+.notify-panel {
+  position: fixed; top: 52px; right: 16px; width: 280px; z-index: 60;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(31, 41, 91, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(31, 41, 91, 0.14);
+  padding: 10px;
+}
+.np-head { font-size: 13px; font-weight: 700; padding: 2px 4px 8px; border-bottom: 1px solid rgba(31,41,91,0.06); }
+.np-item { display: flex; gap: 8px; padding: 9px 4px; border-bottom: 1px dashed rgba(31,41,91,0.06); }
+.np-item:last-child { border-bottom: none; }
+.np-ico { font-size: 15px; }
+.np-body { flex: 1; }
+.np-title { font-size: 12.5px; font-weight: 600; color: #1A1A2E; }
+.np-time { font-size: 11px; color: #A0A8B8; margin-top: 2px; }
+
+/* ================= 修正浮层 ================= */
+.fix-menu {
+  position: fixed; z-index: 70; width: 200px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(31, 41, 91, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(31, 41, 91, 0.16);
+  padding: 8px;
+}
+.fm-title { font-size: 11px; color: #A0A8B8; padding: 2px 6px 6px; }
+.fm-opt {
+  width: 100%; height: 32px; text-align: left;
+  border: none; border-radius: 6px; background: transparent;
+  color: #1A1A2E; font-size: 13px; padding: 0 8px;
+}
+.fm-opt:hover { background: rgba(91, 111, 245, 0.08); color: #5B6FF5; }
+.fm-opt.active { background: rgba(91, 111, 245, 0.12); color: #5B6FF5; font-weight: 600; }
+.fm-cancel {
+  width: 100%; height: 30px; margin-top: 4px;
+  border: none; border-radius: 6px; background: #F2F4FA;
+  color: #6A6A88; font-size: 12px;
+}
+.fm-cancel:hover { background: #EAEEF7; }
+
+/* ================= Modal ================= */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(26, 26, 46, 0.45);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  animation: modalFadeIn 0.2s ease;
+}
+.modal-overlay.show { display: flex; }
+@keyframes modalFadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+.modal-box {
+  background: rgba(255,255,255,0.96);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(31, 41, 91, 0.3);
+  padding: 28px 30px 24px;
+  min-width: 340px; max-width: 440px;
+  animation: modalSlideUp 0.25s ease;
+  font-family: inherit;
+}
+@keyframes modalSlideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.modal-ico { text-align: center; font-size: 36px; margin-bottom: 8px; }
+.modal-title { text-align: center; font-size: 16px; font-weight: 700; color: #1A1A2E; margin-bottom: 10px; }
+.modal-body { text-align: center; font-size: 13px; color: #4A4A6A; line-height: 1.8; margin-bottom: 6px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.modal-btn {
+  flex: 1; height: 38px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s ease; border: none;
+}
+.modal-btn-primary {
+  background: linear-gradient(135deg, #5B6FF5, #7B8FFA);
+  color: #fff; box-shadow: 0 4px 14px rgba(91,111,245,0.3);
+}
+.modal-btn-primary:hover { box-shadow: 0 6px 18px rgba(91,111,245,0.4); transform: translateY(-1px); }
+.modal-btn-cancel {
+  background: #F2F4FA; color: #6A6A88;
+}
+.modal-btn-cancel:hover { background: #E4E8F2; color: #4A4A6A; }
+
+/* 历史详情弹窗 */
+.dlg-hst-tag {
+  display: inline-block; margin: 8px 6px 4px 0; padding: 2px 10px;
+  border-radius: 999px; font-size: 12px; font-weight: 600;
+}
+.dlg-hst-line { font-size: 12.5px; color: #4A4A6A; padding: 3px 0; }
+.dlg-hst-line b { color: #1A1A2E; }
+.dlg-note { margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); font-size: 11px; color: #B45309; }
+
+/* ================= Toast ================= */
+#toast {
+  position: fixed; left: 50%; bottom: 44px; transform: translateX(-50%) translateY(10px);
+  background: rgba(26, 26, 46, 0.85); color: #fff;
+  font-size: 12.5px; padding: 9px 18px; border-radius: 999px;
+  opacity: 0; pointer-events: none; z-index: 99; white-space: nowrap;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ================= AI 录入视图（Gradio 风格） ================= */
+.ai-card {
+  background: #fff; border: 1px solid #E8ECF4; border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(31,41,91,0.05);
+  display: flex; flex-direction: column; min-height: 0; flex: 1;
+  overflow: hidden;
+}
+.ai-card-head {
+  flex: 0 0 auto; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #F0F2F8;
+}
+.ai-card-title { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+.ai-card-body {
+  flex: 1; min-height: 0; overflow-y: auto;
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 16px;
+}
+.ai-card-body::-webkit-scrollbar { width: 5px; }
+.ai-card-body::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+
+.ai-section-title { font-size: 13px; font-weight: 700; color: #1A1A2E; display: flex; align-items: center; gap: 6px; }
+.ai-section-title::before { content: ''; width: 3px; height: 14px; background: #5B6FF5; border-radius: 2px; }
+
+.ai-input-wrap { display: flex; flex-direction: column; gap: 10px; }
+.ai-input-wrap textarea {
+  width: 100%; min-height: 100px; padding: 12px 14px;
+  border: 1.5px solid #D8DEEB; border-radius: 10px;
+  font-size: 14px; line-height: 1.6; font-family: inherit;
+  color: #1A1A2E; background: #fff;
+  resize: vertical; outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ai-input-wrap textarea:focus { border-color: #5B6FF5; box-shadow: 0 0 0 3px rgba(91,111,245,0.1); }
+.ai-examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ai-ex-btn {
+  padding: 9px 12px; border: 1px solid #E8ECF4; border-radius: 8px;
+  background: #FAFBFE; color: #4A4A6A; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s ease;
+  text-align: center;
+}
+.ai-ex-btn:hover { background: #EEF0FF; border-color: #5B6FF5; color: #5B6FF5; }
+.ai-actions { display: flex; gap: 10px; }
+.ai-btn-primary {
+  flex: 1; height: 40px; border: none; border-radius: 8px;
+  background: linear-gradient(135deg, #5B6FF5, #7B8FFA);
+  color: #fff; font-size: 14px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(91,111,245,0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ai-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,111,245,0.4); }
+.ai-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.ai-btn-ghost {
+  flex: 0 0 auto; height: 40px; padding: 0 18px;
+  border: 1.5px solid #E0E4F0; border-radius: 8px;
+  background: #fff; color: #6A6A88; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s ease;
+}
+.ai-btn-ghost:hover { border-color: #5B6FF5; color: #5B6FF5; }
+
+/* 分类结果 */
+.ai-result { display: flex; flex-direction: column; gap: 10px; }
+.ai-result-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.ai-result-label { flex: 0 0 70px; font-size: 12.5px; color: #6A6A88; font-weight: 600; }
+.ai-result-tag {
+  flex: 0 0 auto; padding: 5px 12px; border-radius: 6px;
+  font-size: 13px; font-weight: 600;
+}
+.ai-result-tag.blue { background: rgba(91,111,245,0.12); color: #5B6FF5; }
+.ai-result-tag.amber { background: rgba(255,179,71,0.14); color: #B45309; }
+.ai-result-tag.cyan { background: rgba(6,182,212,0.12); color: #0891B2; }
+.ai-conf-bar {
+  flex: 1; height: 18px; border-radius: 9px; background: #F2F4FA;
+  overflow: hidden; position: relative;
+}
+.ai-conf-fill {
+  height: 100%; border-radius: 9px;
+  transition: width 0.5s ease;
+}
+.ai-conf-val {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* 反馈 */
+.ai-feedback {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 10px;
+  background: #FAFBFE; border: 1px solid #EEF0F5;
+}
+.ai-fb-label { font-size: 13px; font-weight: 600; color: #1A1A2E; }
+.ai-fb-btns { display: flex; gap: 8px; }
+.ai-fb-btn {
+  width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #E0E4F0;
+  background: #fff; cursor: pointer; font-size: 16px;
+  transition: all 0.15s ease;
+}
+.ai-fb-btn.ok:hover { border-color: #22C55E; background: #F0FDF4; }
+.ai-fb-btn.bad:hover { border-color: #EF4444; background: #FEF2F2; }
+.ai-fb-count { font-size: 12px; color: #6A6A88; margin-left: auto; }
+.ai-fb-count b { color: #1A1A2E; }
+
+/* 今日统计 */
+.ai-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.ai-stat-card {
+  padding: 12px 14px; border-radius: 10px;
+  background: #FAFBFE; border: 1px solid #EEF0F5;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ai-stat-label { font-size: 12px; color: #6A6A88; font-weight: 600; }
+.ai-stat-val { font-size: 20px; font-weight: 800; color: #1A1A2E; }
+.ai-stat-subs { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.ai-sub-dot {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  color: #fff;
+}
+
+/* 分类历史（左侧卡片内） */
+.ai-hist-list { display: flex; flex-direction: column; gap: 6px; }
+.ai-hist-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 8px;
+  background: #FAFBFE; border: 1px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+.ai-hist-item:hover { border-color: #D0D6E6; background: #fff; }
+.ai-hist-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; font-weight: 700; flex: 0 0 auto;
+}
+.ai-hist-info { flex: 1; min-width: 0; }
+.ai-hist-text { font-size: 12px; color: #1A1A2E; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-hist-meta { font-size: 11px; color: #A0A8B8; display: flex; gap: 8px; margin-top: 2px; }
+.ai-hist-count { font-size: 11px; color: #A0A8B8; flex: 0 0 auto; }
+
+/* ================= SPA 视图容器 ================= */
+.main { position: relative; padding: 0; overflow: hidden; }
+.view {
+  position: absolute; inset: 14px;
+  display: none; flex-direction: column;
+  gap: 14px; min-height: 0;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.view.active { display: flex; opacity: 1; transform: translateY(0); }
+/* AI 智能录入视图保留原有的左右分栏布局 */
+.view.view-ai { flex-direction: row; gap: 14px; }
+
+/* ================= 通用页面组件 ================= */
+.page-toolbar {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(255,255,255,0.66);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 12px 14px;
+}
+.page-title { font-size: 16px; font-weight: 700; color: #1A1A2E; }
+.page-sub { font-size: 12px; color: #A0A8B8; }
+.field {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.field-label { font-size: 11px; color: #A0A8B8; font-weight: 600; }
+.inp, .sel {
+  height: 32px; padding: 0 10px;
+  border: 1px solid rgba(91,111,245,0.25); border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #1A1A2E;
+  font-size: 13px; outline: none; min-width: 120px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.inp:focus, .sel:focus { border-color: #5B6FF5; box-shadow: 0 0 0 3px rgba(91,111,245,0.12); }
+.btn-sm {
+  height: 32px; padding: 0 14px; border: none; border-radius: 8px;
+  background: var(--primary-grad); color: #fff; font-size: 12.5px; font-weight: 600;
+  box-shadow: 0 3px 10px rgba(91,111,245,0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-sm:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(91,111,245,0.4); }
+.btn-line {
+  height: 32px; padding: 0 14px; border: 1px solid rgba(91,111,245,0.35); border-radius: 8px;
+  background: transparent; color: #5B6FF5; font-size: 12.5px; font-weight: 600;
+  transition: background 0.2s ease;
+}
+.btn-line:hover { background: rgba(91,111,245,0.08); }
+.btn-danger {
+  height: 32px; padding: 0 12px; border: 1px solid rgba(239,68,68,0.3); border-radius: 8px;
+  background: transparent; color: #DC2626; font-size: 12px; font-weight: 600;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.08); }
+.scroll-body {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+}
+.scroll-body::-webkit-scrollbar { width: 6px; }
+.scroll-body::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.scroll-body::-webkit-scrollbar-track { background: transparent; }
+
+/* ================= 工作台 ================= */
+.dash-stats { flex: 0 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.stat-card {
+  background: rgba(255,255,255,0.66);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(31,41,91,0.1); }
+.sc-head { display: flex; align-items: center; justify-content: space-between; }
+.sc-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.sc-ico.blue { background: rgba(91,111,245,0.12); color: #5B6FF5; }
+.sc-ico.amber { background: rgba(245,158,11,0.14); color: #B45309; }
+.sc-ico.green { background: rgba(34,197,94,0.12); color: #16A34A; }
+.sc-ico.cyan { background: rgba(6,182,212,0.12); color: #0891B2; }
+.sc-label { font-size: 12px; color: #A0A8B8; font-weight: 600; }
+.sc-value { font-size: 26px; font-weight: 800; color: #1A1A2E; letter-spacing: -0.02em; }
+.sc-trend { font-size: 11px; color: #16A34A; font-weight: 600; }
+.sc-trend.down { color: #DC2626; }
+.dash-rows { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+.dash-panel {
+  background: rgba(255,255,255,0.66);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; min-height: 0;
+}
+.dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.dp-title { font-size: 14px; font-weight: 700; color: #1A1A2E; }
+.dp-body { flex: 1; min-height: 0; overflow-y: auto; }
+/* 柱状图 */
+.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 100%; min-height: 120px; padding-top: 10px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.bar-val { font-size: 11px; font-weight: 700; color: #5B6FF5; }
+.bar-fill { width: 100%; max-width: 36px; border-radius: 6px 6px 0 0; background: var(--primary-grad); transition: height 0.5s ease; }
+.bar-label { font-size: 11px; color: #A0A8B8; }
+/* 学科分布条 */
+.dist-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+.dist-name { flex: 0 0 56px; font-size: 12.5px; font-weight: 600; color: #4A4A6A; }
+.dist-track { flex: 1; height: 10px; border-radius: 5px; background: #EAEEF7; overflow: hidden; }
+.dist-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
+.dist-pct { flex: 0 0 40px; text-align: right; font-size: 12px; font-weight: 700; color: #1A1A2E; }
+
+/* ================= 数据表格 ================= */
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+.data-table thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: rgba(244,246,250,0.95); backdrop-filter: blur(8px);
+  text-align: left; padding: 10px 12px;
+  font-size: 11px; font-weight: 700; color: #6A6A88; text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(31,41,91,0.08);
+}
+.data-table tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(31,41,91,0.05); color: #1A1A2E; vertical-align: middle; }
+.data-table tbody tr { transition: background 0.15s ease; }
+.data-table tbody tr:hover { background: rgba(91,111,245,0.04); }
+.t-id { font-family: "SF Mono", "Consolas", monospace; font-size: 11.5px; color: #6A6A88; }
+.t-content { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag-pill {
+  display: inline-block; padding: 2px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.tag-subj { background: rgba(91,111,245,0.1); color: #5B6FF5; }
+.tag-type { background: rgba(255,183,77,0.16); color: #B45309; }
+.tag-know { background: rgba(6,182,212,0.12); color: #0891B2; }
+.row-act { display: flex; gap: 6px; }
+.act-ico {
+  width: 26px; height: 26px; border: none; border-radius: 6px;
+  background: rgba(91,111,245,0.08); color: #5B6FF5; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease;
+}
+.act-ico:hover { background: rgba(91,111,245,0.18); }
+.act-ico.del { background: rgba(239,68,68,0.08); color: #DC2626; }
+.act-ico.del:hover { background: rgba(239,68,68,0.18); }
+/* 分页 */
+.pager { flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding-top: 10px; }
+.pg-btn {
+  min-width: 30px; height: 30px; padding: 0 8px; border: 1px solid rgba(31,41,91,0.1); border-radius: 6px;
+  background: rgba(255,255,255,0.8); color: #4A4A6A; font-size: 12px; font-weight: 600;
+  transition: background 0.2s ease;
+}
+.pg-btn:hover { background: rgba(91,111,245,0.08); color: #5B6FF5; }
+.pg-btn.active { background: var(--primary-grad); color: #fff; border-color: transparent; }
+.pg-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ================= 标签管理 ================= */
+.tag-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px 1fr; gap: 14px; }
+.tag-side {
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 10px; overflow-y: auto;
+}
+.tag-side::-webkit-scrollbar { width: 5px; }
+.tag-side::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.tag-side-item {
+  width: 100%; padding: 10px 12px; border: none; border-radius: 8px; background: transparent;
+  text-align: left; font-size: 13px; font-weight: 600; color: #4A4A6A;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.tag-side-item:hover { background: rgba(91,111,245,0.06); color: #5B6FF5; }
+.tag-side-item.active { background: rgba(91,111,245,0.12); color: #5B6FF5; }
+.tag-side-count { font-size: 11px; color: #A0A8B8; font-weight: 600; }
+.tag-main {
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 14px 16px; overflow-y: auto;
+}
+.tag-main::-webkit-scrollbar { width: 5px; }
+.tag-main::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.tag-section { margin-bottom: 18px; }
+.tag-section-title { font-size: 13px; font-weight: 700; color: #1A1A2E; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.tag-chip {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 12px; border-radius: 8px;
+  background: rgba(244,246,250,0.7); border: 1px solid rgba(31,41,91,0.06);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.tag-chip:hover { border-color: rgba(91,111,245,0.3); background: rgba(91,111,245,0.04); }
+.tag-chip-name { font-size: 12.5px; font-weight: 600; color: #1A1A2E; }
+.tag-chip-acts { display: flex; gap: 4px; }
+.tc-btn {
+  width: 22px; height: 22px; border: none; border-radius: 5px;
+  background: rgba(91,111,245,0.1); color: #5B6FF5; font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.tc-btn:hover { background: rgba(91,111,245,0.22); }
+
+/* ================= 智能组卷 ================= */
+.paper-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 320px 1fr; gap: 14px; }
+.paper-filter {
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 14px 16px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.paper-filter::-webkit-scrollbar { width: 5px; }
+.paper-filter::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+.filter-title { font-size: 12px; font-weight: 700; color: #1A1A2E; }
+.chk-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.chk {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(31,41,91,0.12);
+  background: rgba(255,255,255,0.6); font-size: 12px; color: #4A4A6A; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.chk input { accent-color: #5B6FF5; }
+.chk:has(input:checked) { background: rgba(91,111,245,0.12); border-color: rgba(91,111,245,0.4); color: #5B6FF5; font-weight: 600; }
+.range-row { display: flex; align-items: center; gap: 10px; }
+.range-row input[type=range] { flex: 1; accent-color: #5B6FF5; }
+.range-val { font-size: 13px; font-weight: 700; color: #5B6FF5; min-width: 36px; text-align: right; }
+.paper-preview {
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.pp-head { flex: 0 0 auto; padding: 12px 16px; border-bottom: 1px solid rgba(31,41,91,0.06); display: flex; align-items: center; justify-content: space-between; }
+.pp-body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px; }
+.pp-body::-webkit-scrollbar { width: 5px; }
+.pp-body::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.qa-item {
+  display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px dashed rgba(31,41,91,0.06);
+}
+.qa-item:last-child { border-bottom: none; }
+.qa-cb { flex: 0 0 auto; margin-top: 2px; accent-color: #5B6FF5; width: 16px; height: 16px; }
+.qa-main { flex: 1; min-width: 0; }
+.qa-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.qa-num { font-size: 12px; font-weight: 700; color: #A0A8B8; }
+.qa-content { font-size: 12.5px; color: #1A1A2E; line-height: 1.6; }
+.qa-empty { text-align: center; padding: 40px 0; color: #A0A8B8; font-size: 13px; }
+.pp-foot { flex: 0 0 auto; padding: 10px 16px; border-top: 1px solid rgba(31,41,91,0.06); display: flex; align-items: center; justify-content: space-between; background: rgba(244,246,250,0.5); }
+
+/* ================= 学情分析 ================= */
+.analy-tabs { flex: 0 0 auto; display: flex; gap: 6px; }
+.analy-tab {
+  padding: 7px 16px; border: 1px solid rgba(31,41,91,0.1); border-radius: 8px;
+  background: rgba(255,255,255,0.6); color: #4A4A6A; font-size: 12.5px; font-weight: 600;
+  transition: all 0.2s ease;
+}
+.analy-tab.active { background: var(--primary-grad); color: #fff; border-color: transparent; }
+.analy-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.analy-panel {
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 14px 16px; display: flex; flex-direction: column; min-height: 0;
+}
+/* 雷达图（CSS 五边形占位） */
+.radar-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; position: relative; padding: 10px; }
+.radar { width: 180px; height: 180px; position: relative; }
+.radar-bg { position: absolute; inset: 0; }
+.radar-poly { fill: rgba(91,111,245,0.15); stroke: #5B6FF5; stroke-width: 1.5; }
+.radar-axis { stroke: rgba(31,41,91,0.1); stroke-width: 1; }
+.radar-dot { fill: #5B6FF5; }
+.radar-label { position: absolute; font-size: 11px; font-weight: 600; color: #6A6A88; white-space: nowrap; }
+/* 错题列表 */
+.err-list { flex: 1; min-height: 0; overflow-y: auto; }
+.err-list::-webkit-scrollbar { width: 5px; }
+.err-list::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.err-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(31,41,91,0.05); }
+.err-item:last-child { border-bottom: none; }
+.err-stu { flex: 0 0 80px; font-size: 12.5px; font-weight: 600; color: #1A1A2E; }
+.err-subj { flex: 0 0 60px; }
+.err-know { flex: 1; font-size: 12.5px; color: #4A4A6A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.err-status { flex: 0 0 auto; }
+
+/* ================= 系统设置 ================= */
+.set-tabs { flex: 0 0 auto; display: flex; gap: 6px; }
+.set-tab { padding: 7px 16px; border: 1px solid rgba(31,41,91,0.1); border-radius: 8px; background: rgba(255,255,255,0.6); color: #4A4A6A; font-size: 12.5px; font-weight: 600; transition: all 0.2s ease; }
+.set-tab.active { background: var(--primary-grad); color: #fff; border-color: transparent; }
+.set-panel {
+  flex: 1; min-height: 0; overflow-y: auto;
+  background: rgba(255,255,255,0.66); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8); border-radius: 8px; box-shadow: 0 6px 24px rgba(31,41,91,0.06);
+  padding: 20px 24px;
+}
+.set-panel::-webkit-scrollbar { width: 5px; }
+.set-panel::-webkit-scrollbar-thumb { background: #D0D6E6; border-radius: 3px; }
+.set-form { display: flex; flex-direction: column; gap: 16px; max-width: 560px; }
+.set-row { display: flex; flex-direction: column; gap: 6px; }
+.set-row-label { font-size: 12px; font-weight: 700; color: #1A1A2E; }
+.set-row-hint { font-size: 11px; color: #A0A8B8; }
+.set-input { height: 36px; padding: 0 12px; border: 1px solid rgba(91,111,245,0.25); border-radius: 8px; background: rgba(255,255,255,0.9); font-size: 13px; outline: none; }
+.set-input:focus { border-color: #5B6FF5; box-shadow: 0 0 0 3px rgba(91,111,245,0.12); }
+.set-path-box { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(244,246,250,0.7); border: 1px solid rgba(31,41,91,0.06); }
+.set-path-box code { font-size: 12px; color: #5B6FF5; font-family: "SF Mono","Consolas",monospace; word-break: break-all; }
+.device-pick { display: flex; gap: 8px; }
+.dev-opt { flex: 1; padding: 10px 14px; border: 1px solid rgba(31,41,91,0.1); border-radius: 8px; background: rgba(255,255,255,0.6); cursor: pointer; text-align: center; transition: all 0.2s ease; }
+.dev-opt.active { background: rgba(91,111,245,0.12); border-color: #5B6FF5; color: #5B6FF5; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="platform">
+
+  <!-- ============ 侧边导航 ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <button class="fold-btn" id="btnFold" title="折叠 / 展开导航">◀</button>
+      <div class="side-logo"><span class="logo-ico">🎓</span><span class="logo-txt">智慧教研平台</span></div>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item" data-menu="workbench"><span class="n-ico">📊</span><span class="n-txt">工作台</span></button>
+
+      <div class="nav-group open" data-menu="bank">
+        <button class="nav-item has-sub active" id="navBank">
+          <span class="n-ico">📚</span><span class="n-txt">题库管理</span><span class="n-arrow">▾</span>
+        </button>
+        <div class="sub-nav" id="subNav">
+          <button class="sub-item active" data-sub="ai-input"><span class="s-ico">✨</span><span class="s-txt">AI智能录入</span></button>
+          <button class="sub-item" data-sub="list"><span class="s-ico">📝</span><span class="s-txt">题目列表</span></button>
+          <button class="sub-item" data-sub="tag"><span class="s-ico">🏷️</span><span class="s-txt">标签管理</span></button>
+        </div>
+      </div>
+
+      <button class="nav-item" data-menu="paper"><span class="n-ico">✏️</span><span class="n-txt">智能组卷</span></button>
+      <button class="nav-item" data-menu="analy"><span class="n-ico">🎯</span><span class="n-txt">学情分析</span></button>
+      <button class="nav-item" data-menu="setting"><span class="n-ico">⚙️</span><span class="n-txt">系统设置</span></button>
+    </nav>
+    <div class="side-foot"><span class="n-ico">💾</span><span class="n-txt">v1.0.0 · 演示环境</span></div>
+  </aside>
+
+  <!-- ============ 工作区 ============ -->
+  <div class="workspace">
+
+    <!-- 顶部全局栏 -->
+    <header class="topbar">
+      <div class="tb-left" id="crumbBox">
+        <span class="crumb crumb-root">智慧教研平台</span>
+        <span class="crumb-sep">/</span>
+        <span class="crumb">题库管理</span>
+        <span class="crumb-sep">/</span>
+        <span class="crumb crumb-cur">AI智能录入</span>
+      </div>
+      <div class="tb-right">
+        <label class="klass-picker">
+          <span class="kp-label">当前班级</span>
+          <select id="selClass">
+            <option value="初三(2)班">初三(2)班</option>
+            <option value="初三(1)班">初三(1)班</option>
+            <option value="初二(3)班">初二(3)班</option>
+          </select>
+          <span class="kp-arrow">▾</span>
+        </label>
+        <button class="icon-btn" id="btnBell" title="通知">🔔<span class="red-dot"></span></button>
+        <div class="avatar" id="btnAvatar" title="张老师">张</div>
+      </div>
+    </header>
+
+    <!-- 主内容区（多视图容器） -->
+    <main class="main">
+
+      <!-- ===== 视图：AI 智能录入 ===== -->
+      <section class="view view-ai active" data-view="ai-input">
+        <!-- 左 60%：Gradio 风格分类卡片 -->
+        <section class="main-left">
+          <div class="ai-card">
+            <div class="ai-card-head">
+              <span class="ai-card-title">教育题目分层分类</span>
+              <button class="ai-btn-ghost" id="btnHistView" style="height:32px;font-size:12px;">📋 历史记录</button>
+            </div>
+            <div class="ai-card-body">
+
+              <!-- 输入题目 -->
+              <div>
+                <div class="ai-section-title" style="margin-bottom:10px;">输入题目</div>
+                <div class="ai-input-wrap">
+                  <textarea id="inputText" placeholder="粘贴或输入一道完整的教育题目文本..."></textarea>
+                  <div class="ai-examples" id="exampleGrid"></div>
+                  <div class="ai-actions">
+                    <button class="ai-btn-primary" id="btnClassify">🚀 开始分类</button>
+                    <button class="ai-btn-ghost" id="btnClear">清空</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 分类结果 -->
+              <div id="resultSection" style="display:none;">
+                <div class="ai-section-title" style="margin-bottom:10px;">分类结果</div>
+                <div class="ai-result" id="resultBox"></div>
+              </div>
+
+              <!-- 结果反馈 -->
+              <div id="feedbackSection" style="display:none;">
+                <div class="ai-section-title" style="margin-bottom:10px;">结果反馈</div>
+                <div class="ai-feedback">
+                  <span class="ai-fb-label">这道题的分类正确吗？</span>
+                  <div class="ai-fb-btns">
+                    <button class="ai-fb-btn ok" id="btnFbOk" title="正确">✓</button>
+                    <button class="ai-fb-btn bad" id="btnFbBad" title="错误">✗</button>
+                  </div>
+                  <span class="ai-fb-count">正确 <b id="fbOk">0</b> ｜ 错误 <b id="fbBad">0</b></span>
+                </div>
+              </div>
+
+              <!-- 今日统计 -->
+              <div>
+                <div class="ai-section-title" style="margin-bottom:10px;">今日统计</div>
+                <div class="ai-stats" id="statsBox">
+                  <div class="ai-stat-card">
+                    <span class="ai-stat-label">分类数</span>
+                    <span class="ai-stat-val" id="statCount">0</span>
+                  </div>
+                  <div class="ai-stat-card">
+                    <span class="ai-stat-label">平均置信度</span>
+                    <span class="ai-stat-val" id="statConf">--</span>
+                  </div>
+                  <div class="ai-stat-card">
+                    <span class="ai-stat-label">学科分布</span>
+                    <div class="ai-stat-subs" id="statSubs"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 分类历史 -->
+              <div>
+                <div class="ai-section-title" style="margin-bottom:10px;">分类历史</div>
+                <div class="ai-hist-list" id="aiHistList"></div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 后端检测覆盖层 -->
+          <div class="backend-overlay" id="backendOverlay" hidden>
+            <div class="bo-card">
+              <div class="bo-ico">🔌</div>
+              <div class="bo-title">检测到后端服务未启动</div>
+              <div class="bo-desc">请先在项目根目录执行<br><code>python app.py</code><br>待服务启动后点击下方按钮重试。</div>
+              <button class="bo-btn" id="btnRetry">🔄 重试检测</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右 40%：摘要 + 操作 -->
+        <aside class="main-right">
+
+          <!-- 本次分类摘要 -->
+          <div class="card summary-card">
+            <div class="card-head"><span class="card-title">本次分类摘要</span></div>
+            <div class="sum-body" id="sumBody">
+              <div class="sum-empty">点击「开始分类」获取结果…</div>
+            </div>
+          </div>
+
+          <!-- 三级标签确认 -->
+          <div class="card label-card">
+            <div class="card-head"><span class="card-title">三级标签确认</span></div>
+            <div class="labels" id="labelRows"></div>
+          </div>
+
+          <!-- 处理动作 -->
+          <div class="card action-card">
+            <button class="btn-primary" id="btnSave">📥 存入题库</button>
+            <button class="btn-muted" id="btnReclassify">🔄 重新分类</button>
+          </div>
+
+          <!-- 分类历史 -->
+          <div class="card history-card">
+            <div class="card-head"><span class="card-title">分类历史</span></div>
+            <div class="hist-list" id="histList"></div>
+          </div>
+
+        </aside>
+      </section>
+
+      <!-- ===== 视图：工作台 ===== -->
+      <section class="view" data-view="workbench">
+        <div class="dash-stats" id="dashStats"></div>
+        <div class="dash-rows">
+          <div class="dash-panel">
+            <div class="dp-head"><span class="dp-title">近 7 日分类趋势</span><span class="page-sub">单位：道</span></div>
+            <div class="dp-body"><div class="bar-chart" id="trendChart"></div></div>
+          </div>
+          <div class="dash-panel">
+            <div class="dp-head"><span class="dp-title">热门学科分布</span><span class="page-sub">本周</span></div>
+            <div class="dp-body" id="distChart"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：题目列表 ===== -->
+      <section class="view" data-view="list">
+        <div class="page-toolbar">
+          <span class="page-title">题目列表</span>
+          <span class="page-sub">共 <b id="listTotal">0</b> 条</span>
+          <div style="flex:1"></div>
+          <label class="field"><span class="field-label">学科</span>
+            <select class="sel" id="listSubj"><option value="">全部</option></select>
+          </label>
+          <label class="field"><span class="field-label">题型</span>
+            <select class="sel" id="listType"><option value="">全部</option></select>
+          </label>
+          <label class="field"><span class="field-label">关键词</span>
+            <input class="inp" id="listKw" placeholder="搜索题目内容…">
+          </label>
+          <button class="btn-sm" id="btnListSearch">🔍 搜索</button>
+        </div>
+        <div class="dash-panel" style="flex:1;min-height:0;padding:0;">
+          <div class="scroll-body" style="padding:4px 8px 8px;">
+            <table class="data-table">
+              <thead><tr>
+                <th>ID</th><th>题目内容</th><th>学科</th><th>题型</th><th>知识点</th><th>录入时间</th><th style="text-align:right">操作</th>
+              </tr></thead>
+              <tbody id="listBody"></tbody>
+            </table>
+          </div>
+          <div class="pager" style="padding:10px 16px;">
+            <button class="pg-btn" id="pgPrev">‹ 上一页</button>
+            <span id="pgNums"></span>
+            <button class="pg-btn" id="pgNext">下一页 ›</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：标签管理 ===== -->
+      <section class="view" data-view="tag">
+        <div class="page-toolbar">
+          <span class="page-title">标签管理</span>
+          <span class="page-sub">三级标签体系维护</span>
+        </div>
+        <div class="tag-layout">
+          <div class="tag-side" id="tagSide"></div>
+          <div class="tag-main" id="tagMain"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：智能组卷 ===== -->
+      <section class="view" data-view="paper">
+        <div class="page-toolbar">
+          <span class="page-title">智能组卷</span>
+          <span class="page-sub">按条件筛选题目，一键生成试卷</span>
+        </div>
+        <div class="paper-layout">
+          <div class="paper-filter">
+            <div class="filter-group">
+              <span class="filter-title">学科范围</span>
+              <div class="chk-list" id="paperSubj"></div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-title">题型范围</span>
+              <div class="chk-list" id="paperType"></div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-title">难度</span>
+              <div class="range-row">
+                <input type="range" id="paperDiff" min="1" max="3" value="2">
+                <span class="range-val" id="paperDiffVal">中等</span>
+              </div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-title">题量</span>
+              <div class="range-row">
+                <input type="range" id="paperQty" min="5" max="15" step="5" value="10">
+                <span class="range-val" id="paperQtyVal">10 题</span>
+              </div>
+            </div>
+            <button class="btn-sm" id="btnGenPaper" style="margin-top:auto;">✨ 生成试卷</button>
+          </div>
+          <div class="paper-preview">
+            <div class="pp-head">
+              <span class="dp-title">试卷预览</span>
+              <span class="page-sub" id="paperPreviewInfo">未生成</span>
+            </div>
+            <div class="pp-body" id="paperBody">
+              <div class="qa-empty">点击「生成试卷」按当前筛选条件生成试卷预览</div>
+            </div>
+            <div class="pp-foot">
+              <span class="page-sub">已选 <b id="paperSelected" style="color:#5B6FF5">0</b> 题</span>
+              <button class="btn-sm" id="btnAddBasket">🧺 加入组卷篮</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：学情分析 ===== -->
+      <section class="view" data-view="analy">
+        <div class="analy-tabs">
+          <button class="analy-tab active" data-atab="class">按班级</button>
+          <button class="analy-tab" data-atab="student">按学生</button>
+        </div>
+        <div class="analy-grid">
+          <div class="analy-panel">
+            <div class="dp-head"><span class="dp-title">学生薄弱知识点雷达</span></div>
+            <div class="radar-wrap">
+              <div class="radar" id="radarChart"></div>
+            </div>
+          </div>
+          <div class="analy-panel">
+            <div class="dp-head"><span class="dp-title">各学科正确率</span><span class="page-sub">本周</span></div>
+            <div class="dp-body" id="accChart"></div>
+          </div>
+        </div>
+        <div class="dash-panel" style="flex:0 0 auto;max-height:200px;">
+          <div class="dp-head"><span class="dp-title">最近错题记录</span><span class="page-sub">最近 5 条</span></div>
+          <div class="err-list" id="errList"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：系统设置 ===== -->
+      <section class="view" data-view="setting">
+        <div class="set-tabs">
+          <button class="set-tab active" data-stab="basic">基本设置</button>
+          <button class="set-tab" data-stab="model">模型配置</button>
+        </div>
+        <div class="set-panel" id="setPanel"></div>
+      </section>
+
+    </main>
+
+    <!-- 底部状态栏 -->
+    <footer class="statusbar">
+      <span class="st-model"><span class="st-dot offline" id="stDot"></span>当前模型：<b>BERT-base-Chinese（微调）</b></span>
+      <span class="st-sep">｜</span>
+      <span class="st-latency">响应延迟：约 300ms（模拟）</span>
+      <span class="st-sep">｜</span>
+      <span class="st-count">已处理题目：<b id="stCount">1,284</b> 道（模拟）</span>
+      <span class="st-spacer"></span>
+      <span class="st-fb">人工反馈：正确 <b id="stOk">0</b> ｜ 错误 <b id="stBad">0</b></span>
+    </footer>
+  </div>
+</div>
+
+<!-- 通知面板 -->
+<div class="notify-panel" id="notifyPanel" hidden>
+  <div class="np-head">🔔 通知</div>
+  <div class="np-item"><span class="np-ico">📦</span>
+    <div class="np-body"><div class="np-title">您有 3 道题目待审核</div><div class="np-time">10:26 · 题库管理</div></div>
+  </div>
+  <div class="np-item"><span class="np-ico">🧪</span>
+    <div class="np-body"><div class="np-title">模型微调已完成，可上线验证</div><div class="np-time">09:15 · 系统</div></div>
+  </div>
+</div>
+
+<!-- 通用弹窗（自定义模态框） -->
+<div class="modal-overlay" id="appDialog">
+  <div class="modal-box">
+    <div class="modal-ico" id="dlgIco">ℹ️</div>
+    <div class="modal-title" id="dlgTitle">提示</div>
+    <div class="modal-body" id="dlgBody"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" id="dlgCancel" style="display:none;">取消</button>
+      <button class="modal-btn modal-btn-primary" id="dlgOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 历史详情弹窗 -->
+<div class="modal-overlay" id="dlgHist">
+  <div class="modal-box">
+    <div class="modal-title">分类详情</div>
+    <div id="dlgHistBody" class="modal-body"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-primary" id="dlgHistOk">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 修正下拉浮层 -->
+<div class="fix-menu" id="fixMenu" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // === API 基础封装 ===
+  var API = '/api';
+  function apiPost(path, body) {
+    return fetch(API + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(function (r) { return r.json(); });
+  }
+  function apiGet(path) {
+    return fetch(API + path).then(function (r) { return r.json(); });
+  }
+  function apiDelete(path) {
+    return fetch(API + path, {
+      method: 'DELETE',
+    }).then(function (r) { return r.json(); });
+  }
+
+  /* ========== 状态 ========== */
+  var state = {
+    collapsed: false,
+    backendReady: false,
+    lastResult: null,   // { subject, q_type, knowledge, confidences, text }
+    currentView: 'ai-input',
+    fbOk: 0,
+    fbBad: 0,
+  };
+
+  // === 静态常量（学科列表、示例、图表占位数据） ===
+  var SUBJECTS = ['语文', '数学', '英语', '物理', '化学', '生物', '历史', '地理', '政治'];
+  var EXAMPLES = {
+    '语文': '下列句子中，没有语病的一项是（ ）',
+    '数学': '已知函数 f(x)=x²+1，求 f(2) 的值。',
+    '英语': 'He usually ______ to school by bike.',
+    '物理': '一辆汽车以 20m/s 的速度匀速行驶，求刹车后 3s 内的位移。',
+    '生物': '下列关于细胞中蛋白质的叙述，正确的是（ ）',
+    '历史': '唐朝由盛转衰的转折点是（ ）',
+    '地理': '下列关于温带季风气候的描述，正确的是（ ）',
+    '政治': '下列关于价格的说法正确的是（ ）',
+    '化学': '下列物质中，属于有机物的是（ ）',
+  };
+  var TAG_TREE = {
+    '语文': { types: ['选择题', '单选题', '多选题', '判断题', '填空题', '解答题', '阅读理解', '作文'], kps: ['文言文', '现代文阅读', '古诗词', '作文', '修辞手法'] },
+    '数学': { types: ['选择题', '单选题', '判断题', '填空题', '解答题'], kps: ['函数', '三角函数', '数列', '几何', '概率统计'] },
+    '英语': { types: ['选择题', '单选题', '判断题', '完形填空', '阅读理解', '作文'], kps: ['词汇', '语法', '时态', '阅读理解'] },
+    '物理': { types: ['选择题', '单选题', '多选题', '判断题', '解答题', '实验题'], kps: ['力学', '电磁学', '热学', '光学', '近代物理'] },
+    '化学': { types: ['选择题', '单选题', '判断题', '填空题', '实验题', '解答题'], kps: ['氧化还原', '元素周期律', '化学平衡', '有机化学'] },
+    '生物': { types: ['选择题', '单选题', '多选题', '判断题', '解答题'], kps: ['细胞', '遗传', '生态', '人体生理'] },
+    '历史': { types: ['选择题', '单选题', '判断题', '材料分析题'], kps: ['古代政治制度', '近代史', '世界史', '文化史'] },
+    '地理': { types: ['选择题', '单选题', '判断题', '综合题'], kps: ['气候', '地形', '人口', '区域发展'] },
+    '政治': { types: ['选择题', '单选题', '判断题', '解答题'], kps: ['价格规律', '经济制度', '政治制度', '哲学'] },
+  };
+  var SUBJ_COLORS = {
+    '语文': '#FF6F91', '数学': '#4A5CF7', '英语': '#FFB74D', '物理': '#10B981',
+    '化学': '#8B5CF6', '生物': '#22C55E', '历史': '#EF4444', '地理': '#3B82F6', '政治': '#F59E0B',
+  };
+  // 近 7 日趋势（静态占位，非业务数据）
+  var TREND_DATA = [
+    { day: '周一', val: 142 }, { day: '周二', val: 168 }, { day: '周三', val: 135 },
+    { day: '周四', val: 190 }, { day: '周五', val: 174 }, { day: '周六', val: 88 },
+    { day: '周日', val: 65 },
+  ];
+
+  /* ========== 演示数据（已移除，全部改为 API 调用） ========== */
+
+  // === 通用工具 ===
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+  function pct(v) { return Math.round((v || 0) * 100); }
+  function confColor(c) { return c >= 0.9 ? '#22C55E' : c >= 0.7 ? '#FFB74D' : '#EF4444'; }
+  function trunc(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
+
+  // Toast
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  // 自定义弹窗（基于 div overlay 实现，跨浏览器可靠）
+  var _dlgEl = null;
+  function showDlg(icon, title, html, onOk) {
+    if (!_dlgEl) _dlgEl = $('appDialog');
+    if (!_dlgEl) return;
+    $('dlgIco').textContent = icon || 'ℹ️';
+    $('dlgTitle').textContent = title || '提示';
+    $('dlgBody').innerHTML = html || '';
+    var btnOk = $('dlgOk');
+    var btnCancel = $('dlgCancel');
+    // 移除之前的 onclick 处理
+    btnOk.onclick = null;
+    btnCancel.onclick = null;
+    if (onOk) {
+      btnCancel.style.display = '';
+      btnOk.textContent = '确定';
+      btnOk.onclick = function () { _dlgEl.classList.remove('show'); onOk(); };
+    } else {
+      btnCancel.style.display = 'none';
+      btnOk.textContent = '知道了';
+      btnOk.onclick = function () { _dlgEl.classList.remove('show'); };
+    }
+    btnCancel.onclick = function () { _dlgEl.classList.remove('show'); };
+    _dlgEl.classList.add('show');
+  }
+
+  // === 视图路由逻辑 ===
+  var ROUTES = {
+    'workbench': { crumb: ['首页', '工作台'], nav: 'workbench' },
+    'ai-input':  { crumb: ['题库管理', 'AI智能录入'], nav: 'bank', sub: true },
+    'list':      { crumb: ['题库管理', '题目列表'], nav: 'bank', sub: true },
+    'tag':       { crumb: ['题库管理', '标签管理'], nav: 'bank', sub: true },
+    'paper':     { crumb: ['', '智能组卷'], nav: 'paper' },
+    'analy':     { crumb: ['', '学情分析'], nav: 'analy' },
+    'setting':   { crumb: ['', '系统设置'], nav: 'setting' },
+  };
+  function switchView(view) {
+    var route = ROUTES[view];
+    if (!route) return;
+    document.querySelectorAll('.view').forEach(function (v) { v.classList.toggle('active', v.dataset.view === view); });
+    var c = route.crumb;
+    var html = '<span class="crumb crumb-root">智慧教研平台</span>';
+    if (c[0]) html += '<span class="crumb-sep">/</span><span class="crumb">' + c[0] + '</span>';
+    html += '<span class="crumb-sep">/</span><span class="crumb crumb-cur">' + c[1] + '</span>';
+    $('crumbBox').innerHTML = html;
+    document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.toggle('active', el.dataset.menu === route.nav); });
+    if (route.sub) {
+      document.querySelectorAll('.sub-item').forEach(function (el) { el.classList.toggle('active', el.dataset.sub === view); });
+      var nb = $('navBank'); if (nb) nb.parentElement.classList.add('open');
+    } else {
+      document.querySelectorAll('.sub-item').forEach(function (el) { el.classList.remove('active'); });
+    }
+    if (view === 'workbench') renderDashboard();
+    if (view === 'list') renderList();
+    if (view === 'tag') renderTags();
+    if (view === 'paper') initPaper();
+    if (view === 'analy') renderAnaly();
+    if (view === 'setting') renderSetting();
+    if (view === 'ai-input') { renderHistory(); renderStatsBox(); }
+    state.currentView = view;
+  }
+
+  // === AI 智能录入视图 ===
+  function renderSummary() {
+    var body = $('sumBody');
+    if (!body) return;
+    if (!state.lastResult) {
+      body.innerHTML = '<div class="sum-empty">点击「开始分类」获取结果…</div>';
+      return;
+    }
+    var r = state.lastResult;
+    var conf = r.confidences || {};
+    var avg = ((conf.subject + conf.question_type + conf.knowledge_point) / 3 * 100).toFixed(1);
+    body.innerHTML =
+      '<div class="sum-row"><span class="sum-label">输入题目</span><span class="sum-val">' + escapeHtml(trunc(r.text, 60)) + '</span></div>' +
+      '<div class="sum-row"><span class="sum-label">学科</span><span class="sum-val">' + escapeHtml(r.subject) + '</span></div>' +
+      '<div class="sum-row"><span class="sum-label">题型</span><span class="sum-val">' + escapeHtml(r.q_type) + '</span></div>' +
+      '<div class="sum-row"><span class="sum-label">知识点</span><span class="sum-val">' + escapeHtml(r.knowledge) + '</span></div>' +
+      '<div class="sum-row"><span class="sum-label">平均置信度</span><span class="sum-val" style="color:' + confColor(avg / 100) + ';font-weight:700">' + avg + '%</span></div>';
+  }
+
+  function renderLabels() {
+    var box = $('labelRows');
+    if (!box) return;
+    if (!state.lastResult) { box.innerHTML = ''; return; }
+    var r = state.lastResult;
+    var conf = r.confidences || {};
+    var items = [
+      { label: '学科', val: r.subject, conf: conf.subject, dot: 'blue' },
+      { label: '题型', val: r.q_type, conf: conf.question_type, dot: 'orange' },
+      { label: '知识点', val: r.knowledge, conf: conf.knowledge_point, dot: 'cyan' },
+    ];
+    box.innerHTML = items.map(function (it) {
+      var p = pct(it.conf);
+      return '<div class="label-row">' +
+        '<span class="label-dot ' + it.dot + '"></span>' +
+        '<span class="label-name">' + it.label + '</span>' +
+        '<span class="label-val">' + escapeHtml(it.val) + '</span>' +
+        '<span class="label-conf" style="color:' + confColor(it.conf) + '">' + p + '%</span>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderHistory() {
+    var rightBox = $('histList');
+    var leftBox = $('aiHistList');
+    apiGet('/history').then(function (list) {
+      var html = '';
+      if (!list || !list.length) {
+        html = '<div class="hist-empty">暂无分类记录</div>';
+      } else {
+        html = list.map(function (h) {
+          var color = SUBJ_COLORS[h.subject] || '#94A3B8';
+          return '<div class="hist-item" data-id="' + h.id + '">' +
+            '<span class="hist-dot" style="background:' + color + '">' + escapeHtml((h.subject || '?').charAt(0)) + '</span>' +
+            '<div class="hist-info">' +
+              '<div class="hist-text">' + escapeHtml(trunc(h.text, 40)) + '</div>' +
+              '<div class="hist-meta"><span class="hist-tag">' + escapeHtml(h.subject) + ' · ' + escapeHtml(h.q_type) + '</span><span class="hist-time">' + escapeHtml(h.timestamp) + '</span></div>' +
+            '</div></div>';
+        }).join('');
+      }
+      if (rightBox) rightBox.innerHTML = html;
+      // 左侧卡片：更紧凑的历史列表
+      if (leftBox) {
+        if (!list || !list.length) {
+          leftBox.innerHTML = '<div style="text-align:center;color:#A0A8B8;padding:12px 0;font-size:12px">暂无分类记录</div>';
+        } else {
+          leftBox.innerHTML = list.slice(0, 8).map(function (h) {
+            var color = SUBJ_COLORS[h.subject] || '#94A3B8';
+            return '<div class="ai-hist-item">' +
+              '<span class="ai-hist-dot" style="background:' + color + '">' + escapeHtml((h.subject || '?').charAt(0)) + '</span>' +
+              '<div class="ai-hist-info">' +
+                '<div class="ai-hist-text">' + escapeHtml(trunc(h.text, 35)) + '</div>' +
+                '<div class="ai-hist-meta"><span>' + escapeHtml(h.subject) + ' · ' + escapeHtml(h.q_type) + '</span><span>' + escapeHtml(h.timestamp) + '</span></div>' +
+              '</div></div>';
+          }).join('');
+        }
+      }
+      renderStatsBox();
+    }).catch(function () {
+      if (rightBox) rightBox.innerHTML = '<div class="hist-empty">加载失败</div>';
+      if (leftBox) leftBox.innerHTML = '<div style="text-align:center;color:#A0A8B8;padding:12px 0;font-size:12px">加载失败</div>';
+    });
+  }
+
+  function renderResultBox() {
+    var sec = $('resultSection');
+    var box = $('resultBox');
+    if (!sec || !box) return;
+    if (!state.lastResult) { sec.style.display = 'none'; return; }
+    var r = state.lastResult;
+    var conf = r.confidences || {};
+    var rows = [
+      { label: '学科', val: r.subject, conf: conf.subject, cls: 'blue' },
+      { label: '题型', val: r.q_type, conf: conf.question_type, cls: 'amber' },
+      { label: '知识点', val: r.knowledge, conf: conf.knowledge_point, cls: 'cyan' },
+    ];
+    box.innerHTML = rows.map(function (row) {
+      var p = pct(row.conf);
+      var barColor = confColor(row.conf);
+      return '<div class="ai-result-row">' +
+        '<span class="ai-result-label">' + row.label + '</span>' +
+        '<span class="ai-result-tag ' + row.cls + '">' + escapeHtml(row.val) + '</span>' +
+        '<div class="ai-conf-bar"><div class="ai-conf-fill" style="width:' + p + '%;background:' + barColor + '"></div><span class="ai-conf-val">' + p + '%</span></div>' +
+      '</div>';
+    }).join('');
+    sec.style.display = '';
+    // 显示反馈区
+    var fbSec = $('feedbackSection');
+    if (fbSec) fbSec.style.display = '';
+  }
+
+  function renderStatsBox() {
+    var countEl = $('statCount');
+    var confEl = $('statConf');
+    var subsEl = $('statSubs');
+    var okEl = $('fbOk');
+    var badEl = $('fbBad');
+    if (!countEl) return;
+    apiGet('/stats').then(function (s) {
+      countEl.textContent = s.total_processed || 0;
+      var avg = Math.round((s.avg_confidence || 0) * 1000) / 10;
+      confEl.textContent = avg > 0 ? avg + '%' : '--';
+      var dist = s.subject_distribution || {};
+      var keys = Object.keys(dist);
+      if (!keys.length) {
+        subsEl.innerHTML = '<span style="font-size:11px;color:#A0A8B8">暂无数据</span>';
+      } else {
+        var total = keys.reduce(function (sum, k) { return sum + dist[k]; }, 0);
+        subsEl.innerHTML = keys.slice(0, 6).map(function (k) {
+          var p = Math.round(dist[k] / total * 100);
+          return '<span class="ai-sub-dot" style="background:' + (SUBJ_COLORS[k] || '#94A3B8') + '">' + escapeHtml(k) + ' ' + p + '%</span>';
+        }).join('');
+      }
+    }).catch(function () {});
+    okEl.textContent = state.fbOk;
+    badEl.textContent = state.fbBad;
+  }
+
+  function doClassify() {
+    var text = ($('inputText').value || '').trim();
+    if (!text) { toast('请先输入题目文本'); $('inputText').focus(); return; }
+    var btn = $('btnClassify');
+    btn.disabled = true; btn.textContent = '⏳ 分类中…';
+    apiPost('/classify', { text: text }).then(function (r) {
+      if (r.error) { toast('分类失败：' + r.error); return; }
+      state.lastResult = {
+        subject: r.subject, q_type: r.q_type, knowledge: r.knowledge,
+        confidences: r.confidences, text: text,
+      };
+      renderSummary();
+      renderLabels();
+      renderResultBox();
+      renderHistory();
+      toast('分类完成：' + r.subject + ' / ' + r.q_type);
+    }).catch(function (e) {
+      toast('请求失败：' + e.message);
+    }).finally(function () {
+      btn.disabled = false; btn.textContent = '🚀 开始分类';
+    });
+  }
+
+  function doFeedback(correct) {
+    if (!state.lastResult) { toast('请先完成一次分类'); return; }
+    var r = state.lastResult;
+    if (correct) state.fbOk++; else state.fbBad++;
+    $('fbOk').textContent = state.fbOk;
+    $('fbBad').textContent = state.fbBad;
+    apiPost('/feedback', { text: r.text, subject: r.subject, correct: correct }).then(function (res) {
+      toast(correct ? '已记录「正确」反馈' : '已记录「错误」反馈');
+      renderStatsBox();
+      if (state.currentView === 'workbench') renderDashboard();
+      if (state.currentView === 'analy') renderAnaly();
+    }).catch(function () { toast('反馈提交失败'); });
+  }
+
+  function doSave() {
+    if (!state.lastResult) { toast('请先完成一次分类'); return; }
+    var r = state.lastResult;
+    apiPost('/save_question', { text: r.text, subject: r.subject, q_type: r.q_type, knowledge: r.knowledge }).then(function (res) {
+      if (res.error) { toast('保存失败：' + res.error); return; }
+      showDlg('✅', '已存入题库', '题目已成功存入题库。<br>ID：<b>#' + res.id + '</b><br>学科：<b>' + escapeHtml(r.subject) + '</b> ｜ 题型：<b>' + escapeHtml(r.q_type) + '</b><br>已同步至「题目列表」。', null);
+      renderHistory();
+      renderStatsBox();
+    }).catch(function () { toast('保存失败'); });
+  }
+
+  // === 工作台 ===
+  function renderDashboard() {
+    apiGet('/stats').then(function (s) {
+      var stats = [
+        { ico: '📚', cls: 'blue', label: '总题目数', val: s.question_count || 0, trend: '题库累计' },
+        { ico: '⏳', cls: 'amber', label: '累计分类', val: s.total_processed || 0, trend: '服务启动至今' },
+        { ico: '🎯', cls: 'green', label: '平均置信度', val: ((s.avg_confidence || 0) * 100).toFixed(1) + '%', trend: '滑动平均' },
+        { ico: '✅', cls: 'cyan', label: '正确反馈', val: (s.total_correct || 0) + ' / 错误 ' + (s.total_wrong || 0), trend: '累计反馈' },
+      ];
+      $('dashStats').innerHTML = stats.map(function (s) {
+        return '<div class="stat-card"><div class="sc-head"><div class="sc-label">' + s.label + '</div><div class="sc-ico ' + s.cls + '">' + s.ico + '</div></div><div class="sc-value">' + s.val + '</div><div class="sc-trend">' + s.trend + '</div></div>';
+      }).join('');
+      // 趋势柱状图（静态占位）
+      var maxVal = Math.max.apply(null, TREND_DATA.map(function (d) { return d.val; }));
+      $('trendChart').innerHTML = TREND_DATA.map(function (d) {
+        return '<div class="bar-col"><span class="bar-val">' + d.val + '</span><div class="bar-fill" style="height:' + Math.round(d.val / maxVal * 100) + '%"></div><span class="bar-label">' + d.day + '</span></div>';
+      }).join('');
+      // 学科分布（来自 API）
+      var dist = s.subject_distribution || {};
+      var keys = Object.keys(dist);
+      if (!keys.length) {
+        $('distChart').innerHTML = '<div style="text-align:center;color:#A0A8B8;padding:20px 0;font-size:12px">暂无分类数据，完成分类后此处将显示学科分布</div>';
+      } else {
+        var total = keys.reduce(function (sum, k) { return sum + dist[k]; }, 0);
+        $('distChart').innerHTML = keys.map(function (k) {
+          var p = Math.round(dist[k] / total * 100);
+          return '<div class="dist-row"><span class="dist-name">' + escapeHtml(k) + '</span><div class="dist-track"><div class="dist-fill" style="width:' + p + '%;background:' + (SUBJ_COLORS[k] || '#5B6FF5') + '"></div></div><span class="dist-pct">' + p + '%</span></div>';
+        }).join('');
+      }
+    }).catch(function () { toast('统计加载失败'); });
+  }
+
+  // === 题目列表 ===
+  var listPage = { page: 1, perPage: 8 };
+  function renderList() {
+    if (!$('listSubj').dataset.inited) {
+      $('listSubj').innerHTML = '<option value="">全部</option>' + SUBJECTS.map(function (s) { return '<option>' + s + '</option>'; }).join('');
+      var types = ['选择题', '单选题', '多选题', '判断题', '填空题', '解答题', '完形填空', '阅读理解', '实验题', '综合题', '材料分析题', '作文'];
+      $('listType').innerHTML = '<option value="">全部</option>' + types.map(function (t) { return '<option>' + t + '</option>'; }).join('');
+      $('listSubj').dataset.inited = '1';
+      $('btnListSearch').addEventListener('click', function () { listPage.page = 1; renderListBody(); });
+      $('listKw').addEventListener('keydown', function (e) { if (e.key === 'Enter') { listPage.page = 1; renderListBody(); } });
+      // 下拉框 change 事件立即刷新
+      $('listSubj').addEventListener('change', function () { listPage.page = 1; renderListBody(); });
+      $('listType').addEventListener('change', function () { listPage.page = 1; renderListBody(); });
+      $('pgPrev').addEventListener('click', function () { if (listPage.page > 1) { listPage.page--; renderListBody(); } });
+      $('pgNext').addEventListener('click', function () { var tp = Math.ceil(listPage.total / listPage.perPage); if (listPage.page < tp) { listPage.page++; renderListBody(); } });
+    }
+    renderListBody();
+  }
+  function renderListBody() {
+    var subj = $('listSubj').value;
+    var qtype = $('listType').value;
+    var kw = ($('listKw').value || '').trim();
+    var qs = '?';
+    if (subj) qs += 'subject=' + encodeURIComponent(subj) + '&';
+    if (qtype) qs += 'q_type=' + encodeURIComponent(qtype) + '&';
+    if (kw) qs += 'keyword=' + encodeURIComponent(kw) + '&';
+    apiGet('/questions' + qs).then(function (res) {
+      var list = res.items || [];
+      listPage.total = res.total || 0;
+      $('listTotal').textContent = listPage.total;
+      var start = (listPage.page - 1) * listPage.perPage;
+      var pageItems = list.slice(start, start + listPage.perPage);
+      $('listBody').innerHTML = pageItems.map(function (it) {
+        return '<tr>' +
+          '<td class="t-id">#' + it.id + '</td>' +
+          '<td class="t-content" title="' + escapeHtml(it.text) + '">' + escapeHtml(trunc(it.text, 50)) + '</td>' +
+          '<td><span class="tag-pill tag-subj">' + escapeHtml(it.subject) + '</span></td>' +
+          '<td><span class="tag-pill tag-type">' + escapeHtml(it.q_type) + '</span></td>' +
+          '<td><span class="tag-pill tag-know">' + escapeHtml(it.knowledge) + '</span></td>' +
+          '<td style="font-size:11.5px;color:#A0A8B8">' + escapeHtml(it.created_at) + '</td>' +
+          '<td><div class="row-act" style="justify-content:flex-end">' +
+            '<button class="act-ico" data-act="view" data-id="' + it.id + '">👁</button>' +
+            '<button class="act-ico del" data-act="del" data-id="' + it.id + '">🗑</button>' +
+          '</div></td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;padding:30px;color:#A0A8B8">暂无题目，请在「AI智能录入」中存入题库</td></tr>';
+      // 分页
+      var total = Math.ceil(listPage.total / listPage.perPage) || 1;
+      var nums = '';
+      for (var i = 1; i <= total; i++) nums += '<button class="pg-btn' + (i === listPage.page ? ' active' : '') + '" data-pg="' + i + '">' + i + '</button>';
+      $('pgNums').innerHTML = nums;
+      Array.prototype.forEach.call($('pgNums').querySelectorAll('.pg-btn'), function (b) {
+        b.addEventListener('click', function () { listPage.page = parseInt(b.dataset.pg, 10); renderListBody(); });
+      });
+      $('pgPrev').classList.toggle('disabled', listPage.page <= 1);
+      $('pgNext').classList.toggle('disabled', listPage.page >= total);
+      // 操作按钮
+      Array.prototype.forEach.call($('listBody').querySelectorAll('.act-ico'), function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.dataset.id;
+          var item = list.filter(function (x) { return String(x.id) === id; })[0];
+          if (!item) return;
+          if (btn.dataset.act === 'view') {
+            showDlg('👁', '题目详情', '<div style="text-align:left;line-height:1.8"><b>ID：</b>#' + item.id + '<br><b>学科：</b>' + escapeHtml(item.subject) + ' ｜ <b>题型：</b>' + escapeHtml(item.q_type) + '<br><b>知识点：</b>' + escapeHtml(item.knowledge) + '<br><b>录入时间：</b>' + escapeHtml(item.created_at) + '<br><b>题目内容：</b><br>' + escapeHtml(item.text) + '</div>');
+          } else {
+            showDlg('🗑', '确认删除', '确定要删除题目 <b>#' + id + '</b> 吗？此操作不可恢复。', function () {
+              apiDelete('/questions/' + id).then(function (r) {
+                if (r.status === 'ok') {
+                  toast('已删除 #' + id);
+                  renderListBody();
+                  renderStatsBox();
+                } else {
+                  toast('删除失败：' + (r.error || ''));
+                }
+              }).catch(function () { toast('删除请求失败'); });
+            });
+          }
+        });
+      });
+    }).catch(function () { toast('题目列表加载失败'); });
+  }
+
+  // === 标签管理（静态标签树） ===
+  var tagCurrent = '数学';
+  function renderTags() {
+    var subs = Object.keys(TAG_TREE);
+    $('tagSide').innerHTML = subs.map(function (s) {
+      var cnt = TAG_TREE[s].types.length + TAG_TREE[s].kps.length;
+      return '<button class="tag-side-item' + (s === tagCurrent ? ' active' : '') + '" data-subj="' + s + '"><span>' + s + '</span><span class="tag-side-count">' + cnt + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call($('tagSide').querySelectorAll('.tag-side-item'), function (b) {
+      b.addEventListener('click', function () { tagCurrent = b.dataset.subj; renderTags(); });
+    });
+    var t = TAG_TREE[tagCurrent];
+    var html = '<div class="tag-section"><div class="tag-section-title">📝 题型列表</div><div class="tag-grid">' + t.types.map(function (tp) {
+      return '<div class="tag-chip"><span class="tag-chip-name">' + tp + '</span><div class="tag-chip-acts"><button class="tc-btn">✏️</button><button class="tc-btn">🔗</button></div></div>';
+    }).join('') + '</div></div>';
+    html += '<div class="tag-section"><div class="tag-section-title">🏷 知识点列表</div><div class="tag-grid">' + t.kps.map(function (kp) {
+      return '<div class="tag-chip"><span class="tag-chip-name">' + kp + '</span><div class="tag-chip-acts"><button class="tc-btn">✏️</button><button class="tc-btn">🔗</button></div></div>';
+    }).join('') + '</div></div>';
+    $('tagMain').innerHTML = html;
+    Array.prototype.forEach.call($('tagMain').querySelectorAll('.tc-btn'), function (b) {
+      b.addEventListener('click', function () {
+        var v = b.parentElement.previousElementSibling.textContent;
+        showDlg(b.textContent, b.textContent === '✏️' ? '编辑标签' : '合并标签', '正在操作标签：<b>' + escapeHtml(v) + '</b><br>（标签结构为静态配置，编辑功能为模拟）');
+      });
+    });
+  }
+
+  // === 智能组卷（调用 API） ===
+  var paperState = { selected: {} };
+  function initPaper() {
+    if ($('paperSubj').dataset.inited) return;
+    var types = ['选择题', '单选题', '多选题', '判断题', '填空题', '解答题', '完形填空', '阅读理解', '实验题', '综合题', '材料分析题', '作文'];
+    $('paperSubj').innerHTML = SUBJECTS.map(function (s) { return '<label class="chk"><input type="checkbox" value="' + s + '" checked> ' + s + '</label>'; }).join('');
+    $('paperType').innerHTML = types.map(function (t) { return '<label class="chk"><input type="checkbox" value="' + t + '" checked> ' + t + '</label>'; }).join('');
+    $('paperSubj').dataset.inited = '1';
+    var DIFF_MAP = { 1: '简单', 2: '中等', 3: '困难' };
+    $('paperDiff').addEventListener('input', function () { $('paperDiffVal').textContent = DIFF_MAP[this.value]; });
+    $('paperQty').addEventListener('input', function () { $('paperQtyVal').textContent = this.value + ' 题'; });
+    $('btnGenPaper').addEventListener('click', generatePaper);
+    $('btnAddBasket').addEventListener('click', function () {
+      var cnt = Object.keys(paperState.selected).filter(function (k) { return paperState.selected[k]; }).length;
+      if (!cnt) { toast('请先勾选题目'); return; }
+      toast('已将 ' + cnt + ' 道题目加入组卷篮');
+      paperState.selected = {};
+      renderPaperBody([]);
+    });
+  }
+  function generatePaper() {
+    var subjects = Array.prototype.map.call($('paperSubj').querySelectorAll('input:checked'), function (c) { return c.value; });
+    var types = Array.prototype.map.call($('paperType').querySelectorAll('input:checked'), function (c) { return c.value; });
+    var count = parseInt($('paperQty').value, 10);
+    paperState.selected = {};
+    apiPost('/generate_paper', { subjects: subjects, types: types, count: count }).then(function (res) {
+      var questions = res.questions || [];
+      $('paperPreviewInfo').textContent = '已生成 ' + questions.length + ' 题（匹配 ' + res.total_matched + '）';
+      renderPaperBody(questions);
+      if (!questions.length) toast('题库中暂无符合条件的题目，请先在「AI智能录入」中存入题目');
+    }).catch(function () { toast('组卷请求失败'); });
+  }
+  function renderPaperBody(questions) {
+    if (!questions.length) {
+      $('paperBody').innerHTML = '<div class="qa-empty">点击「生成试卷」从题库中筛选题目</div>';
+      $('paperSelected').textContent = '0';
+      return;
+    }
+    $('paperBody').innerHTML = questions.map(function (p, i) {
+      var checked = paperState.selected[p.id] ? 'checked' : '';
+      return '<div class="qa-item"><input type="checkbox" class="qa-cb" data-id="' + p.id + '" ' + checked + '><div class="qa-main">' +
+        '<div class="qa-top"><span class="qa-num">第 ' + (i + 1) + ' 题</span><span class="tag-pill tag-subj">' + escapeHtml(p.subject) + '</span><span class="tag-pill tag-type">' + escapeHtml(p.q_type) + '</span><span class="tag-pill tag-know">' + escapeHtml(p.knowledge) + '</span></div>' +
+        '<div class="qa-content">' + escapeHtml(p.text) + '</div></div></div>';
+    }).join('');
+    Array.prototype.forEach.call($('paperBody').querySelectorAll('.qa-cb'), function (cb) {
+      cb.addEventListener('change', function () {
+        paperState.selected[cb.dataset.id] = cb.checked;
+        $('paperSelected').textContent = Object.keys(paperState.selected).filter(function (k) { return paperState.selected[k]; }).length;
+      });
+    });
+    $('paperSelected').textContent = Object.keys(paperState.selected).filter(function (k) { return paperState.selected[k]; }).length;
+  }
+
+  // === 学情分析（调用 API） ===
+  function renderAnaly() {
+    apiGet('/analysis').then(function (a) {
+      // 雷达图：薄弱知识点
+      var weak = a.weak_points || {};
+      var weakKeys = Object.keys(weak);
+      var radarLabels = weakKeys.length ? weakKeys : ['函数', '力学', '词汇', '细胞', '古代史'];
+      var radarValues = weakKeys.length ? weakKeys.map(function (k) { return Math.min(100, (weak[k] || 0) * 30); }) : [85, 62, 78, 70, 90];
+      var cx = 90, cy = 90, radius = 70;
+      var pts = radarValues.map(function (v, i) {
+        var ang = -Math.PI / 2 + i * 2 * Math.PI / radarValues.length;
+        var rr = radius * (v / 100);
+        return [cx + rr * Math.cos(ang), cy + rr * Math.sin(ang)];
+      });
+      var bgPts = radarValues.map(function (_, i) { var ang = -Math.PI / 2 + i * 2 * Math.PI / radarValues.length; return [cx + radius * Math.cos(ang), cy + radius * Math.sin(ang)]; });
+      var polyStr = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      var bgStr = bgPts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      var axisHtml = radarValues.map(function (_, i) { var ang = -Math.PI / 2 + i * 2 * Math.PI / radarValues.length; return '<line class="radar-axis" x1="' + cx + '" y1="' + cy + '" x2="' + (cx + radius * Math.cos(ang)).toFixed(1) + '" y2="' + (cy + radius * Math.sin(ang)).toFixed(1) + '"/>'; }).join('');
+      var dotHtml = pts.map(function (p) { return '<circle class="radar-dot" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3"/>'; }).join('');
+      $('radarChart').innerHTML = '<svg class="radar-bg" viewBox="0 0 180 180"><polygon class="radar-axis" points="' + bgStr + '" fill="none" stroke="rgba(31,41,91,0.08)"/>' + axisHtml + '<polygon class="radar-poly" points="' + polyStr + '"/>' + dotHtml + '</svg>' + radarLabels.map(function (lb, i) { var ang = -Math.PI / 2 + i * 2 * Math.PI / radarValues.length; return '<span class="radar-label" style="left:' + (cx + (radius + 14) * Math.cos(ang) - 14).toFixed(0) + 'px;top:' + (cy + (radius + 14) * Math.sin(ang) + 4).toFixed(0) + 'px">' + escapeHtml(lb) + '<br><b style="color:#5B6FF5">' + radarValues[i] + '</b></span>'; }).join('');
+      // 正确率
+      var rates = a.subject_correct_rates || {};
+      var rateKeys = Object.keys(rates);
+      if (!rateKeys.length) {
+        $('accChart').innerHTML = '<div style="text-align:center;color:#A0A8B8;padding:20px 0;font-size:12px">暂无反馈数据，完成反馈后此处将显示各学科正确率</div>';
+      } else {
+        $('accChart').innerHTML = rateKeys.map(function (k) { var p = Math.round(rates[k] * 100); return '<div class="dist-row"><span class="dist-name">' + escapeHtml(k) + '</span><div class="dist-track"><div class="dist-fill" style="width:' + p + '%;background:' + (p >= 80 ? '#22C55E' : p >= 70 ? '#5B6FF5' : '#FFB347') + '"></div></div><span class="dist-pct">' + p + '%</span></div>'; }).join('');
+      }
+      // 错题列表（基于反馈数据模拟）
+      var fbTotal = a.feedback_total || 0;
+      if (fbTotal === 0) {
+        $('errList').innerHTML = '<div style="text-align:center;color:#A0A8B8;padding:20px 0;font-size:12px">暂无错题记录，完成反馈后将显示</div>';
+      } else {
+        // 从薄弱知识点生成列表
+        $('errList').innerHTML = weakKeys.slice(0, 5).map(function (k) {
+          return '<div class="err-item"><span class="err-stu">学生' + escapeHtml(k.charAt(0)) + '</span><span class="err-subj"><span class="tag-pill tag-subj">' + escapeHtml(k) + '</span></span><span class="err-know">' + escapeHtml(k) + ' 薄弱</span><span class="err-status"><span class="diff hard">未订正</span></span></div>';
+        }).join('');
+      }
+    }).catch(function () { toast('学情数据加载失败'); });
+    // Tab 切换
+    Array.prototype.forEach.call(document.querySelectorAll('.analy-tab'), function (t) {
+      t.onclick = function () {
+        document.querySelectorAll('.analy-tab').forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        toast('已切换到「' + t.textContent + '」视图');
+      };
+    });
+  }
+
+  // === 系统设置 ===
+  var setTab = 'basic';
+  function renderSetting() {
+    Array.prototype.forEach.call(document.querySelectorAll('.set-tab'), function (t) {
+      t.onclick = function () {
+        document.querySelectorAll('.set-tab').forEach(function (x) { x.classList.remove('active'); });
+        t.classList.add('active');
+        setTab = t.dataset.stab;
+        renderSettingPanel();
+      };
+    });
+    renderSettingPanel();
+  }
+  function renderSettingPanel() {
+    if (setTab === 'basic') {
+      $('setPanel').innerHTML = '<div class="set-form">' +
+        '<div class="set-row"><span class="set-row-label">系统名称</span><input class="set-input" value="智慧教研平台" disabled><span class="set-row-hint">系统展示名称</span></div>' +
+        '<div class="set-row"><span class="set-row-label">默认班级</span><select class="set-input"><option>初三(2)班</option><option>初三(1)班</option><option>初二(3)班</option></select></div>' +
+        '<div class="set-row"><span class="set-row-label">反馈邮箱</span><input class="set-input" type="email" value="zhang@edu.cn"><span class="set-row-hint">用于接收系统通知</span></div>' +
+        '<div style="display:flex;gap:10px"><button class="btn-sm" id="btnSetSave">💾 保存设置</button><button class="btn-line" id="btnSetReset">↩ 恢复默认</button></div></div>';
+      $('btnSetSave').addEventListener('click', function () { toast('设置已保存'); });
+      $('btnSetReset').addEventListener('click', function () { toast('已恢复默认设置'); });
+    } else {
+      $('setPanel').innerHTML = '<div class="set-form">' +
+        '<div class="set-row"><span class="set-row-label">当前模型路径</span><div class="set-path-box">📁 <code>models\\heads\\</code></div><span class="set-row-hint">模型权重目录（只读）</span></div>' +
+        '<div class="set-row"><span class="set-row-label">置信度阈值</span><div class="range-row"><input type="range" id="setThreshold" min="50" max="99" value="85"><span class="range-val" id="setThresholdVal">0.85</span></div><span class="set-row-hint">低于此阈值的分类将标记为"待人工复核"</span></div>' +
+        '<div class="set-row"><span class="set-row-label">推理设备</span><div class="device-pick"><div class="dev-opt active" data-dev="cpu">💻 CPU</div><div class="dev-opt" data-dev="cuda">🎮 CUDA</div></div></div>' +
+        '<div style="display:flex;gap:10px"><button class="btn-line" id="btnSetRestart">🔄 模拟重启服务</button><button class="btn-sm" id="btnSetTest">🧪 测试推理</button></div></div>';
+      $('setThreshold').addEventListener('input', function () { $('setThresholdVal').textContent = '0.' + this.value; });
+      Array.prototype.forEach.call(document.querySelectorAll('.dev-opt'), function (d) { d.addEventListener('click', function () { document.querySelectorAll('.dev-opt').forEach(function (x) { x.classList.remove('active'); }); d.classList.add('active'); toast('已切换推理设备至：' + d.textContent.trim()); }); });
+      $('btnSetRestart').addEventListener('click', function () { showDlg('🔄', '模拟重启服务', '正在模拟重启推理服务…<br>完成后将自动刷新连接。'); });
+      $('btnSetTest').addEventListener('click', function () { toast('推理测试完成，平均延迟 287ms'); });
+    }
+  }
+
+  // === 示例按钮 ===
+  function initExamples() {
+    var grid = $('exampleGrid');
+    if (!grid || grid.dataset.inited) return;
+    grid.dataset.inited = '1';
+    SUBJECTS.forEach(function (s) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = s;
+      btn.style.cssText = 'height:32px;border-radius:16px;border:1px solid rgba(91,111,245,0.22);background:rgba(255,255,255,0.72);color:#4A4A6A;font-size:13px;font-weight:500;cursor:pointer;';
+      btn.addEventListener('click', function () { $('inputText').value = EXAMPLES[s]; $('inputText').focus(); });
+      grid.appendChild(btn);
+    });
+  }
+
+  // === 后端存活检测 ===
+  function checkBackend() {
+    fetch('/health', { method: 'GET' }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.status === 'ok') { state.backendReady = true; var ov = $('backendOverlay'); if (ov) ov.hidden = true; }
+    }).catch(function () {});
+  }
+
+  // === 班级切换 ===
+  function initClassSwitch() {
+    var sel = $('selClass');
+    if (!sel || sel.dataset.inited) return;
+    sel.dataset.inited = '1';
+    sel.addEventListener('change', function () {
+      toast('已切换至 ' + sel.value);
+    });
+  }
+
+  /* ========== 事件绑定 + 初始化 ========== */
+  function initApp() {
+    // 模态框：点击遮罩层关闭 + ESC 关闭
+    var dialogOverlay = $('appDialog');
+    if (dialogOverlay) {
+      dialogOverlay.addEventListener('click', function (e) {
+        if (e.target === dialogOverlay) dialogOverlay.classList.remove('show');
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && dialogOverlay && dialogOverlay.classList.contains('show')) {
+        dialogOverlay.classList.remove('show');
+      }
+    });
+    // 历史详情弹窗关闭
+    var dlgHistOverlay = $('dlgHist');
+    if (dlgHistOverlay) {
+      dlgHistOverlay.addEventListener('click', function (e) {
+        if (e.target === dlgHistOverlay) dlgHistOverlay.classList.remove('show');
+      });
+    }
+    var dlgHistOk = $('dlgHistOk');
+    if (dlgHistOk) dlgHistOk.addEventListener('click', function () {
+      if (dlgHistOverlay) dlgHistOverlay.classList.remove('show');
+    });
+
+    // 菜单点击
+    document.querySelectorAll('.nav-item[data-menu]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var menu = btn.dataset.menu;
+        if (menu === 'bank') { $('navBank').parentElement.classList.toggle('open'); return; }
+        switchView(menu);
+      });
+    });
+    var nb = $('navBank');
+    if (nb) nb.addEventListener('click', function () { nb.parentElement.classList.toggle('open'); });
+    document.querySelectorAll('.sub-item').forEach(function (btn) { btn.addEventListener('click', function () { switchView(btn.dataset.sub); }); });
+
+    // AI 录入按钮
+    initExamples();
+    var btnCls = $('btnClassify'); if (btnCls) btnCls.addEventListener('click', doClassify);
+    var btnClr = $('btnClear'); if (btnClr) btnClr.addEventListener('click', function () {
+      $('inputText').value = ''; state.lastResult = null;
+      renderSummary(); renderLabels(); renderResultBox();
+      var fbSec = $('feedbackSection'); if (fbSec) fbSec.style.display = 'none';
+    });
+    var btnFbOk = $('btnFbOk'); if (btnFbOk) btnFbOk.addEventListener('click', function () { doFeedback(true); });
+    var btnFbBad = $('btnFbBad'); if (btnFbBad) btnFbBad.addEventListener('click', function () { doFeedback(false); });
+    var btnSave = $('btnSave'); if (btnSave) btnSave.addEventListener('click', doSave);
+    var btnRe = $('btnReclassify'); if (btnRe) btnRe.addEventListener('click', function () {
+      state.lastResult = null; renderSummary(); renderLabels(); renderResultBox();
+      var fbSec = $('feedbackSection'); if (fbSec) fbSec.style.display = 'none';
+      toast('已重置，可重新分类');
+    });
+    var btnHistView = $('btnHistView'); if (btnHistView) btnHistView.addEventListener('click', function () {
+      toast('已定位到分类历史区域');
+    });
+
+    // 班级切换
+    initClassSwitch();
+
+    // 后端检测
+    checkBackend();
+
+    // 初始渲染
+    renderSummary();
+    renderLabels();
+    renderHistory();
+    renderResultBox();
+    renderStatsBox();
+  }
+
+  // 启动
+  initApp();
+})();
+</script>
+</body>
+</html>
