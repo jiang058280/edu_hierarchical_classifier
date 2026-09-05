@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>教育题目层级分类系统</title>
-<link rel="stylesheet" href="/static/katex.min.css">
-<script src="/static/katex.min.js"></script>
 <style>
   :root { --primary:#2563EB; --ok:#16A34A; --warn:#D97706; --bad:#DC2626; --bg:#F1F5F9; --card:#FFFFFF; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -36,12 +34,6 @@
   .muted { color:var(--muted); font-size:12px; }
   #error { color:var(--bad); font-size:13px; min-height:18px; }
   input[type=text] { border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; width:100%; }
-  /* 题目排版预览（KaTeX 渲染，样式对齐标准试卷排版） */
-  #previewBox { border:1px solid var(--border); border-radius:8px; background:#FAFBFC; padding:14px 18px; margin-top:10px; }
-  #previewBox .pv-title { font-size:14px; font-weight:700; margin-bottom:8px; }
-  #previewBox .pv-body p { font-size:15px; line-height:1.9; margin:6px 0; color:var(--text); }
-  #previewBox .katex { font-size:1.06em; }
-  #previewBox .pv-empty { color:var(--muted); font-size:12px; }
   footer { text-align:center; padding:10px; font-size:12px; color:var(--muted); }
 </style>
 </head>
@@ -54,14 +46,9 @@
   <section class="left">
     <div class="card">
       <div class="row" style="justify-content:space-between">
-        <strong>题目文本</strong><span class="muted" id="charCount">0 / 4000</span>
+        <strong>题目文本</strong><span class="muted">粘贴自动格式化（断行合并 / 上标还原 / 题干选项分行）</span><span class="muted" id="charCount">0 / 4000</span>
       </div>
       <textarea id="questionText" placeholder="粘贴或输入题目文本，例如：已知函数 f(x)=x²+1，求 f(2) 的值。"></textarea>
-      <div id="previewBox" style="display:none">
-        <div class="pv-title">题目预览（排版渲染）</div>
-        <div class="pv-body" id="previewBody"></div>
-        <div class="pv-empty">文本框内容已自动格式化（合并断行、还原上标），分类直接使用文本框中的文本；本区域为 KaTeX 数学排版增强预览。</div>
-      </div>
       <div class="row" style="margin-top:10px">
         <button id="btnClassify">开始分类</button>
         <button id="btnFormat" class="secondary" title="合并断行、还原上标（粘贴时也会自动执行）">一键格式化</button>
@@ -113,15 +100,15 @@
 const $ = (id) => document.getElementById(id);
 let lastResult = null;
 
-/* ================= 题目排版渲染（显示用，不影响送入模型的原始文本） =================
+/* ================= 题目就地格式化 =================
    数据集文本常带 PDF 提取产生的硬换行（公式被拆成一行一个字符）。
-   formatQuestionText 做三件事：
+   formatQuestionText 做四件事：
    1. 合并断行：单换行按中/英边界拼接成句；"1." "（1）" "①" 等编号前强制换段；
-   2. 上标恢复："x 2" / "k 2" 这类被拆散的指数还原为 x² k²（仅显示层）；
-   3. 公式段交给 KaTeX 排版（含 =、+、- 等运算符的英文/数字串），还原成图二效果。 */
+   2. 上标恢复："x 2" / "k 2" 这类被拆散的指数还原为 x² k²；
+   3. 题干/选项分行："（ ）A. 5 B. 11 C. 13 D. 7" 拆成题干一行 + 每个选项一行；
+   4. 结果直接写回输入框（粘贴时自动执行，或点"一键格式化"）。 */
 const SUPER = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
 const NUM_PREFIX = /^(\d{1,2}\s*[.．、)]|[（(]\d{1,2}[)）]|[①②③④⑤⑥⑦⑧⑨⑩])/;
-const CJK = /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef，。；：、（）""''！？]/;
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -134,6 +121,7 @@ function formatQuestionText(raw) {
   for (const ln of lines) {
     if (!cur) { cur = ln; continue; }
     if (NUM_PREFIX.test(ln)) { paras.push(cur); cur = ln; continue; }  // 编号 → 新起一段
+    if (/^[A-D]$/.test(ln) && cur) { paras.push(cur); cur = ln; continue; }  // 碎行选项标记（无点号）→ 新起一段
     const a = cur.slice(-1), b = ln[0];
     const bothAlnum = /[a-zA-Z0-9)]/.test(a) && /[a-zA-Z0-9(]/.test(b);
     const joiner = (bothAlnum && !/[+\-*/=<>\s]/.test(b) && !/[+\-*/=<>]/.test(a)) ? ' ' : '';
@@ -144,41 +132,12 @@ function formatQuestionText(raw) {
   // 上标恢复：字母/右括号后紧跟独立数字（后随运算符、标点或行尾）→ 上标
   text = text.replace(/([a-zA-Z)\]])\s+(\d)(?=[+\-*/=<>\s，。；：、）()]|$)/g,
     (m, lead, d) => lead + (SUPER[d] || ('^' + d)));
+  // 题干/选项分行：非词首位置的 A./B./C./D.（含 、．点号）前换行，选项各自成行
+  text = text.replace(/(?<![a-zA-Z0-9])([A-D])\s*[.．、]\s*/g, '\n$1. ')
+             .replace(/^\n+/, '');
   return text;
 }
-
-function renderMathText(text) {
-  /* 段落 -> HTML：非中文片段若含运算符则交给 KaTeX，否则纯文本。 */
-  const hasKatex = typeof katex !== 'undefined';
-  const html = text.split('\n').map(line => {
-    // 按中文（含中文标点）切段，保留分隔符
-    const parts = line.split(/([\u4e00-\u9fff\u3000-\u303f\uff00-\uffef，。；：、（）""''！？]+)/)
-      .filter(s => s !== '');
-    return '<p>' + parts.map(seg => {
-      if (CJK.test(seg[0])) return escapeHtml(seg);
-      const isMath = /[=+\-*/<>^≤≥±×÷√±∈]/.test(seg) && /[a-zA-Z0-9]/.test(seg);
-      if (isMath && hasKatex) {
-        const latex = seg.replace(/\s+/g, '')
-          .replace(/²/g, '^2').replace(/³/g, '^3').replace(/⁴/g, '^4')
-          .replace(/−/g, '-').replace(/×/g, '\\times ').replace(/÷/g, '\\div ')
-          .replace(/≤/g, '\\le ').replace(/≥/g, '\\ge ').replace(/√/g, '\\sqrt');
-        try { return katex.renderToString(latex, {throwOnError: false}); }
-        catch (e) { return escapeHtml(seg); }
-      }
-      return escapeHtml(seg);
-    }).join('') + '</p>';
-  }).join('');
-  return html;
-}
-
-function updatePreview() {
-  const raw = $('questionText').value;
-  const box = $('previewBox');
-  if (!raw.trim()) { box.style.display = 'none'; return; }
-  box.style.display = 'block';
-  $('previewBody').innerHTML = renderMathText(formatQuestionText(raw));
-}
-/* ================= 排版渲染结束 ================= */
+/* ================= 格式化结束 ================= */
 
 async function api(path, options) {
   const resp = await fetch(path, options);
@@ -267,7 +226,7 @@ async function loadHistory() {
     const items = await api('/api/v1/history?limit=10');
     $('history').innerHTML = items.length ? items.map(h => `
       <div class="history-item">
-        <div>${escapeHtml(formatQuestionText((h.text_preview || '').slice(0, 80)))}…</div>
+        <div style="white-space:pre-line">${escapeHtml(formatQuestionText((h.text_preview || '').slice(0, 120)))}…</div>
         <div class="tags" style="margin-top:4px">
           <span>${h.subject_pred}</span><span>${h.type_pred}</span><span>${h.knowledge_pred}</span>
           <span>置信 ${h.avg_confidence}</span><span>${h.confidence_band}</span><span>v ${h.model_version}</span>
@@ -298,7 +257,6 @@ $('btnWrong').addEventListener('click', () => sendFeedback(false));
 $('btnSave').addEventListener('click', saveQuestion);
 $('questionText').addEventListener('input', (e) => {
   $('charCount').textContent = e.target.value.length + ' / 4000';
-  updatePreview();
 });
 /* ===== 输入框就地格式化：粘贴自动清洗 + 一键格式化 ===== */
 function formatInPlace() {
