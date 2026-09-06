@@ -1,0 +1,19 @@
+{
+  "n_test": 1039,
+  "subject": {
+    "accuracy": 0.9894,
+    "f1_macro": 0.9887
+  },
+  "question_type": {
+    "accuracy": 0.9808,
+    "f1_macro": 0.9252
+  },
+  "knowledge_point": {
+    "accuracy": 0.9153,
+    "f1_macro": 0.9139
+  },
+  "cascade_accuracy": 0.898,
+  "avg_inference_ms": 15.6,
+  "quantized": false,
+  "device": "cuda"
+}

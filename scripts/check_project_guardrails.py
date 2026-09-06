@@ -28,7 +28,7 @@ FORBIDDEN_PATTERNS = [
     (r" toumanfen|d:/pycharm|d:\\pycharm", "禁止硬编码个人机器路径"),
     (r"^\s*os\.chdir\(", "禁止 os.chdir（工作目录副作用）"),
     (r"allow_origins\s*=\s*\[?\s*[\"']\*[\"']", "禁止 CORS 通配符"),
-    (r"yaml\.safe_load", "主链路禁止读取旧 config.yaml（配置统一走 pydantic-settings）"),
+    (r"^\s*(import yaml|from yaml)", "主链路禁止依赖 yaml（配置统一走 pydantic-settings，旧 config.yaml 已废弃）"),
 ]
 
 # requirements.txt 允许的非锁定行前缀
@@ -99,6 +99,11 @@ def check_structure() -> list[str]:
     for rel in required:
         if not (ROOT / rel).is_file():
             issues.append(f"[结构缺失] {rel}")
+    # 目录卫生：浏览器缓存等无关产物不应回流项目根
+    forbidden_dirs = [".edge_profile"]
+    for d in forbidden_dirs:
+        if (ROOT / d).exists():
+            issues.append(f"[目录卫生] {d}/ 不应存在于项目根（浏览器缓存与项目无关）")
     return issues
 
 

@@ -1,0 +1,56 @@
+{
+  "metrics": {
+    "subject": {
+      "f1_macro": 0.8922,
+      "accuracy": 0.9175
+    },
+    "question_type": {
+      "f1_macro": 0.7001,
+      "accuracy": 0.8969
+    },
+    "knowledge": {
+      "f1_macro": 0.3791,
+      "accuracy": 0.5052
+    }
+  },
+  "inference_time_ms": {
+    "original_cpu": 216.3,
+    "quantized_cpu": 124.6
+  },
+  "n_params": 102267648,
+  "selected_model": "bert-base-chinese",
+  "selection_reason": "标准 HuggingFace 中文 BERT base（12 层/768 维），全部候选深度模型的主干来源；标准格式加载最稳，可冻结 80% 层支持迁移微调与动态量化；中文预训练通用语义，适合教育题目迁移；CPU 量化后单条推理满足 <1.5s 硬性门槛。",
+  "candidates": [
+    {
+      "model": "bert-base-chinese (003_bert)",
+      "arch": "BERT 12层/768维",
+      "status": "选中为主干"
+    },
+    {
+      "model": "bert_model.pt (003_bert)",
+      "arch": "BERT12 + Linear(768,10) 新闻头",
+      "status": "主干同源，头需剥离，作备选"
+    },
+    {
+      "model": "stu_model.pt / distill_model.pt (014_distill)",
+      "arch": "BERT 4层/240维 蒸馏学生",
+      "status": "非标准结构、容量不足，兜底"
+    },
+    {
+      "model": "rf_model.pkl / FastText.bin",
+      "arch": "传统ML",
+      "status": "非 Transformer，无法作共享主干"
+    },
+    {
+      "model": "012_quantization / 013_pruning *.pt",
+      "arch": "nn.Linear(10000,10000) 演示",
+      "status": "与文本分类无关，排除"
+    },
+    {
+      "model": "004_LLM",
+      "arch": "无本地权重",
+      "status": "依赖外部服务，排除"
+    }
+  ],
+  "hard_gate_ok": true
+}
