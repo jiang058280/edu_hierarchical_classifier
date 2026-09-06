@@ -35,8 +35,9 @@ from edu_core.inference.model import HierarchicalClassifier
 
 logger = get_logger(__name__)
 
-# 三个头的损失权重（知识点类别多且难，权重最高）
+# 各头损失权重（知识点类别多且难，权重最高）；grade 头启用时改用 GRADE_LOSS_WEIGHTS
 LOSS_WEIGHTS = {"subject": 0.28, "question_type": 0.27, "knowledge": 0.45}
+GRADE_LOSS_WEIGHTS = {"subject": 0.24, "question_type": 0.23, "knowledge": 0.38, "grade": 0.15}
 
 
 class FocalLossLabelSmooth(nn.Module):
@@ -79,13 +80,23 @@ class LabelSmoothCE(nn.Module):
 
 
 class QuestionDataset(Dataset):
-    """题目分类数据集（text -> 三级标签张量）。"""
+    """题目分类数据集（text -> 三级标签张量；knowledge/grade 可缺失，缺失记 -100）。"""
 
     def __init__(self, df: pd.DataFrame, tokenizer, labels: dict, max_len: int):
         self.texts = df["text"].fillna("").tolist()
         self.subjects = [labels["subject2id"][s] for s in df["subject"]]
         self.types = [labels["type2id"][t] for t in df["question_type"]]
-        self.knowledge = [labels["knowledge2id"][k] for k in df["knowledge_point"]]
+        knowledge2id = labels["knowledge2id"]
+        self.knowledge = [
+            knowledge2id[k] if isinstance(k, str) and k in knowledge2id else -100
+            for k in df["knowledge_point"].fillna("")
+        ]
+        self.grade2id = {g: i for i, g in enumerate(labels.get("grade_bands", []))}
+        self.grades = (
+            [self.grade2id.get(g, -100) if isinstance(g, str) else -100
+             for g in df["grade_band"].fillna("")]
+            if self.grade2id else None
+        )
         self.tokenizer = tokenizer
         self.max_len = max_len
 
@@ -97,21 +108,30 @@ class QuestionDataset(Dataset):
             self.texts[idx], max_length=self.max_len,
             padding="max_length", truncation=True, return_tensors="pt",
         )
-        return {
+        item = {
             "input_ids": enc["input_ids"].squeeze(0),
             "attention_mask": enc["attention_mask"].squeeze(0),
             "subject": torch.tensor(self.subjects[idx], dtype=torch.long),
             "question_type": torch.tensor(self.types[idx], dtype=torch.long),
             "knowledge": torch.tensor(self.knowledge[idx], dtype=torch.long),
         }
+        if self.grades is not None:
+            item["grade"] = torch.tensor(self.grades[idx], dtype=torch.long)
+        return item
+
+
+def _masked_loss(loss_fn: nn.Module, logits: torch.Tensor, targets: torch.Tensor,
+                 device: torch.device) -> torch.Tensor | None:
+    """对 -100 缺失标签做掩码损失；整批缺失时返回 None（不参与加权）。"""
+    valid = targets.to(device) != -100
+    if not bool(valid.any()):
+        return None
+    return loss_fn(logits.to(device)[valid], targets.to(device)[valid])
 
 
 def evaluate(model: nn.Module, dataloader: DataLoader, device: torch.device,
              with_subject_ids: bool = False) -> dict:
-    """验证/测试：返回三个头的宏平均 F1 与准确率。
-
-    with_subject_ids=True 时向模型传真实学科 id（WP-G2 学科感知知识头的训练评估形态）。
-    """
+    """验证/测试：返回各头宏平均 F1 与准确率（-100 缺失标签不计入该头指标）。"""
     model.eval()
     preds: dict[str, list] = {"subject": [], "question_type": [], "knowledge": []}
     trues: dict[str, list] = {"subject": [], "question_type": [], "knowledge": []}
@@ -121,14 +141,25 @@ def evaluate(model: nn.Module, dataloader: DataLoader, device: torch.device,
             attention_mask = batch["attention_mask"].to(device)
             subject_ids = batch["subject"].to(device) if with_subject_ids else None
             out = model(input_ids, attention_mask, subject_ids=subject_ids)
-            for k in preds:
+            heads = [k for k in preds if k in batch]
+            if "grade" in batch and "grade" not in preds:
+                preds["grade"], trues["grade"] = [], []
+                heads.append("grade")
+            for k in heads:
                 preds[k].extend(out[k].argmax(dim=-1).cpu().tolist())
                 trues[k].extend(batch[k].tolist())
     result: dict = {}
+    f1_values = []
     for k in preds:
-        result[f"{k}_acc"] = accuracy_score(trues[k], preds[k])
-        result[f"{k}_f1"] = f1_score(trues[k], preds[k], average="macro", zero_division=0)
-    result["mean_f1"] = (result["subject_f1"] + result["question_type_f1"] + result["knowledge_f1"]) / 3
+        t = torch.tensor(trues[k])
+        p = torch.tensor(preds[k])
+        m = t != -100
+        if int(m.sum()) == 0:
+            continue
+        result[f"{k}_acc"] = accuracy_score(t[m], p[m])
+        result[f"{k}_f1"] = f1_score(t[m], p[m], average="macro", zero_division=0)
+        f1_values.append(result[f"{k}_f1"])
+    result["mean_f1"] = sum(f1_values) / len(f1_values) if f1_values else 0.0
     return result
 
 
@@ -213,10 +244,14 @@ def train(version: str | None = None, settings: Settings | None = None,
                             batch_size=t_cfg["batch_size"], shuffle=False, num_workers=0)
 
     subject_embedding_dim = int(getattr(settings, "subject_embedding_dim", 0) or 0)
+    grade_bands = labels.get("grade_bands", [])
+    grade_head_enabled = len(grade_bands) > 0
+    loss_weights = dict(GRADE_LOSS_WEIGHTS if grade_head_enabled else LOSS_WEIGHTS)
     model = HierarchicalClassifier(
         str(backbone_dir), n_subjects=n_subjects, n_types=n_types,
         n_knowledge=n_knowledge, freeze_ratio=float(settings.freeze_ratio),
         subject_embedding_dim=subject_embedding_dim,
+        n_grade_bands=len(grade_bands),
     ).to(device)
 
     trainable = [p for p in model.parameters() if p.requires_grad]
@@ -234,6 +269,7 @@ def train(version: str | None = None, settings: Settings | None = None,
     loss_subject = LabelSmoothCE(label_smooth=0.05)
     loss_type = LabelSmoothCE(label_smooth=0.05)
     loss_knowledge = FocalLossLabelSmooth(alpha=1.0, gamma=1.5, label_smooth=0.08)
+    loss_grade = LabelSmoothCE(label_smooth=0.05)
 
     # ---------- 训练循环（验证集早停） ----------
     patience = int(t_cfg["early_stopping_patience"])
@@ -250,9 +286,20 @@ def train(version: str | None = None, settings: Settings | None = None,
             attention_mask = batch["attention_mask"].to(device)
             subject_ids = batch["subject"].to(device)
             out = model(input_ids, attention_mask, subject_ids=subject_ids)
-            loss = (LOSS_WEIGHTS["subject"] * loss_subject(out["subject"], batch["subject"].to(device))
-                    + LOSS_WEIGHTS["question_type"] * loss_type(out["question_type"], batch["question_type"].to(device))
-                    + LOSS_WEIGHTS["knowledge"] * loss_knowledge(out["knowledge"], batch["knowledge"].to(device)))
+            # 各头掩码损失：缺失标签（-100）不计入该头（新增数据无知识点/学段标注时）
+            loss_terms = []
+            for head, fn, target in (
+                ("subject", loss_subject, batch["subject"]),
+                ("question_type", loss_type, batch["question_type"]),
+                ("knowledge", loss_knowledge, batch["knowledge"]),
+                ("grade", loss_grade, batch.get("grade")),
+            ):
+                if head not in out or target is None:
+                    continue
+                term = _masked_loss(fn, out[head], target, device)
+                if term is not None:
+                    loss_terms.append(loss_weights[head] * term)
+            loss = sum(loss_terms)
             optimizer.zero_grad()
             loss.backward()
             nn.utils.clip_grad_norm_(trainable, max_norm=1.0)
@@ -279,6 +326,8 @@ def train(version: str | None = None, settings: Settings | None = None,
                 "type": copy.deepcopy(model.type_head.state_dict()),
                 "knowledge": copy.deepcopy(model.knowledge_head.state_dict()),
             }
+            if grade_head_enabled:
+                best_state["grade"] = copy.deepcopy(model.grade_head.state_dict())
             logger.info("  ↳ 保存最佳模型（mean_f1=%.4f）", best_f1)
         else:
             bad_epochs += 1
@@ -300,6 +349,8 @@ def train(version: str | None = None, settings: Settings | None = None,
     torch.save(best_state["subject"], version_dir / "subject_head.pt")
     torch.save(best_state["type"], version_dir / "type_head.pt")
     torch.save(best_state["knowledge"], version_dir / "knowledge_head.pt")
+    if grade_head_enabled:
+        torch.save(best_state["grade"], version_dir / "grade_head.pt")
 
     manifest = {
         "version": version,
@@ -312,11 +363,13 @@ def train(version: str | None = None, settings: Settings | None = None,
         },
         "train_metrics": {"best_mean_f1": round(float(best_f1), 4)},
         "val_metrics": {k: round(float(v), 4) for k, v in val_metric.items()},
-        "loss_weights": LOSS_WEIGHTS,
+        "loss_weights": loss_weights,
         "data_ref": data_ref,
         "architecture": {
-            # predictor 按该声明构建知识头输入维度（0 = 旧结构）；改进计划 WP-G2
+            # predictor 按该声明构建各头（0/false = 旧结构）；改进计划 WP-G2 + 数据扩充轮
             "subject_embedding_dim": subject_embedding_dim,
+            "grade_head": grade_head_enabled,
+            "grade_bands": grade_bands,
             "max_seq_length": int(settings.max_seq_length),
             "freeze_ratio": float(settings.freeze_ratio),
         },

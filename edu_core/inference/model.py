@@ -65,11 +65,12 @@ class HierarchicalClassifier(nn.Module):
 
     def __init__(self, backbone_dir: str, n_subjects: int, n_types: int,
                  n_knowledge: int, freeze_ratio: float = 0.75,
-                 subject_embedding_dim: int = 0):
+                 subject_embedding_dim: int = 0, n_grade_bands: int = 0):
         super().__init__()
         logger.info("加载主干：%s", backbone_dir)
         self.bert = BertModel.from_pretrained(backbone_dir)
         self.subject_embedding_dim = int(subject_embedding_dim)
+        self.n_grade_bands = int(n_grade_bands)
 
         n_layers = self.bert.config.num_hidden_layers
         freeze_layers = int(n_layers * freeze_ratio)
@@ -92,19 +93,25 @@ class HierarchicalClassifier(nn.Module):
             knowledge_in = hidden + self.subject_embedding_dim
         self.knowledge_head = ResidualMLPHead(knowledge_in, n_knowledge,
                                               dropout=0.25, mid_dim=384, low_dim=128)
+        if self.n_grade_bands > 0:
+            self.grade_head = nn.Linear(hidden, self.n_grade_bands)
         logger.info(
             "分类头：学科 Linear(%s->%s) / 题型 Linear(%s->%s) / "
-            "知识点 ResidualMLP(%s->384<->128->%s%s)",
+            "知识点 ResidualMLP(%s->384<->128->%s%s%s)",
             hidden, n_subjects, hidden, n_types, knowledge_in, n_knowledge,
             f"，学科感知（+{self.subject_embedding_dim} 维学科 embedding）"
             if self.subject_embedding_dim > 0 else "",
+            f" / 学段 Linear({hidden}->{self.n_grade_bands})" if self.n_grade_bands > 0 else "",
         )
         self._init_heads()
 
     def _init_heads(self) -> None:
         """分类头统一 xavier 初始化（兼容 Linear / ResidualMLPHead / Embedding）。"""
-        for module in list(self.subject_head.modules()) + list(self.type_head.modules()) \
-                + list(self.knowledge_head.modules()):
+        head_modules = list(self.subject_head.modules()) + list(self.type_head.modules()) \
+            + list(self.knowledge_head.modules())
+        if self.n_grade_bands > 0:
+            head_modules += list(self.grade_head.modules())
+        for module in head_modules:
             if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
                 if module.bias is not None:
@@ -126,26 +133,37 @@ class HierarchicalClassifier(nn.Module):
                 subject_ids = subject_logits.argmax(dim=-1)
             knowledge_in = torch.cat(
                 [pooled, self.subject_embedding(subject_ids)], dim=-1)
-        return {
+        out = {
             "subject": subject_logits,
             "question_type": self.type_head(pooled),
             "knowledge": self.knowledge_head(knowledge_in),
         }
+        if self.n_grade_bands > 0:
+            out["grade"] = self.grade_head(pooled)
+        return out
 
     def save_heads(self, save_dir: str) -> None:
-        """保存三个分类头权重。"""
+        """保存分类头权重（学段头按需）。"""
         os.makedirs(save_dir, exist_ok=True)
         torch.save(self.subject_head.state_dict(), os.path.join(save_dir, "subject_head.pt"))
         torch.save(self.type_head.state_dict(), os.path.join(save_dir, "type_head.pt"))
         torch.save(self.knowledge_head.state_dict(), os.path.join(save_dir, "knowledge_head.pt"))
-        logger.info("三头已保存至 %s", save_dir)
+        if self.n_grade_bands > 0:
+            torch.save(self.grade_head.state_dict(), os.path.join(save_dir, "grade_head.pt"))
+        logger.info("分类头已保存至 %s", save_dir)
 
     def load_heads(self, save_dir: str) -> None:
-        """加载三个分类头权重（weights_only=True，只接受张量 state_dict）。"""
+        """加载分类头权重（weights_only=True，只接受张量 state_dict）。"""
         self.subject_head.load_state_dict(
             torch.load(os.path.join(save_dir, "subject_head.pt"), map_location="cpu", weights_only=True))
         self.type_head.load_state_dict(
             torch.load(os.path.join(save_dir, "type_head.pt"), map_location="cpu", weights_only=True))
         self.knowledge_head.load_state_dict(
             torch.load(os.path.join(save_dir, "knowledge_head.pt"), map_location="cpu", weights_only=True))
-        logger.info("三头已从 %s 加载", save_dir)
+        if self.n_grade_bands > 0:
+            grade_path = os.path.join(save_dir, "grade_head.pt")
+            if not os.path.isfile(grade_path):
+                raise FileNotFoundError(f"学段头权重缺失：{grade_path}")
+            self.grade_head.load_state_dict(
+                torch.load(grade_path, map_location="cpu", weights_only=True))
+        logger.info("分类头已从 %s 加载", save_dir)

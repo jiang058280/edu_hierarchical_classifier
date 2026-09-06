@@ -1,0 +1,13 @@
+{
+  "new_by_source": {
+    "cmmlu": 836,
+    "m3ke": 3120,
+    "gaokao": 1193,
+    "numina": 1500
+  },
+  "train_add": 5064,
+  "val_add": 884,
+  "train_total": 9893,
+  "val_total": 1917,
+  "test_unchanged": 1039
+}

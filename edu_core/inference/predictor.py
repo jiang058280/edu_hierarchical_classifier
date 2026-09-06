@@ -105,10 +105,14 @@ class HierarchicalPredictor:
 
         # ---------- tokenizer（原始主干目录）+ 模型（结构取原始主干，权重覆盖为微调） ----------
         self.tokenizer = AutoTokenizer.from_pretrained(str(base_backbone_dir))
-        # 架构声明（改进计划 WP-G2）：subject_embedding_dim>0 = 知识头注入学科 embedding。
-        # 旧版本 manifest 无该字段 → 0 = 旧结构，向后兼容
-        self.subject_embedding_dim = int(
-            (self.manifest.get("architecture") or {}).get("subject_embedding_dim", 0))
+        # 架构声明（改进计划 WP-G2 + 数据扩充轮）：
+        #   subject_embedding_dim>0 = 知识头注入学科 embedding；
+        #   grade_head=true = 增加学段头（初中/高中）。
+        # 旧版本 manifest 无这些字段 → 旧结构，向后兼容。
+        arch = self.manifest.get("architecture") or {}
+        self.subject_embedding_dim = int(arch.get("subject_embedding_dim", 0))
+        grade_head_flag = bool(arch.get("grade_head", False))
+        self.id2grade = list(self.labels.get("grade_bands", [])) if grade_head_flag else []
         self.model = HierarchicalClassifier(
             str(base_backbone_dir),
             n_subjects=len(self.id2subject),
@@ -116,6 +120,7 @@ class HierarchicalPredictor:
             n_knowledge=len(self.id2knowledge),
             freeze_ratio=float(self.settings.freeze_ratio),
             subject_embedding_dim=self.subject_embedding_dim,
+            n_grade_bands=len(self.id2grade),
         )
         # 主干覆盖为微调权重（fail-fast：文件缺失即拒绝启动，绝不带随机头服务）
         ft_weights = finetuned_dir / "pytorch_model.bin"
@@ -177,9 +182,11 @@ class HierarchicalPredictor:
         result: dict = {}
         conf: dict = {}
         subject_idx: int | None = None
-        for key, id2label in (("subject", self.id2subject),
-                              ("question_type", self.id2type),
-                              ("knowledge", self.id2knowledge)):
+        heads = [("subject", self.id2subject), ("question_type", self.id2type),
+                 ("knowledge", self.id2knowledge)]
+        if self.id2grade:
+            heads.append(("grade", self.id2grade))
+        for key, id2label in heads:
             logits = out[key] / self.temperature
             if key == "knowledge":
                 if subject_idx is None:
@@ -189,7 +196,7 @@ class HierarchicalPredictor:
                     logits = logits.masked_fill(self.knowledge_mask[subject_idx], float("-inf"))
             probs = torch.softmax(logits, dim=-1)[0]
             idx = int(probs.argmax().item())
-            result[key] = id2label[idx]
+            result["grade_band" if key == "grade" else key] = id2label[idx]
             conf[key] = round(float(probs[idx].item()), 4)
         result["confidence"] = conf
         return result
@@ -224,6 +231,9 @@ class HierarchicalPredictor:
             "cached": False,
             "model_version": self.model_version,
         }
+        if "grade_band" in raw:
+            result["grade_band"] = raw["grade_band"]
+            result["confidence"]["grade"] = raw["confidence"]["grade"]
         self._cache[normalized] = result
         if len(self._cache) > self._cache_maxsize:
             self._cache.popitem(last=False)

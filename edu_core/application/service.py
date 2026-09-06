@@ -83,6 +83,7 @@ class ClassificationService:
             "model_version": result["model_version"],
             "latency_ms": result.get("latency_ms", 0.0),
             "cached": result.get("cached", False),
+            "grade_band": result.get("grade_band"),
         }
 
     # ------------------------------------------------------------------

@@ -36,7 +36,22 @@
 - 旧版一次性评估报告：`legacy/logs_snapshot/evaluation_report.json`、`test_evaluation.json`；
 - 受治理评估报告：`reports/evaluation/`（golden 集口径，改进 WP-A4 起为全量 300 条）。
 
-## 五、后续登记规则
+## 五、2026-09-06 数据扩充（v0.3 训练轮）
+
+| 数据集 | 来源与协议 | 学段 | 学科 | 题型 | 采样量 | 备注 |
+| --- | --- | --- | --- | --- | --- | --- |
+| CMMLU（test split） | GitHub haonan-li/CMMLU（公开评测基准） | 高中 | 理化生地数政 6 科 | 选择题 | 836 | 带 A-D 答案 |
+| M3KE（test split） | GitHub tjunlp-lab/M3KE（公开评测基准） | **初中 2,167** + 高中 953（分层采样） | 语数物化生史地政 8 科 | 选择题 | 3,120 | 带答案；初中唯一来源 |
+| GAOKAO-Bench | GitHub OpenLMLab/GAOKAO-Bench（高考真题 2010-2022） | 高中 | 多科（含英语阅读） | 选择题为主 + 理科政史地解答 | 1,193 | 主观题无标准答案，仅用于分类训练 |
+| NuminaMath-CoT cn_k12 | HuggingFace AI-MO/NuminaMath-CoT（CC BY-NC 4.0） | 初高中混合（未标注） | 仅数学 | 解答题 | 1,500 | 排除选项题/填空形态；学段未知→学段头掩码 |
+
+- 合并规则固化在 `scripts/build_merged_dataset.py`（去重、85/15 分层并入 train/val、**旧 test 划分不动**）；
+- 新增数据 knowledge_point 置空 → 知识点头训练仍只用原有 K-12EduBench 标注（掩码损失）；
+- 原始快照：`data/raw/_cmmlu_tmp/`、`_m3ke_tmp/`、`_gaokao_tmp/`、`_numina_shard0.parquet`（均不入 git）。
+
+**评估中的未来数据源**：好未来 CK12 评测集（41K 题、9 学科 × 单选/多选/填空/判断/排序 5 题型，带课标知识点树）——数据托管 Google Drive，当前网络不可达；如有 VPN 可手动下载放入 `data/raw/` 后扩展 build 脚本，是"全题型"覆盖的最优候选。
+
+## 六、后续登记规则
 
 自本文件建立起，以下事件必须在本文件追加登记：
 
