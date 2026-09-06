@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -18,6 +18,13 @@ logger = get_logger(__name__)
 
 def register_api_exception_handlers(app: FastAPI) -> None:
     """注册全局异常处理器。"""
+
+    @app.exception_handler(HTTPException)
+    async def _http_exception(_: Request, exc: HTTPException):
+        # 统一 {"error": ...} 形态（含 401/403 鉴权错误），保留 WWW-Authenticate 头
+        return JSONResponse(
+            {"error": str(exc.detail)}, status_code=exc.status_code,
+            headers=exc.headers or {})
 
     @app.exception_handler(ValidationError)
     async def _validation_error(_: Request, exc: ValidationError):
@@ -44,6 +51,11 @@ def register_api_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             {"error": f"参数校验失败：{field} {first.get('msg', '')}".strip()},
             status_code=400)
+
+    @app.exception_handler(ValueError)
+    async def _value_error(_: Request, exc: ValueError):
+        # 治理/业务层的值错误（如"没有可回滚的归档版本"、"版本已存在"）→ 400
+        return JSONResponse({"error": str(exc)}, status_code=400)
 
     @app.exception_handler(Exception)
     async def _unexpected(request: Request, exc: Exception):

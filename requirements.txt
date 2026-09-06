@@ -10,6 +10,11 @@ fastapi==0.141.1
 uvicorn==0.52.3
 pydantic==2.13.4
 pydantic-settings==2.15.0
+python-multipart==0.0.32
+
+# 认证（改进计划 WP-D）
+PyJWT==2.13.0
+bcrypt==5.0.0
 
 # 模型推理与训练
 torch==2.11.0

@@ -73,6 +73,20 @@ def check_model_versions() -> dict:
             "detail": f"manifest-valid versions: {versions or 'none（先运行 scripts/migrate_model_weights.py）'}"}
 
 
+def check_auth_config() -> dict:
+    """鉴权配置检查（改进计划 WP-D）：拒绝示例/弱 JWT 密钥上生产。"""
+    try:
+        from edu_core.config.preflight import validate_auth_settings
+        summary = validate_auth_settings(get_settings())
+        if summary.get("auth") == "disabled":
+            return {"name": "auth_config", "passed": False,
+                    "detail": "EDU_AUTH_DISABLED=true（生产环境必须开启鉴权）"}
+        return {"name": "auth_config", "passed": True,
+                "detail": f"JWT secret configured（{summary.get('secret_length')} chars）"}
+    except Exception as exc:  # noqa: BLE001
+        return {"name": "auth_config", "passed": False, "detail": str(exc)}
+
+
 def check_mysql() -> dict:
     try:
         from edu_core.storage.bootstrap import _server_connection
@@ -82,7 +96,8 @@ def check_mysql() -> dict:
                 cur.execute("SHOW TABLES")
                 tables = {row[0] for row in cur.fetchall()}
         expected = {"model_versions", "active_model_pointer", "classifications",
-                    "questions", "feedback", "daily_stats"}
+                    "questions", "feedback", "daily_stats", "schema_migrations",
+                    "users", "audit_logs"}
         missing = expected - tables
         return {"name": "mysql", "passed": not missing,
                 "detail": f"database={settings.mysql_db} tables ok" if not missing
@@ -97,7 +112,7 @@ def main() -> int:
     parser.add_argument("--skip-db", action="store_true")
     args = parser.parse_args()
 
-    results = [run_guardrails(), check_data_assets(), check_model_versions()]
+    results = [run_guardrails(), check_data_assets(), check_model_versions(), check_auth_config()]
     if not args.skip_tests:
         results.append(run_tests())
     if not args.skip_db:

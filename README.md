@@ -181,7 +181,10 @@ docker compose --env-file .env up -d api
 
 ## 九、安全说明
 
+- **认证与权限（WP-D）**：除 `/health` 与页面路由外，全部接口需 JWT 登录；版本激活/回滚/删题为 admin 专属；治理动作写 `audit_logs` 审计。登录：`POST /api/v1/auth/login`（Swagger Authorize 可调试）；建号：`venv\Scripts\python scripts\create_user.py --username admin --password xxx --role admin`（首次启动 users 表为空时也会按 `EDU_ADMIN_BOOTSTRAP_PASSWORD` 自动创建 admin）；
+- `EDU_JWT_SECRET` 鉴权开启时必须为 ≥16 字符非示例值（preflight 与 verify_release 强校验）；`EDU_AUTH_DISABLED=true` 仅限本机调试；
 - `.env` 不提交（只提交 `.env.example` 占位模板）；
 - CORS 白名单可配置，默认拒绝通配符（guardrails 强制）；
 - 接口限流默认 120 次/分钟/客户端；
-- 模型权重、venv、缓存、原始数据集均不入 git（见 `.gitignore`）。
+- 模型权重、venv、缓存、原始数据集均不入 git（见 `.gitignore`）；
+- 表结构变更走 `edu_core/storage/migrations/V*__*.sql` 版本化迁移（`schema_migrations` 登记，幂等重放），`runtime_schema.sql` 为只读参考视图。

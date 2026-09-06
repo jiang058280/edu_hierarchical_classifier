@@ -356,6 +356,72 @@ class StatsStore:
         return data
 
 
+class UserStore:
+    """用户（JWT 登录 + RBAC 角色，改进计划 WP-D）。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    def create(self, username: str, password_hash: str, role: str = "teacher") -> int:
+        if role not in ("admin", "teacher"):
+            raise ValueError(f"非法角色：{role}（仅 admin/teacher）")
+        with self.engine.begin() as conn:
+            exists = conn.execute(
+                text("SELECT id FROM users WHERE username = :u"), {"u": username}).first()
+            if exists:
+                raise ValueError(f"用户名已存在：{username}")
+            row = conn.execute(text("""
+                INSERT INTO users (username, password_hash, role) VALUES (:u, :p, :r)
+            """), {"u": username, "p": password_hash, "r": role})
+            return row.lastrowid
+
+    def get_by_username(self, username: str) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text(
+                "SELECT id, username, password_hash, role, is_active FROM users WHERE username = :u"
+            ), {"u": username}).mappings().first()
+        return dict(row) if row else None
+
+    def count(self) -> int:
+        with self.engine.connect() as conn:
+            return int(conn.execute(text("SELECT COUNT(*) FROM users")).scalar_one())
+
+
+class AuditStore:
+    """治理动作审计日志（谁/何时/做了什么/来源 IP）。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    def insert(self, action: str, user_id: int | None = None, username: str | None = None,
+               resource: str | None = None, detail: dict | None = None,
+               client_ip: str | None = None) -> int:
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""
+                INSERT INTO audit_logs (user_id, username, action, resource, detail_json, client_ip)
+                VALUES (:uid, :u, :a, :r, :d, :ip)
+            """), {
+                "uid": user_id, "u": username, "a": action, "r": resource,
+                "d": json.dumps(detail, ensure_ascii=False) if detail else None,
+                "ip": client_ip,
+            })
+            return row.lastrowid
+
+    def recent(self, limit: int = 50) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT id, user_id, username, action, resource, detail_json, client_ip, created_at
+                FROM audit_logs ORDER BY id DESC LIMIT :l
+            """), {"l": int(limit)}).mappings().all()
+        out = []
+        for r in rows:
+            data = dict(r)
+            data["detail"] = json.loads(data.pop("detail_json")) if data.get("detail_json") else None
+            data["created_at"] = data["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+            out.append(data)
+        return out
+
+
 class StoreBundle:
     """全部 Store 的聚合容器，service 层一次注入。"""
 
@@ -366,3 +432,5 @@ class StoreBundle:
         self.questions = QuestionStore(self.engine)
         self.feedback = FeedbackStore(self.engine)
         self.stats = StatsStore(self.engine)
+        self.users = UserStore(self.engine)
+        self.audit = AuditStore(self.engine)

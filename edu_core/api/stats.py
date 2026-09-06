@@ -1,17 +1,21 @@
-"""统计与健康检查路由。"""
+"""统计与健康检查路由。
+
+鉴权分级（改进计划 WP-D）：/stats 需登录；/health 公开（容器 healthcheck 用）。
+"""
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from edu_core.application.factory import get_classification_service
 from edu_core.config.settings import get_settings
 from edu_core.dedup.milvus_client import QuestionDedupIndex
+from edu_core.security.auth import get_current_user
 
 router = APIRouter()
 
 
-@router.get("/stats")
+@router.get("/stats", dependencies=[Depends(get_current_user)])
 def stats() -> dict:
     """聚合统计（今日处理量、反馈计数、题库规模、学科分布）。"""
     service = get_classification_service()

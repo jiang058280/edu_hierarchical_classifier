@@ -25,13 +25,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from edu_core.api import classify, models, pages, questions, stats
+from edu_core.api import auth, classify, models, pages, questions, stats
 from edu_core.api.error_handlers import register_api_exception_handlers
 from edu_core.application.factory import get_classification_service
 from edu_core.config.logging_config import get_logger
 from edu_core.config.preflight import validate_runtime_environment
 from edu_core.config.settings import get_settings
 from edu_core.governance.model_versions import ModelVersionManager
+from edu_core.security.auth import ensure_bootstrap_admin
 from edu_core.storage.bootstrap import bootstrap_mysql_schema
 from edu_core.storage.stores import StoreBundle
 
@@ -75,6 +76,11 @@ async def warmup_runtime() -> None:
     schema_summary = await asyncio.to_thread(bootstrap_mysql_schema, settings)
     logger.info("Runtime MySQL schema bootstrap passed: %s", schema_summary)
 
+    # 引导管理员：users 表为空且配置了 EDU_ADMIN_BOOTSTRAP_PASSWORD 时创建（WP-D）
+    bootstrap = await asyncio.to_thread(ensure_bootstrap_admin, settings)
+    if bootstrap.get("bootstrapped"):
+        logger.info("Runtime bootstrap admin created: uid=%s", bootstrap["uid"])
+
     manager = ModelVersionManager(stores=StoreBundle(settings=settings), settings=settings)
     active = manager.get_active()
     logger.info("Runtime active model version check passed: %s", active["version"])
@@ -98,6 +104,7 @@ async def warmup_runtime() -> None:
 app.include_router(pages.router)  # 根路径 / 与 /admin 不带前缀
 for prefix in ("/api/v1", "/api"):
     app.include_router(pages.router, prefix=prefix)
+    app.include_router(auth.router, prefix=prefix)
     app.include_router(classify.router, prefix=prefix)
     app.include_router(questions.router, prefix=prefix)
     app.include_router(stats.router, prefix=prefix)

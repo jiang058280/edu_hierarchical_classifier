@@ -26,6 +26,9 @@ _WEIGHTS_ANY = ["model.safetensors", "pytorch_model.bin"]
 # 模型版本目录必须存在的文件
 _VERSION_REQUIRED = ["subject_head.pt", "type_head.pt", "knowledge_head.pt", "manifest.json"]
 
+# 拒绝上生产的示例 JWT 密钥（与 .env.example 的占位值保持一致）
+_WEAK_SECRETS = {"", "change-me-to-a-long-random-string", "change-me"}
+
 
 class PreflightError(RuntimeError):
     """启动前置条件不满足。服务必须拒绝启动，不允许降级运行。"""
@@ -105,12 +108,26 @@ def validate_version_dir(version_dir: Path, project_root: Path | None = None) ->
     return {"version_dir": str(version_dir), "backbone_ref": str(ref), "ok": True}
 
 
+def validate_auth_settings(settings: Settings) -> dict:
+    """鉴权配置校验（改进计划 WP-D）：鉴权开启时拒绝弱密钥上生产。"""
+    if settings.auth_disabled:
+        logger.warning("鉴权已通过 EDU_AUTH_DISABLED 关闭——仅允许本机开发使用，生产严禁")
+        return {"auth": "disabled", "ok": True}
+    secret = settings.jwt_secret
+    if secret in _WEAK_SECRETS or len(secret) < 16:
+        raise PreflightError(
+            "鉴权已开启但 EDU_JWT_SECRET 缺失或过弱（需 ≥16 字符且非示例值）。"
+            "请在 .env 配置随机密钥，或本机调试时显式设置 EDU_AUTH_DISABLED=true")
+    return {"auth": "enabled", "secret_length": len(secret), "ok": True}
+
+
 def validate_runtime_environment(settings: Settings) -> dict:
     """服务启动前的文件系统级校验汇总（不含数据库）。"""
     summary = {
         "backbone": validate_backbone(settings.abs_path(settings.backbone_dir)),
         "labels": validate_labels_file(settings.abs_path(settings.data_processed_dir) / "labels.json"),
         "model_versions_dir": str(settings.abs_path(settings.model_versions_dir)),
+        "auth": validate_auth_settings(settings),
     }
     logger.info("Runtime preflight passed: %s", summary)
     return summary

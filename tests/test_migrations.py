@@ -12,7 +12,7 @@ import socket
 
 import pytest
 
-from edu_core.config.settings import Settings, get_settings
+from edu_core.config.settings import Settings
 from edu_core.storage.bootstrap import (
     MIGRATIONS_DIR,
     _migration_files,
@@ -126,12 +126,15 @@ def test_migration_failure_not_recorded_and_recoverable(scratch_settings, monkey
     from edu_core.storage import bootstrap as bootstrap_mod
     from edu_core.storage.bootstrap import apply_pending_migrations
     try:
-        # 先正常应用基线
+        # 先正常应用全部真实迁移
         apply_pending_migrations(scratch_settings)
 
-        # 构造临时迁移目录：真实 V1 + 必然失败的 V2（版本号连续，走真实 SQL 失败路径）
-        shutil.copy(MIGRATIONS_DIR / "V1__baseline.sql", tmp_path / "V1__baseline.sql")
-        (tmp_path / "V2__bad.sql").write_text("THIS IS NOT VALID SQL;", encoding="utf-8")
+        # 构造临时迁移目录：真实迁移全集 + 必然失败的下一版本（走真实 SQL 失败路径）
+        next_version = len(list(MIGRATIONS_DIR.glob("V*__*.sql"))) + 1
+        for fp in MIGRATIONS_DIR.glob("V*__*.sql"):
+            shutil.copy(fp, tmp_path / fp.name)
+        (tmp_path / f"V{next_version}__bad.sql").write_text(
+            "THIS IS NOT VALID SQL;", encoding="utf-8")
         monkeypatch.setattr(bootstrap_mod, "MIGRATIONS_DIR", tmp_path)
 
         with pytest.raises(pymysql.err.Error):
@@ -142,15 +145,16 @@ def test_migration_failure_not_recorded_and_recoverable(scratch_settings, monkey
             user=scratch_settings.mysql_user, password=scratch_settings.mysql_password,
             database=SCRATCH_DB, charset="utf8mb4", autocommit=True,
         ) as conn, conn.cursor() as cur:
-            cur.execute("SELECT version FROM schema_migrations WHERE version = 'V2'")
+            cur.execute(
+                "SELECT version FROM schema_migrations WHERE version = %s", (f"V{next_version}",))
             assert cur.fetchone() is None, "失败迁移不得记录版本号"
 
-        # 修复后重放：替换为合法 V2，成功应用并记录
-        (tmp_path / "V2__bad.sql").unlink()
-        (tmp_path / "V2__recovered.sql").write_text(
+        # 修复后重放：替换为合法脚本，成功应用并记录
+        (tmp_path / f"V{next_version}__bad.sql").unlink()
+        (tmp_path / f"V{next_version}__recovered.sql").write_text(
             "CREATE TABLE IF NOT EXISTS recovered_tbl (id INT PRIMARY KEY);", encoding="utf-8")
         summary = apply_pending_migrations(scratch_settings)
-        assert summary["migrations_applied_now"] == ["V2"]
+        assert summary["migrations_applied_now"] == [f"V{next_version}"]
 
         with pymysql.connect(
             host=scratch_settings.mysql_host, port=scratch_settings.mysql_port,

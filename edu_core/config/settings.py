@@ -64,6 +64,16 @@ class Settings(BaseSettings):
     confidence_high: float = 0.80
     confidence_medium: float = 0.60
 
+    # ---------- 认证与权限（改进计划 WP-D） ----------
+    # 总开关：仅限本机开发调试临时关闭鉴权，生产必须 false
+    auth_disabled: bool = False
+    # JWT 签名密钥：鉴权开启时必须为 ≥16 字符的非示例值（preflight 强校验）
+    jwt_secret: str = ""
+    # token 有效期（分钟）
+    token_expire_minutes: int = 480
+    # 首次启动且 users 表为空时自动创建的 admin 初始密码（创建后可删除该配置）
+    admin_bootstrap_password: str = ""
+
     # ---------- MySQL（业务主库） ----------
     mysql_host: str = "127.0.0.1"
     mysql_port: int = 3306

@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 from collections import defaultdict, deque
 
-from fastapi import Header, Request
+from fastapi import Request
 
 from edu_core.config.settings import get_settings
 
@@ -23,8 +23,12 @@ class RateLimitExceeded(Exception):
         super().__init__(f"rate limit exceeded, retry after {retry_after_seconds}s")
 
 
-def client_key(request: Request, x_forwarded_for: str | None = Header(default=None)) -> str:
-    """客户端标识：优先 X-Forwarded-For 首段（反代场景），否则取直连 IP。"""
+def client_key(request: Request) -> str:
+    """客户端标识：优先 X-Forwarded-For 首段（反代场景），否则取直连 IP。
+
+    既是普通函数（可被审计等处直调），也被 rate_limit 依赖使用。
+    """
+    x_forwarded_for = request.headers.get("x-forwarded-for")
     if x_forwarded_for:
         return x_forwarded_for.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
@@ -44,8 +48,8 @@ def enforce_rate_limit(key: str) -> None:
     bucket.append(now)
 
 
-async def rate_limit(request: Request, x_forwarded_for: str | None = Header(default=None)) -> str:
+async def rate_limit(request: Request) -> str:
     """FastAPI 依赖：按客户端限流并返回客户端标识。"""
-    key = client_key(request, x_forwarded_for)
+    key = client_key(request)
     enforce_rate_limit(key)
     return key

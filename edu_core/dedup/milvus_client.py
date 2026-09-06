@@ -39,12 +39,14 @@ class QuestionDedupIndex:
         try:
             from pymilvus import MilvusClient
             client = MilvusClient(uri=self.settings.milvus_uri)
-            client.create_collection(
-                collection_name=self.settings.milvus_collection,
-                dimension=int(self.settings.dedup_vector_dim),
-                metric_type="COSINE",
-                auto_id=False,
-            )
+            # 已存在的集合直接复用（参数不一致的旧集合也优先兼容，避免反复建集合报错）
+            if not client.has_collection(self.settings.milvus_collection):
+                client.create_collection(
+                    collection_name=self.settings.milvus_collection,
+                    dimension=int(self.settings.dedup_vector_dim),
+                    metric_type="COSINE",
+                    auto_id=False,
+                )
             self._client = client
             logger.info("Milvus 查重集合就绪：%s@%s",
                         self.settings.milvus_collection, self.settings.milvus_uri)

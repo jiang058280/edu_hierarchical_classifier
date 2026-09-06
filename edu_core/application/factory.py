@@ -32,3 +32,16 @@ def get_classification_service() -> ClassificationService:
     predictor = HierarchicalPredictor(active_dir, settings=settings, verbose=True)
     dedup = QuestionDedupIndex(settings, embed_fn=predictor.embed)
     return ClassificationService(predictor=predictor, stores=stores, dedup=dedup, settings=settings)
+
+
+def reload_classification_service() -> ClassificationService:
+    """热重载（改进计划 WP-H1）：清空单例缓存，按当前 active 指针重新装配并预热。
+
+    用于版本激活/回滚后免重启生效。装配过程中完成一次真实推理预热，
+    因此只有新版本可正常加载、推理可用时本函数才返回；
+    抛异常即代表新版本不可用（调用方应回退指针后再次调用本函数恢复旧版本）。
+    注意：Milvus 连接随旧实例释放，重载后首次查重会重建连接（懒连接，无碍）。
+    """
+    logger.info("热重载分类服务（active 指针变更）")
+    get_classification_service.cache_clear()
+    return get_classification_service()
