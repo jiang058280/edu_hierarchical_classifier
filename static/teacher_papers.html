@@ -127,6 +127,7 @@ async function savePaper() {
 async function loadPapers() {
   try {
     const data = await T.api('/api/v1/teacher/papers');
+    data.items = data.items || []; data.total = data.total || 0;
     $('paperRows').innerHTML = data.items.length ? data.items.map(p => `
       <tr>
         <td class="num">${p.id}</td><td><b>${T.escapeHtml(p.title)}</b></td>

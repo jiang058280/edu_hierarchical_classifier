@@ -64,10 +64,10 @@ async function loadStats() {
     T.api('/api/v1/teacher/classes'),
     T.api('/api/v1/teacher/knowledge-nodes'),
   ]);
-  $('stBank').innerHTML = bank.total + '<small> 题</small>';
-  $('stPapers').innerHTML = papers.total + '<small> 份</small>';
-  $('stClasses').innerHTML = classes.classes.length + '<small> 个</small>';
-  $('stNodes').innerHTML = nodes.total + '<small> 个</small>';
+  $('stBank').innerHTML = (bank.total || 0) + '<small> 题</small>';
+  $('stPapers').innerHTML = (papers.total || 0) + '<small> 份</small>';
+  $('stClasses').innerHTML = (classes.classes || []).length + '<small> 个</small>';
+  $('stNodes').innerHTML = (nodes.total || 0) + '<small> 个</small>';
 }
 
 async function createClass() {
