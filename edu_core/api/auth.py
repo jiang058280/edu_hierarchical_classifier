@@ -26,14 +26,22 @@ router = APIRouter()
 
 
 @router.post("/auth/login", dependencies=[])
-def login(form: OAuth2PasswordRequestForm = Depends()) -> dict[str, Any]:
-    """账号密码登录，签发 JWT（鉴权总开关关闭时提示拒绝）。"""
+def login(form: OAuth2PasswordRequestForm = Depends(),
+          portal: str | None = None) -> dict[str, Any]:
+    """账号密码登录，签发 JWT。
+
+    portal（平台 M0 双门户）：teacher / student。传入时校验角色与门户匹配，
+    学生不能从教师门户登录（反之亦然）；不传 = 不做门户校验（兼容旧调用）。
+    """
     settings = get_settings()
     if settings.auth_disabled:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="鉴权已通过 EDU_AUTH_DISABLED 关闭，无需登录",
         )
+    if portal is not None and portal not in ("teacher", "student"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="portal 仅支持 teacher/student")
     if not form.username or not form.password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="用户名与密码不能为空")
@@ -47,12 +55,22 @@ def login(form: OAuth2PasswordRequestForm = Depends()) -> dict[str, Any]:
     if not user["is_active"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="用户已停用")
+    if portal == "teacher" and user["role"] not in ("teacher", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="该账号不是教师账号，请从学生门户登录")
+    if portal == "student" and user["role"] != "student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="该账号不是学生账号，请从教师门户登录")
     token = create_access_token(user["username"], user["role"], int(user["id"]), settings)
     return {
         "access_token": token,
         "token_type": "bearer",
         "username": user["username"],
         "role": user["role"],
+        "real_name": user.get("real_name"),
+        "class_id": user.get("class_id"),
     }
 
 

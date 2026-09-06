@@ -132,6 +132,26 @@ def require_admin(user: dict[str, Any] = Depends(get_current_user)) -> dict[str,
     return user
 
 
+def require_teacher(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
+    """教师端依赖：teacher 或 admin 可通过（平台计划 M0 双门户）。"""
+    if user.get("role") not in ("teacher", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="该功能仅面向教师，请从教师门户登录",
+        )
+    return user
+
+
+def require_student(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
+    """学生端依赖：仅 student 角色可通过（平台计划 M0 双门户）。"""
+    if user.get("role") != "student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="该功能仅面向学生，请从学生门户登录",
+        )
+    return user
+
+
 # ---------------------------------------------------------------------------
 # 引导管理员
 # ---------------------------------------------------------------------------

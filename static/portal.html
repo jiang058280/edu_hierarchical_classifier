@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧教研平台 · 门户选择</title>
+<style>
+  :root { --primary:#2563EB; --teal:#0D9488; --bg:#F1F5F9; --card:#fff; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  .wrap { text-align:center; }
+  h1 { font-size:28px; margin-bottom:8px; }
+  .sub { color:var(--muted); font-size:14px; margin-bottom:40px; }
+  .cards { display:flex; gap:24px; }
+  a.portal { display:block; width:280px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:36px 24px; text-decoration:none; color:var(--text); transition:transform .15s, box-shadow .15s; }
+  a.portal:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(15,23,42,.12); }
+  .icon { font-size:44px; margin-bottom:14px; }
+  a.portal h2 { font-size:19px; margin-bottom:8px; }
+  a.portal p { font-size:13px; color:var(--muted); line-height:1.7; }
+  a.portal.teacher { border-top:4px solid var(--primary); }
+  a.portal.student { border-top:4px solid var(--teal); }
+  .links { margin-top:36px; font-size:13px; }
+  .links a { color:var(--primary); text-decoration:none; margin:0 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>智慧教研平台</h1>
+  <div class="sub">题库自动化建设 · 分层分类 · 作业与学情闭环</div>
+  <div class="cards">
+    <a class="portal teacher" href="/teacher">
+      <div class="icon">👩‍🏫</div>
+      <h2>教师门户</h2>
+      <p>AI 智能录题 · 题库建设<br>智能组卷 · 班级与作业管理</p>
+    </a>
+    <a class="portal student" href="/student">
+      <div class="icon">🎒</div>
+      <h2>学生门户</h2>
+      <p>加入班级 · 在线作答<br>错题本 · 我的学情</p>
+    </a>
+  </div>
+  <div class="links">
+    <a href="/classify">题目分类工具</a> · <a href="/admin">治理工作台</a> · <a href="/api/docs">API 文档</a>
+  </div>
+</div>
+</body>
+</html>

@@ -357,34 +357,154 @@ class StatsStore:
 
 
 class UserStore:
-    """用户（JWT 登录 + RBAC 角色，改进计划 WP-D）。"""
+    """用户（JWT 登录 + RBAC 角色；学生角色见平台计划 M0）。"""
+
+    ALLOWED_ROLES = ("admin", "teacher", "student")
 
     def __init__(self, engine: Engine | None = None):
         self.engine = engine or get_engine()
 
-    def create(self, username: str, password_hash: str, role: str = "teacher") -> int:
-        if role not in ("admin", "teacher"):
-            raise ValueError(f"非法角色：{role}（仅 admin/teacher）")
+    def create(self, username: str, password_hash: str, role: str = "teacher",
+               real_name: str | None = None, grade_band: str | None = None,
+               grade: str | None = None, class_id: int | None = None,
+               student_no: str | None = None,
+               must_change_password: bool = False) -> int:
+        if role not in self.ALLOWED_ROLES:
+            raise ValueError(f"非法角色：{role}（仅 {'/'.join(self.ALLOWED_ROLES)}）")
         with self.engine.begin() as conn:
             exists = conn.execute(
                 text("SELECT id FROM users WHERE username = :u"), {"u": username}).first()
             if exists:
                 raise ValueError(f"用户名已存在：{username}")
             row = conn.execute(text("""
-                INSERT INTO users (username, password_hash, role) VALUES (:u, :p, :r)
-            """), {"u": username, "p": password_hash, "r": role})
+                INSERT INTO users (username, password_hash, role, real_name,
+                                   grade_band, grade, class_id, student_no, must_change_password)
+                VALUES (:u, :p, :r, :rn, :gb, :g, :cid, :sno, :mcp)
+            """), {
+                "u": username, "p": password_hash, "r": role, "rn": real_name,
+                "gb": grade_band, "g": grade, "cid": class_id, "sno": student_no,
+                "mcp": 1 if must_change_password else 0,
+            })
             return row.lastrowid
 
     def get_by_username(self, username: str) -> dict | None:
         with self.engine.connect() as conn:
-            row = conn.execute(text(
-                "SELECT id, username, password_hash, role, is_active FROM users WHERE username = :u"
-            ), {"u": username}).mappings().first()
+            row = conn.execute(text("""
+                SELECT id, username, password_hash, role, is_active,
+                       real_name, grade_band, grade, class_id, student_no
+                FROM users WHERE username = :u
+            """), {"u": username}).mappings().first()
         return dict(row) if row else None
 
     def count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(text("SELECT COUNT(*) FROM users")).scalar_one())
+
+    def count_by_role(self, role: str) -> int:
+        with self.engine.connect() as conn:
+            return int(conn.execute(
+                text("SELECT COUNT(*) FROM users WHERE role = :r"), {"r": role}).scalar_one())
+
+    def list_by_class(self, class_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT id, username, real_name, grade_band, grade, student_no, is_active, created_at
+                FROM users WHERE class_id = :c AND role = 'student' ORDER BY id
+            """), {"c": class_id}).mappings().all()
+        return [dict(r) | {"created_at": r["created_at"].strftime("%Y-%m-%d %H:%M:%S")}
+                for r in rows]
+
+    def assign_class(self, user_id: int, class_id: int) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(text(
+                "UPDATE users SET class_id = :c WHERE id = :i"), {"c": class_id, "i": user_id})
+
+
+class ClassStore:
+    """班级（平台计划 M0）：建班/邀请码入班/名单。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    def create(self, name: str, grade_band: str, grade: str, created_by: int,
+               invite_code: str) -> int:
+        if grade_band not in ("初中", "高中"):
+            raise ValueError(f"学段仅支持 初中/高中：{grade_band}")
+        with self.engine.begin() as conn:
+            dup = conn.execute(text(
+                "SELECT id FROM classes WHERE name = :n AND is_active = 1"),
+                {"n": name}).first()
+            if dup:
+                raise ValueError(f"班级名已存在：{name}")
+            row = conn.execute(text("""
+                INSERT INTO classes (name, grade_band, grade, invite_code, created_by)
+                VALUES (:n, :gb, :g, :code, :by)
+            """), {"n": name, "gb": grade_band, "g": grade, "code": invite_code, "by": created_by})
+            return row.lastrowid
+
+    def get(self, class_id: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("SELECT * FROM classes WHERE id = :i"),
+                               {"i": class_id}).mappings().first()
+        data = dict(row) if row else None
+        if data:
+            data["created_at"] = data["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+        return data
+
+    def get_by_invite_code(self, code: str) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text(
+                "SELECT * FROM classes WHERE invite_code = :c AND is_active = 1"),
+                {"c": code}).mappings().first()
+        data = dict(row) if row else None
+        if data:
+            data["created_at"] = data["created_at"].strftime("%Y-%m-%d %H:%M:%S")
+        return data
+
+    def list_by_teacher(self, teacher_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT c.*, (SELECT COUNT(*) FROM users u
+                             WHERE u.class_id = c.id AND u.role = 'student') AS student_count
+                FROM classes c WHERE c.created_by = :t AND c.is_active = 1 ORDER BY c.id DESC
+            """), {"t": teacher_id}).mappings().all()
+        return [dict(r) | {"created_at": r["created_at"].strftime("%Y-%m-%d %H:%M:%S")}
+                for r in rows]
+
+    def join(self, class_id: int, student_id: int) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(text(
+                "UPDATE users SET class_id = :c WHERE id = :i"), {"c": class_id, "i": student_id})
+
+
+class KnowledgeNodeStore:
+    """知识点树（平台计划 M0；播种由 scripts/seed_knowledge_nodes.py 完成）。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    def list(self, subject: str = "", grade_band: str | None = None,
+             level: int | None = None) -> list[dict]:
+        conditions, params = [], {}
+        if subject:
+            conditions.append("subject = :s")
+            params["s"] = subject
+        if grade_band is not None:
+            conditions.append("grade_band = :gb")
+            params["gb"] = grade_band
+        if level is not None:
+            conditions.append("level = :l")
+            params["l"] = level
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(
+                f"SELECT id, parent_id, subject, grade_band, name, level, is_active "
+                f"FROM knowledge_nodes {where} ORDER BY subject, level, id"), params).mappings().all()
+        return [dict(r) for r in rows]
+
+    def count(self) -> int:
+        with self.engine.connect() as conn:
+            return int(conn.execute(text("SELECT COUNT(*) FROM knowledge_nodes")).scalar_one())
 
 
 class AuditStore:
@@ -434,3 +554,5 @@ class StoreBundle:
         self.stats = StatsStore(self.engine)
         self.users = UserStore(self.engine)
         self.audit = AuditStore(self.engine)
+        self.classes = ClassStore(self.engine)
+        self.knowledge_nodes = KnowledgeNodeStore(self.engine)

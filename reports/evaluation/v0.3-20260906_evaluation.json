@@ -1,0 +1,290 @@
+{
+  "version": "v0.3-20260906",
+  "dataset": "golden_test_set",
+  "evaluated_at": "2026-09-06 16:16:37",
+  "metrics": {
+    "n_samples": 300,
+    "subject_acc": 0.9867,
+    "subject_f1": 0.9867,
+    "type_acc": 0.9733,
+    "type_f1": 0.8522,
+    "knowledge_acc": 0.9033,
+    "knowledge_f1": 0.8894,
+    "cascade_acc": 0.89,
+    "avg_latency_ms": 17.88,
+    "total_eval_ms": 5369.88
+  },
+  "subject_cascade_accuracy": {
+    "化学": 0.9412,
+    "历史": 0.8824,
+    "地理": 0.9706,
+    "政治": 0.9091,
+    "数学": 0.8485,
+    "物理": 0.9697,
+    "生物": 0.7879,
+    "英语": 0.8485,
+    "语文": 0.8485
+  },
+  "error_samples": [
+    {
+      "text_preview": "生长素是最早发现的一类促进植物生长的激素。《农桑辑要》是元朝司农司撰写的一部农业科学著作，其中描述“苗长高二尺之上，打去‘冲天心’叶叶不空，开花结实”。此项操作与生长素有关。下列分析正确的是（　　）\nA．生长素是由谷氨酸经过一系列反应转变形",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::稳态与环境"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "William Hastie once suggested that history informs us of past mistakes ______ we can learn without repeating them.（　　）\nA",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      }
+    },
+    {
+      "text_preview": "请回答：下列句子中，没有 成语 语病的一项是（ ） A、 选项一 B、 选项二 C、 选项三 D、 选项四（填序号）",
+      "expected": {
+        "subject": "语文",
+        "question_type": "选择题",
+        "knowledge_point": "语文::基础知识"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "选择题",
+        "knowledge_point": "语文::古代汉语知识"
+      }
+    },
+    {
+      "text_preview": "（判断正误）在四面体 ABCD 中，投影，求二面角 A-BC-D 的余弦值。（写出正确答案的字母）",
+      "expected": {
+        "subject": "数学",
+        "question_type": "判断题",
+        "knowledge_point": "数学::立体几何"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "解答题",
+        "knowledge_point": "数学::立体几何"
+      }
+    },
+    {
+      "text_preview": "15．（ 10分）古乡沟位于青藏高原东南部， 上游地区有 6条冰川，沟谷有厚度\n达300多米的堆积物．中游河谷狭窄．冰川末端深入森林带．每年夏秋季常\n有冰川泥石流爆发，其破坏力在世界上是罕见的．\n分析古乡沟夏秋季节冰川泥石流破坏力巨大的原因",
+      "expected": {
+        "subject": "地理",
+        "question_type": "解答题",
+        "knowledge_point": "地理::自然地理"
+      },
+      "predicted": {
+        "subject": "地理",
+        "question_type": "解答题",
+        "knowledge_point": "地理::环境保护"
+      }
+    },
+    {
+      "text_preview": "阅读下面的材料，根据要求写作。\n本试卷现代文阅读材料Ⅱ提到，六百年的时光积淀了古城的沉厚，羽化出古城人精神的轻盈。其实，一座城，一个国家，一个民族都需要这样的“沉厚”与“轻盈”，人亦如此。\n请以“沉厚与轻盈”为话题，写一篇文章。\n要求：选准",
+      "expected": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::其他"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::阅读与鉴赏"
+      }
+    },
+    {
+      "text_preview": "10．（ 4分） 2014年12月召开的中央经济工作会议分析了我国经济九个方面的\n趋势性变化，提出我国经济正在向形态更高级、分工更复杂、结构更合理的\n阶段演化 ，经济发展进入新常态 。从辩证法的观点看 ，“经济发展进入新常态\n”意味着（ 　",
+      "expected": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::其他"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      }
+    },
+    {
+      "text_preview": "可用来分离Fe^{3+}和Al^{3+}两种离子的试剂是____\nA: 盐酸\nB: 氢氧化钠溶液\nC: 氨水\nD: 硫氰化钾溶液",
+      "expected": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::化学反应原理"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::常见无机物及其应用"
+      }
+    },
+    {
+      "text_preview": "实验小组用核辐射消除某烟草细胞的细胞核，获得保留细胞质（含叶绿体）且具有链霉素性的烟草细胞甲，用酶去除烟草细胞甲和无链霉素抗性的烟草细胞乙的细胞壁，然后将二者的原生质体置于培养基上融合，获得杂种细胞丙。下列有关该过程的叙述，错误的是（　　）",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::现代生物科技专题"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "1．（6分）下列研究工作中由我国科学家完成的是（）\nA．以豌豆为材料发现性状遗传规律的实验\nB．用小球藻发现光合作用暗反应途径的实验\nC．证明DNA是遗传物质的肺炎双球菌转化实验\nD．首例具有生物活性的结晶牛胰岛素的人工合成",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::现代生物科技专题"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::遗传与进化"
+      }
+    },
+    {
+      "text_preview": "At the Chinese art festival, there are different stands_______ artists demonstrate their skills and teach the visitors.（",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      }
+    },
+    {
+      "text_preview": "Reading Art：Art for Book Lovers is a celebration of an everyday object-the book，represented here in almost three hundred",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::语言应用"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::阅读理解"
+      }
+    },
+    {
+      "text_preview": "根据所学知识，回答下列问题：关于 辛亥革命 的历史意义，下列说法正确的是（ ）A. 选项四  B. 选项三  C. 选项一  D. 选项二",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::近代中国"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::近代世界"
+      }
+    },
+    {
+      "text_preview": "\"Paragraph 1：A few weeks later，when I almost forgot the contest，there came the news.I was informed that I won the first ",
+      "expected": {
+        "subject": "英语",
+        "question_type": "判断题",
+        "knowledge_point": "英语::阅读理解"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::完形填空"
+      }
+    },
+    {
+      "text_preview": "14．（12分）阅读材料，完成下列要求。\n材料\n如表摘自1995年7～8月对江苏昆山、浙江乐清的部分农民进行的调查统计，调\n查对象中近60%为18～35岁的青壮年。\n表1995年7～8月江苏昆山、浙江乐清部分农民调查统计\n单位：%\n选择意向",
+      "expected": {
+        "subject": "历史",
+        "question_type": "解答题",
+        "knowledge_point": "历史::现代世界"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      }
+    },
+    {
+      "text_preview": "下列叙述中，正确的是：函数 f(x) = 三角恒等变换 的图象的一条对称轴方程是（ ） A. x=π/2 B. x=π C. x=3π/2 D. x=2π",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::三角函数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      }
+    },
+    {
+      "text_preview": "(判断正误)已知 tan α = 3, 求 弧度 的值。 请选择:",
+      "expected": {
+        "subject": "数学",
+        "question_type": "判断题",
+        "knowledge_point": "数学::三角函数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "解答题",
+        "knowledge_point": "数学::三角函数"
+      }
+    },
+    {
+      "text_preview": "近年来随着肥胖人数增多，减肥药受到追捧。2021年美国肥胖症周大会上公布了肥胖症新药Wegovy（一种多肽）。数据显示：接受Wegovy治疗的成人患者，在2年研究期间实现了显著和持续的体重减轻。下列叙述正确的是（　　）\nA．Wegovy既可",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::常见有机物及其应用"
+      }
+    },
+    {
+      "text_preview": "（多选题）下列各句中，加点的 语病 成语使用恰当的一项是（ ） A. 选项一 B. 选项二 C. 选项三 D. 选项四",
+      "expected": {
+        "subject": "语文",
+        "question_type": "选择题",
+        "knowledge_point": "语文::基础知识"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "选择题",
+        "knowledge_point": "语文::古代汉语知识"
+      }
+    },
+    {
+      "text_preview": "（判断正误）在如图所示的电路中，楞次定律，求通过 R₁ 的电流。 （注：请选择最佳选项）",
+      "expected": {
+        "subject": "物理",
+        "question_type": "判断题",
+        "knowledge_point": "物理::电磁学"
+      },
+      "predicted": {
+        "subject": "物理",
+        "question_type": "解答题",
+        "knowledge_point": "物理::电磁学"
+      }
+    }
+  ]
+}

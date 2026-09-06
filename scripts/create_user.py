@@ -25,7 +25,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="创建用户 / 重置密码（需 MySQL 已初始化）")
     parser.add_argument("--username", required=True, help="用户名（≥2 字符）")
     parser.add_argument("--password", required=True, help="密码（≥6 位，仅命令行传入，注意历史记录）")
-    parser.add_argument("--role", default="teacher", choices=["admin", "teacher"])
+    parser.add_argument("--role", default="teacher", choices=["admin", "teacher", "student"])
     parser.add_argument("--reset-password", action="store_true",
                         help="用户已存在时重置其密码（不新建）")
     args = parser.parse_args()

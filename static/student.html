@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生门户 · 智慧教研平台</title>
+<style>
+  :root { --teal:#0D9488; --ok:#16A34A; --bad:#DC2626; --bg:#F0FDFA; --card:#fff; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  header { background:var(--card); border-bottom:1px solid var(--border); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:17px; }
+  header .meta { font-size:13px; color:var(--muted); }
+  header a { color:var(--teal); text-decoration:none; margin-left:10px; }
+  main { max-width:560px; margin:20px auto; padding:0 14px; display:flex; flex-direction:column; gap:14px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; border-top:3px solid var(--teal); }
+  .card h2 { font-size:15px; margin-bottom:10px; }
+  button { cursor:pointer; border:none; border-radius:8px; padding:10px 16px; font-size:14px; background:var(--teal); color:#fff; }
+  button.ghost { background:#fff; color:var(--teal); border:1px solid var(--border); }
+  input { border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:15px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .muted { color:var(--muted); font-size:12px; }
+  .kv { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--border); font-size:14px; }
+  .kv b { color:var(--teal); }
+  #error, .err { color:var(--bad); font-size:13px; min-height:16px; }
+  #loginOverlay { position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:center; justify-content:center; z-index:100; }
+  #loginOverlay .box { background:var(--card); border-radius:12px; padding:24px; width:300px; }
+  #loginOverlay h3 { font-size:16px; margin-bottom:12px; }
+  #loginOverlay input { width:100%; margin-bottom:10px; }
+  .coming { background:#FFFBEB; border:1px dashed #F59E0B; color:#92400E; border-radius:8px; padding:10px 12px; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎒 学生门户</h1>
+  <div class="meta">
+    <span id="userBadge"></span>
+    <button class="ghost" id="btnLogout" style="display:none" onclick="logout()">登出</button>
+    <a href="/">返回门户</a>
+  </div>
+</header>
+
+<div id="loginOverlay">
+  <div class="box">
+    <h3>学生登录</h3>
+    <input type="text" id="loginUser" placeholder="用户名（学号）" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password">
+    <div class="err" id="loginErr"></div>
+    <button style="width:100%" onclick="doLogin()">登 录</button>
+  </div>
+</div>
+
+<main>
+  <div class="card" id="joinCard">
+    <h2>加入班级</h2>
+    <div class="row">
+      <input type="text" id="inviteCode" placeholder="输入老师给的 6 位邀请码" style="flex:1" maxlength="6">
+      <button onclick="joinClass()">加入</button>
+    </div>
+    <div class="err" id="joinErr"></div>
+  </div>
+
+  <div class="card" id="classCard" style="display:none">
+    <h2>我的班级</h2>
+    <div id="classInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>我的作业</h2>
+    <div class="coming">🚧 在线作答功能将在平台 M2 上线，敬请期待</div>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const TOKEN_KEY = 'edu_token_student';
+const getToken = () => localStorage.getItem(TOKEN_KEY) || '';
+const setToken = t => t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
+
+async function api(path, options) {
+  const headers = Object.assign({}, (options && options.headers) || {});
+  if (getToken()) headers['Authorization'] = 'Bearer ' + getToken();
+  const resp = await fetch(path, Object.assign({}, options, {headers}));
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    if (resp.status === 401) { showLogin(); throw new Error(data.error || '请先登录'); }
+    throw new Error(data.error || (resp.status + ' ' + resp.statusText));
+  }
+  return data;
+}
+function showLogin(msg) { $('loginErr').textContent = msg || ''; $('loginOverlay').style.display = 'flex'; $('loginUser').focus(); }
+
+async function doLogin() {
+  const username = $('loginUser').value.trim(), password = $('loginPass').value;
+  if (!username || !password) { $('loginErr').textContent = '请输入用户名与密码'; return; }
+  try {
+    const resp = await fetch('/api/v1/auth/login', {
+      method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({username, password, portal: 'student'})
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) { $('loginErr').textContent = data.error || data.detail || '登录失败'; return; }
+    setToken(data.access_token);
+    $('loginOverlay').style.display = 'none'; $('loginPass').value = '';
+    await loadIdentity(); loadMyClass();
+  } catch (e) { $('loginErr').textContent = '登录失败：' + e.message; }
+}
+async function loadIdentity() {
+  try {
+    const me = await api('/api/v1/auth/me');
+    $('userBadge').textContent = '当前用户：' + (me.real_name || me.username);
+    $('btnLogout').style.display = '';
+    return true;
+  } catch (e) { return false; }
+}
+function logout() { setToken(''); location.reload(); }
+$('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function joinClass() {
+  $('joinErr').textContent = '';
+  try {
+    const r = await api('/api/v1/student/join-class', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({invite_code: $('inviteCode').value.trim()})
+    });
+    $('inviteCode').value = '';
+    showClass(r.class);
+  } catch (e) { $('joinErr').textContent = e.message; }
+}
+function showClass(c) {
+  if (!c) { $('classCard').style.display = 'none'; return; }
+  $('classCard').style.display = '';
+  $('classInfo').innerHTML = `
+    <div class="kv"><span>班级</span><b>${c.name}</b></div>
+    <div class="kv"><span>学段/年级</span><b>${c.grade_band} · ${c.grade}</b></div>`;
+}
+
+async function loadMyClass() {
+  try {
+    const data = await api('/api/v1/student/my-class');
+    showClass(data.class);
+  } catch (e) { /* 401 已由 api() 弹登录 */ }
+}
+
+if (!getToken()) { showLogin('请先登录'); }
+else { loadIdentity().then(() => loadMyClass()); }
+</script>
+</body>
+</html>

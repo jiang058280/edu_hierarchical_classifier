@@ -25,7 +25,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from edu_core.api import auth, classify, models, pages, questions, stats
+from edu_core.api import auth, classify, models, pages, questions, stats, student, teacher
 from edu_core.api.error_handlers import register_api_exception_handlers
 from edu_core.application.factory import get_classification_service
 from edu_core.config.logging_config import get_logger
@@ -105,6 +105,8 @@ app.include_router(pages.router)  # 根路径 / 与 /admin 不带前缀
 for prefix in ("/api/v1", "/api"):
     app.include_router(pages.router, prefix=prefix)
     app.include_router(auth.router, prefix=prefix)
+    app.include_router(teacher.router, prefix=prefix)
+    app.include_router(student.router, prefix=prefix)
     app.include_router(classify.router, prefix=prefix)
     app.include_router(questions.router, prefix=prefix)
     app.include_router(stats.router, prefix=prefix)
