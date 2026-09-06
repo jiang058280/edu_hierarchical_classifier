@@ -13,7 +13,7 @@
 
   <div class="card">
     <div class="filter-row">
-      <select class="input" id="fSubject"><option value="">全部学科</option></select>
+      <select class="input" id="fSubject"><option value="">全部学科</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>地理</option><option>政治</option></select>
       <select class="input" id="fType"><option value="">全部题型</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select>
       <select class="input" id="fBand"><option value="">全部学段</option><option>初中</option><option>高中</option></select>
       <select class="input" id="fStatus"><option value="">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option><option value="pending">待审核</option></select>
@@ -52,7 +52,7 @@
     </div>
     <div class="grid2">
       <div class="field"><label class="lbl">学科</label>
-        <select class="input" id="eSubject"><option value="">— 请选择 —</option></select></div>
+        <select class="input" id="eSubject"><option value="">— 请选择 —</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>地理</option><option>政治</option></select></div>
       <div class="field"><label class="lbl">题型</label>
         <select class="input" id="eType"><option value="">— 请选择 —</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select></div>
       <div class="field"><label class="lbl">学段</label>
@@ -82,12 +82,6 @@
 const $ = (id) => document.getElementById(id);
 T.renderShell('bank', '题库管理');
 let offset = 0, editingId = null;
-const SUBJECTS = ["数学","语文","英语","物理","化学","生物","历史","地理","政治"];
-
-SUBJECTS.forEach(s => {
-  $('fSubject').add(new Option(s, s));
-  $('eSubject').add(new Option(s, s));
-});
 ['fSubject','fType','fBand','fStatus'].forEach(id =>
   $(id).addEventListener('change', () => loadList(0)));
 $('fKw').addEventListener('keydown', e => { if (e.key === 'Enter') loadList(0); });

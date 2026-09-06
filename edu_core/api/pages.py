@@ -20,7 +20,9 @@ router = APIRouter()
 
 def _page(filename: str) -> FileResponse:
     settings = get_settings()
-    return FileResponse(settings.abs_path(settings.static_dir) / filename)
+    # no-cache：页面更新后浏览器必须拉新版本，避免旧脚本缓存引发的诡异故障
+    return FileResponse(settings.abs_path(settings.static_dir) / filename,
+                        headers={"Cache-Control": "no-cache"})
 
 
 @router.get("/")
