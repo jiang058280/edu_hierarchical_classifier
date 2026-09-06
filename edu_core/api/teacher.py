@@ -10,7 +10,7 @@ import secrets
 from io import BytesIO
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response
 
 from edu_core.security.auth import require_teacher
@@ -101,6 +101,29 @@ def get_question(question_id: int,
     if not question:
         raise HTTPException(status_code=404, detail="题目不存在")
     return question
+
+
+@router.delete("/teacher/questions/{question_id}")
+def delete_teacher_question(question_id: int, request: Request,
+                            user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """删除题目（同步删除 Milvus 向量，动作写审计）。"""
+    from edu_core.application.factory import get_classification_service
+
+    service = get_classification_service()
+    try:
+        result = service.delete_question(question_id)
+    except Exception as exc:
+        from edu_core.application.service import ValidationError
+        from edu_core.storage.stores import sqlalchemy_error_to_message
+        if isinstance(exc, ValidationError):
+            raise HTTPException(status_code=404, detail=str(exc))
+        msg = sqlalchemy_error_to_message(exc)
+        raise HTTPException(status_code=500, detail=msg or str(exc))
+    _stores().audit.insert(
+        action="delete_question", user_id=user.get("id") or None,
+        username=user.get("username"), resource=f"teacher/questions/{question_id}",
+        detail={"question_id": question_id}, client_ip=request.client.host if request.client else None)
+    return result
 
 
 def _full_fields(payload: dict, *, require_content: bool = True) -> dict:
