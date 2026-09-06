@@ -1,0 +1,15 @@
+# pre-commit 钩子（可选）：本地提交前跑 ruff + 工程守护
+# 启用：venv\Scripts\pip install pre-commit && venv\Scripts\pre-commit install
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.5
+    hooks:
+      - id: ruff
+        args: [--fix]
+  - repo: local
+    hooks:
+      - id: guardrails
+        name: project guardrails（反模式回流检查）
+        entry: python scripts/check_project_guardrails.py
+        language: system
+        pass_filenames: false

@@ -18,7 +18,7 @@ for _parent in _Path(__file__).resolve().parents:
 from scripts.common import get_root  # noqa: F401  — 确保 edu_core 可导入
 from edu_core.config.logging_config import get_logger
 from edu_core.config.settings import get_settings
-from edu_core.governance.model_versions import ModelVersionManager, version_dir
+from edu_core.governance.model_versions import version_dir
 from edu_core.inference.predictor import HierarchicalPredictor
 from edu_core.quality.evaluation import evaluate_predictor, load_golden_set, save_report
 

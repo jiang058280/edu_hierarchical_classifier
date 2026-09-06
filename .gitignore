@@ -24,8 +24,15 @@ data/raw/
 
 # ===== 运行时产物 =====
 logs/
-reports/
 *.log
+# 评估/验收报告作为证据链入库（权重与原始数据仍不入库）
+reports/*
+!reports/evaluation/
+!reports/verification/
+reports/evaluation/*
+!reports/evaluation/*.json
+reports/verification/*
+!reports/verification/*.json
 
 # ===== 环境配置（只提交 .env.example）=====
 .env

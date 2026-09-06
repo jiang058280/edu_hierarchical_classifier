@@ -1,0 +1,31 @@
+{
+  "verified_at": "2026-09-05 21:27:20",
+  "all_passed": true,
+  "results": [
+    {
+      "name": "guardrails",
+      "passed": true,
+      "detail": "工程守护检查通过 ✓（无 Gradio 回归 / 无硬编码路径 / 依赖已锁定 / 结构完整）"
+    },
+    {
+      "name": "data_assets",
+      "passed": true,
+      "detail": "all present"
+    },
+    {
+      "name": "model_versions",
+      "passed": true,
+      "detail": "manifest-valid versions: ['v0.1-base']"
+    },
+    {
+      "name": "pytest",
+      "passed": true,
+      "detail": "..............................                                           [100%]\n30 passed in 11.75s"
+    },
+    {
+      "name": "mysql",
+      "passed": true,
+      "detail": "database=edu_classifier tables ok"
+    }
+  ]
+}

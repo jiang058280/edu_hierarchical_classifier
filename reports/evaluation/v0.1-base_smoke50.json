@@ -1,0 +1,82 @@
+{
+  "version": "v0.1-base",
+  "dataset": "golden_test_set",
+  "evaluated_at": "2026-09-05 21:10:41",
+  "metrics": {
+    "n_samples": 50,
+    "subject_acc": 1.0,
+    "subject_f1": 1.0,
+    "type_acc": 0.98,
+    "type_f1": 0.8744,
+    "knowledge_acc": 0.94,
+    "knowledge_f1": 0.9434,
+    "cascade_acc": 0.92,
+    "avg_latency_ms": 22.49,
+    "total_eval_ms": 1125.71
+  },
+  "subject_cascade_accuracy": {
+    "化学": 1.0,
+    "历史": 1.0,
+    "地理": 1.0,
+    "政治": 0.8333,
+    "数学": 0.8333,
+    "物理": 1.0,
+    "生物": 0.8,
+    "英语": 0.8,
+    "语文": 1.0
+  },
+  "error_samples": [
+    {
+      "text_preview": "生长素是最早发现的一类促进植物生长的激素。《农桑辑要》是元朝司农司撰写的一部农业科学著作，其中描述“苗长高二尺之上，打去‘冲天心’叶叶不空，开花结实”。此项操作与生长素有关。下列分析正确的是（　　）\nA．生长素是由谷氨酸经过一系列反应转变形",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::稳态与环境"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "William Hastie once suggested that history informs us of past mistakes ______ we can learn without repeating them.（　　）\nA",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      }
+    },
+    {
+      "text_preview": "（判断正误）在四面体 ABCD 中，投影，求二面角 A-BC-D 的余弦值。（写出正确答案的字母）",
+      "expected": {
+        "subject": "数学",
+        "question_type": "判断题",
+        "knowledge_point": "数学::立体几何"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "解答题",
+        "knowledge_point": "数学::立体几何"
+      }
+    },
+    {
+      "text_preview": "10．（ 4分） 2014年12月召开的中央经济工作会议分析了我国经济九个方面的\n趋势性变化，提出我国经济正在向形态更高级、分工更复杂、结构更合理的\n阶段演化 ，经济发展进入新常态 。从辩证法的观点看 ，“经济发展进入新常态\n”意味着（ 　",
+      "expected": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::其他"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      }
+    }
+  ]
+}

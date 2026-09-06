@@ -1,0 +1,290 @@
+{
+  "version": "v0.1-base",
+  "dataset": "golden_test_set",
+  "evaluated_at": "2026-09-06 09:04:53",
+  "metrics": {
+    "n_samples": 300,
+    "subject_acc": 0.99,
+    "subject_f1": 0.9901,
+    "type_acc": 0.9733,
+    "type_f1": 0.883,
+    "knowledge_acc": 0.9133,
+    "knowledge_f1": 0.8929,
+    "cascade_acc": 0.8967,
+    "avg_latency_ms": 32.24,
+    "total_eval_ms": 9681.65
+  },
+  "subject_cascade_accuracy": {
+    "化学": 0.9118,
+    "历史": 0.8824,
+    "地理": 1.0,
+    "政治": 0.8485,
+    "数学": 0.8788,
+    "物理": 1.0,
+    "生物": 0.7576,
+    "英语": 0.8485,
+    "语文": 0.9394
+  },
+  "error_samples": [
+    {
+      "text_preview": "生长素是最早发现的一类促进植物生长的激素。《农桑辑要》是元朝司农司撰写的一部农业科学著作，其中描述“苗长高二尺之上，打去‘冲天心’叶叶不空，开花结实”。此项操作与生长素有关。下列分析正确的是（　　）\nA．生长素是由谷氨酸经过一系列反应转变形",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::稳态与环境"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "William Hastie once suggested that history informs us of past mistakes ______ we can learn without repeating them.（　　）\nA",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      }
+    },
+    {
+      "text_preview": "（判断正误）在四面体 ABCD 中，投影，求二面角 A-BC-D 的余弦值。（写出正确答案的字母）",
+      "expected": {
+        "subject": "数学",
+        "question_type": "判断题",
+        "knowledge_point": "数学::立体几何"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "解答题",
+        "knowledge_point": "数学::立体几何"
+      }
+    },
+    {
+      "text_preview": "10．（ 4分） 2014年12月召开的中央经济工作会议分析了我国经济九个方面的\n趋势性变化，提出我国经济正在向形态更高级、分工更复杂、结构更合理的\n阶段演化 ，经济发展进入新常态 。从辩证法的观点看 ，“经济发展进入新常态\n”意味着（ 　",
+      "expected": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::其他"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      }
+    },
+    {
+      "text_preview": "5．（6分）下列关于人体组织液的叙述，错误的是（）\nA．血浆中的葡萄糖可以通过组织液进入骨骼肌细胞\nB．肝细胞呼吸代谢产生的CO2可以进入组织液中\nC．组织液中的O2可以通过自由扩散进入组织细胞中\nD．运动时，丙酮酸转化成乳酸的过程发生在组",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::稳态与环境"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "可用来分离Fe^{3+}和Al^{3+}两种离子的试剂是____\nA: 盐酸\nB: 氢氧化钠溶液\nC: 氨水\nD: 硫氰化钾溶液",
+      "expected": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::化学反应原理"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::常见无机物及其应用"
+      }
+    },
+    {
+      "text_preview": "对于冷战结束后迅速发展的经济全球化趋势，有人予以肯定，也有人持否定态度。下列对当前经济全球化的影响，表述正确的是（　　）\n①经济全球化扩大了世界各国的贫富差距\n②经济全球化一定会使世界各国普遍受益\n③经济全球化导致风险全球化，加大全球经济发",
+      "expected": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      }
+    },
+    {
+      "text_preview": "实验小组用核辐射消除某烟草细胞的细胞核，获得保留细胞质（含叶绿体）且具有链霉素性的烟草细胞甲，用酶去除烟草细胞甲和无链霉素抗性的烟草细胞乙的细胞壁，然后将二者的原生质体置于培养基上融合，获得杂种细胞丙。下列有关该过程的叙述，错误的是（　　）",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::现代生物科技专题"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "1．（6分）下列研究工作中由我国科学家完成的是（）\nA．以豌豆为材料发现性状遗传规律的实验\nB．用小球藻发现光合作用暗反应途径的实验\nC．证明DNA是遗传物质的肺炎双球菌转化实验\nD．首例具有生物活性的结晶牛胰岛素的人工合成",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::现代生物科技专题"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::遗传与进化"
+      }
+    },
+    {
+      "text_preview": "At the Chinese art festival, there are different stands_______ artists demonstrate their skills and teach the visitors.（",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      }
+    },
+    {
+      "text_preview": "Reading Art：Art for Book Lovers is a celebration of an everyday object-the book，represented here in almost three hundred",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::语言应用"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::阅读理解"
+      }
+    },
+    {
+      "text_preview": "根据所学知识，回答下列问题：关于 辛亥革命 的历史意义，下列说法正确的是（ ）A. 选项四  B. 选项三  C. 选项一  D. 选项二",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::近代中国"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::选考一 历史上的重大改革"
+      }
+    },
+    {
+      "text_preview": "\"Paragraph 1：A few weeks later，when I almost forgot the contest，there came the news.I was informed that I won the first ",
+      "expected": {
+        "subject": "英语",
+        "question_type": "判断题",
+        "knowledge_point": "英语::阅读理解"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::完形填空"
+      }
+    },
+    {
+      "text_preview": "阅读下面这段文字，从中提取四个关键词。\n新媒体是相对于传统媒体而言的，其信息通过多媒体形式（至少有文字、语音、音乐、图片、影像）进行传播；多媒体信息通过多平台进行传播，多平台至少包括电脑、手机和电视，每个平台都有支持多媒体信息传播的能力；无",
+      "expected": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::其他"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "判断题",
+        "knowledge_point": "语文::其他"
+      }
+    },
+    {
+      "text_preview": "14．（12分）阅读材料，完成下列要求。\n材料\n如表摘自1995年7～8月对江苏昆山、浙江乐清的部分农民进行的调查统计，调\n查对象中近60%为18～35岁的青壮年。\n表1995年7～8月江苏昆山、浙江乐清部分农民调查统计\n单位：%\n选择意向",
+      "expected": {
+        "subject": "历史",
+        "question_type": "解答题",
+        "knowledge_point": "历史::现代世界"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      }
+    },
+    {
+      "text_preview": "下列叙述中，正确的是：函数 f(x) = 三角恒等变换 的图象的一条对称轴方程是（ ） A. x=π/2 B. x=π C. x=3π/2 D. x=2π",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::三角函数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      }
+    },
+    {
+      "text_preview": "近年来随着肥胖人数增多，减肥药受到追捧。2021年美国肥胖症周大会上公布了肥胖症新药Wegovy（一种多肽）。数据显示：接受Wegovy治疗的成人患者，在2年研究期间实现了显著和持续的体重减轻。下列叙述正确的是（　　）\nA．Wegovy既可",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::常见有机物及其应用"
+      }
+    },
+    {
+      "text_preview": "（判断正误）已知豌豆的高茎(D)对矮茎(d)为显性，翻译，求子代中矮茎的比例。 （注：请选择最佳选项）",
+      "expected": {
+        "subject": "生物",
+        "question_type": "判断题",
+        "knowledge_point": "生物::遗传与进化"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "解答题",
+        "knowledge_point": "生物::遗传与进化"
+      }
+    },
+    {
+      "text_preview": "10月14日，深圳经济特区建立40周年庆祝大会在广东省深圳市隆重举行。党中央对深圳改革开放、创新发展寄予厚望。去年8月，党中央出台了支持深圳建设中国特色社会主义先行示范区的意见，全面部署了有关工作。建设中国特色社会主义先行示范区之所以选择深",
+      "expected": {
+        "subject": "政治",
+        "question_type": "解答题",
+        "knowledge_point": "政治::文化生活"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "解答题",
+        "knowledge_point": "政治::经济生活"
+      }
+    },
+    {
+      "text_preview": "阅读下面内容，完成各题。\n2020年“双11”，不少平台都把直播带货作为增加用户、带动销量的发力点。专家指出，运用“直播+电商”这种新兴的网购引流方式，消费者对于网红流量的关注度、对于商品的兴趣度、对于体验互动的认知度都有了不同程度的加强，",
+      "expected": {
+        "subject": "语文",
+        "question_type": "选择题",
+        "knowledge_point": "语文::其他"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::阅读与鉴赏"
+      }
+    }
+  ]
+}

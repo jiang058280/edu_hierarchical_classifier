@@ -1,0 +1,64 @@
+# ============================================================
+# Edu Hierarchical Classifier · CI
+# 四道闸门：lint(ruff) -> test(guardrails + pytest) -> gate(评估报告门禁) -> docker build
+# 说明：
+#   - pytest 为纯逻辑测试，不依赖模型权重与数据库；
+#   - gate 校验 git 内的 golden 集评估报告与门禁阈值是否漂移
+#     （reports/evaluation/*.json 已加入版本库）；
+#   - 推送远端后即可生效；分支保护需在 GitHub 仓库设置中开启
+#     （Settings -> Branches -> Require status checks: lint / test / gate）。
+# ============================================================
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-ruff@v3
+        with:
+          version: "0.14.5"
+      - run: ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      # 先装 CPU 版 torch（满足 requirements 的 ==2.11.0 约束，避免 PyPI 默认拉 CUDA 大轮子）
+      - name: Install CPU torch
+        run: pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Guardrails
+        run: python scripts/check_project_guardrails.py
+      - name: Unit tests
+        run: python -m pytest tests -q
+
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Evaluation gate on committed report
+        run: |
+          pip install pydantic pydantic-settings pyyaml
+          python scripts/quality/check_evaluation_gate.py --report reports/evaluation/v0.1-base_evaluation.json
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t edu-classifier-ci:${{ github.sha }} .
