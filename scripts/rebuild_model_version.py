@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 
 import sys as _sys
 from pathlib import Path as _Path
@@ -68,6 +69,15 @@ def main() -> None:
         print(f"  学科 acc {metrics['subject_acc']} | 题型 F1 {metrics['type_f1']} | "
               f"知识点 F1 {metrics['knowledge_f1']} | 级联 acc {metrics['cascade_acc']} | "
               f"延迟 {metrics['avg_latency_ms']}ms")
+        # 人工标签占比提示（WP-F：规则标签天花板需靠人工复核数据逐步替换）
+        data_manifest_path = settings.abs_path(settings.data_processed_dir) / "data_manifest.json"
+        if data_manifest_path.is_file():
+            ls = (json.loads(data_manifest_path.read_text(encoding="utf-8"))
+                  .get("labels_source") or {})
+            ratio = ls.get("manual_ratio")
+            if ratio is not None and ratio < 0.05:
+                print(f"  [提示] 训练集人工标签占比 {ratio:.2%}（<5%）：题型/知识点标签仍以规则推断为主，"
+                      f"建议持续用 scripts/merge_reviewed_cases.py 回灌人工复核数据")
 
     # ---------- 门禁 ----------
     if args.gate and metrics is not None:

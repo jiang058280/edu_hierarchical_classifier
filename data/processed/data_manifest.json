@@ -1,0 +1,46 @@
+{
+  "created_at": "2026-09-06 09:43:52",
+  "git_commit": "17edcf1",
+  "files": {
+    "train.csv": {
+      "sha256": "a7c0ab3f9620b616d8a8f75dfb30e615229b56a14d4c27c3c461d222532c406f",
+      "bytes": 2477463,
+      "rows": 4829
+    },
+    "val.csv": {
+      "sha256": "05337a014fcb29f5994a7a9b63fb7dc3f9c15e8dec2f9fc3fb63e0b0dd548dbd",
+      "bytes": 513986,
+      "rows": 1033
+    },
+    "test.csv": {
+      "sha256": "1fdbeabd942267813d4cd9aff5eadf4820f0171aa7d1342674770c72e3849b4b",
+      "bytes": 552507,
+      "rows": 1039
+    },
+    "labels.json": {
+      "sha256": "699eefbfd1bf5d10452ab041b28120468d9f186be859f6cbdec292c554b53b4a",
+      "bytes": 9272
+    }
+  },
+  "labels_summary": {
+    "n_samples": 6901,
+    "n_train": 4829,
+    "n_val": 1033,
+    "n_test": 1039,
+    "n_subjects": 9,
+    "n_types": 3,
+    "n_knowledge": 50,
+    "split_rule": "按学科分层 70/15/15（seed=42）"
+  },
+  "labels_source": {
+    "rule": 4829,
+    "manual": 0,
+    "manual_ratio": 0.0
+  },
+  "provenance": {
+    "raw_source": "K-12EduBench（data/raw/k12edubench，9 学科 JSON）",
+    "pipeline": "edu_core.data.dataset（清洗/去重/小类合并/分层划分）",
+    "augment": "v0.1 阶段 legacy/src/augment_data.py 一次性增强产物，超参数未留存、精确复现不可得（登记现状，详见 DATA_PROVENANCE.md）",
+    "doc": "DATA_PROVENANCE.md"
+  }
+}

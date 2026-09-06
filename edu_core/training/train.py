@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import time
 from datetime import datetime
@@ -151,6 +152,30 @@ def train(version: str | None = None, settings: Settings | None = None,
         len(labels["subjects"]), len(labels["question_types"]), len(labels["knowledge_points"]))
     logger.info("标签规模：学科 %s / 题型 %s / 知识点 %s", n_subjects, n_types, n_knowledge)
 
+    # 数据追溯链（改进计划 WP-E）：读取数据指纹，写入版本 manifest 的 data_ref
+    data_ref: dict | None = None
+    data_manifest_path = proc_dir / "data_manifest.json"
+    if data_manifest_path.is_file():
+        try:
+            dm = json.loads(data_manifest_path.read_text(encoding="utf-8"))
+            data_ref = {
+                "manifest_sha256": hashlib.sha256(
+                    data_manifest_path.read_bytes()).hexdigest()[:16],
+                "train_sha256": dm.get("files", {}).get("train.csv", {}).get("sha256"),
+                "n_train": dm.get("labels_summary", {}).get("n_train"),
+                "n_val": dm.get("labels_summary", {}).get("n_val"),
+                "n_test": dm.get("labels_summary", {}).get("n_test"),
+                "labels_source": dm.get("labels_source"),
+                "created_at": dm.get("created_at"),
+            }
+            logger.info("data_ref 已关联：train sha256 %s…",
+                        (data_ref.get("train_sha256") or "")[:16])
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.warning("data_manifest.json 读取失败（训练继续，但版本将缺数据指纹）：%s", exc)
+    else:
+        logger.warning("缺少 data_manifest.json（scripts/preprocess_all.py 可生成）：%s",
+                       data_manifest_path)
+
     # ---------- 版本目录与主干 ----------
     version = version or f"v0.{datetime.now().month}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     version_dir = settings.abs_path(settings.model_versions_dir) / version
@@ -279,6 +304,7 @@ def train(version: str | None = None, settings: Settings | None = None,
         "train_metrics": {"best_mean_f1": round(float(best_f1), 4)},
         "val_metrics": {k: round(float(v), 4) for k, v in val_metric.items()},
         "loss_weights": LOSS_WEIGHTS,
+        "data_ref": data_ref,
         "source": "training",
     }
     (version_dir / "manifest.json").write_text(

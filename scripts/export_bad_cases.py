@@ -45,6 +45,7 @@ def main() -> None:
                     "source": "feedback_wrong",
                     "classification_id": record["id"],
                     "model_version": record["model_version"],
+                    "label_source": "model_prediction",
                     "text": record["text_preview"],
                     "predicted": {
                         "subject": record["subject_pred"],
@@ -70,6 +71,7 @@ def main() -> None:
             "source": "low_confidence",
             "classification_id": record["id"],
             "model_version": record["model_version"],
+            "label_source": "model_prediction",
             "text": record["text_preview"],
             "predicted": {
                 "subject": record["subject_pred"],

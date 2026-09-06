@@ -57,6 +57,10 @@ class Settings(BaseSettings):
     use_dynamic_quantization: bool = True
     # 推理输入缓存上限（进程内 LRU，修复旧版实例 lru_cache 强引用 self 的问题）
     predict_cache_size: int = 512
+    # 知识点学科 mask（改进计划 WP-G1）：按预测学科屏蔽非法知识点的 logits。
+    # 实测（v0.1-base 全量测试集 1039 条）：开启后级联持平、知识点 F1 微降
+    # （学科预测错误的样本被 mask 连坐），故默认关闭；学科感知增强（WP-G2）落地后可重测开启
+    knowledge_mask_enabled: bool = False
 
     # ---------- 分类接口 ----------
     classify_max_chars: int = 4000

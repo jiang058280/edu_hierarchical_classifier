@@ -4,5 +4,9 @@
   "description": "旧版 models/heads 权重迁移（v0.1-demo 基线：subject acc 97.2% / type F1 91.9% / knowledge F1 55.5%）",
   "backbone_ref": "models/pretrained_backbone/bert-base-chinese-finetuned",
   "labels_stats": {},
-  "source": "legacy-migrate"
+  "source": "legacy-migrate",
+  "data_ref": {
+    "manifest_sha256": "backfilled-2026-09-06",
+    "note": "v0.1 阶段训练，增强后数据（train 4829 / val 1033 / test 1039）；指纹回填自 data_manifest.json 登记现状，增强超参数未留存（见 DATA_PROVENANCE.md）"
+  }
 }

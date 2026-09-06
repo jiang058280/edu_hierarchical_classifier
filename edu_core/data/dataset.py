@@ -214,14 +214,20 @@ def build_labels(train_samples: list[dict], all_samples: list[dict]) -> dict:
 
 
 def write_csv(path: Path, samples: list[dict]) -> None:
-    """写出 CSV（UTF-8 with BOM，便于 Excel 打开）。"""
+    """写出 CSV（UTF-8 with BOM，便于 Excel 打开）。
+
+    labels_source 标记标签来源（改进计划 WP-F）：rule=规则推断，manual=人工复核修正。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=[
-            "text", "subject", "question_type", "knowledge_point", "raw_question_type", "answer"])
+            "text", "subject", "question_type", "knowledge_point",
+            "raw_question_type", "answer", "labels_source"])
         writer.writeheader()
         for s in samples:
-            writer.writerow(s)
+            row = dict(s)
+            row.setdefault("labels_source", "rule")
+            writer.writerow(row)
 
 
 def run(settings: Settings | None = None) -> dict:

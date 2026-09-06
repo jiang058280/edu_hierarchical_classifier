@@ -42,6 +42,25 @@ class ModelArtifactError(RuntimeError):
     """模型产物缺失或不一致：拒绝服务，绝不带随机权重上线。"""
 
 
+def build_knowledge_mask(labels: dict, device: torch.device | None = None) -> torch.Tensor:
+    """构建知识点非法组合掩码（改进计划 WP-G1，纯函数便于测试）。
+
+    返回 [n_subjects, n_knowledge] 布尔张量：True = 该学科下**非法**的知识点
+    （由 labels.subject_knowledge 合法组合表驱动，未列出的组合视为非法）。
+    """
+    subjects = labels["subjects"]
+    knowledge = labels["knowledge_points"]
+    subject_knowledge = labels.get("subject_knowledge", {})
+    mask = torch.zeros(len(subjects), len(knowledge), dtype=torch.bool)
+    for s_idx, subject in enumerate(subjects):
+        legal = set(subject_knowledge.get(subject, []))
+        for k_idx, kp in enumerate(knowledge):
+            mask[s_idx][k_idx] = kp not in legal
+    if device is not None:
+        mask = mask.to(device)
+    return mask
+
+
 class HierarchicalPredictor:
     """三级层级分类预测器（版本化加载 + 量化 + 推理 + 向量提取）。"""
 
@@ -122,11 +141,20 @@ class HierarchicalPredictor:
         self._cache: OrderedDict[str, dict] = OrderedDict()
         self._cache_maxsize = int(self.settings.predict_cache_size)
 
+        # ---------- 知识点学科 mask（WP-G1）：非法组合 logits 置 -inf ----------
+        self.knowledge_mask_enabled = bool(self.settings.knowledge_mask_enabled)
+        self.knowledge_mask = build_knowledge_mask(self.labels, device=self.device)
+        n_legal = int((~self.knowledge_mask).sum())
+        if verbose:
+            logger.info("知识点学科 mask：%s（合法组合 %s/%s）",
+                        "启用" if self.knowledge_mask_enabled else "关闭",
+                        n_legal, self.knowledge_mask.numel())
+
     # ------------------------------------------------------------------
     # 核心推理
     # ------------------------------------------------------------------
     def _forward(self, text: str) -> dict:
-        """单条前向：三级 softmax -> 标签 + 置信度。"""
+        """单条前向：三级 softmax -> 标签 + 置信度（知识点可按学科 mask）。"""
         inputs = self.tokenizer(
             text, max_length=self.max_len, padding="max_length",
             truncation=True, return_tensors="pt",
@@ -137,10 +165,18 @@ class HierarchicalPredictor:
             out = self.model(input_ids, attention_mask)
         result: dict = {}
         conf: dict = {}
+        subject_idx: int | None = None
         for key, id2label in (("subject", self.id2subject),
                               ("question_type", self.id2type),
                               ("knowledge", self.id2knowledge)):
-            probs = torch.softmax(out[key], dim=-1)[0]
+            logits = out[key]
+            if key == "knowledge":
+                if subject_idx is None:
+                    # 学科先行：mask 依赖本次预测的学科
+                    subject_idx = int(torch.softmax(out["subject"], dim=-1)[0].argmax().item())
+                if self.knowledge_mask_enabled:
+                    logits = logits.masked_fill(self.knowledge_mask[subject_idx], float("-inf"))
+            probs = torch.softmax(logits, dim=-1)[0]
             idx = int(probs.argmax().item())
             result[key] = id2label[idx]
             conf[key] = round(float(probs[idx].item()), 4)

@@ -63,14 +63,23 @@ def check_data_assets() -> dict:
 def check_model_versions() -> dict:
     settings = get_settings()
     versions_root = settings.abs_path(settings.model_versions_dir)
-    versions = []
+    versions, missing_data_ref = [], []
     if versions_root.is_dir():
         for d in sorted(versions_root.iterdir()):
             manifest = d / "manifest.json"
             if manifest.is_file():
                 versions.append(d.name)
-    return {"name": "model_versions", "passed": bool(versions),
-            "detail": f"manifest-valid versions: {versions or 'none（先运行 scripts/migrate_model_weights.py）'}"}
+                try:
+                    m = json.loads(manifest.read_text(encoding="utf-8"))
+                    if not m.get("data_ref"):
+                        missing_data_ref.append(d.name)
+                except json.JSONDecodeError:
+                    missing_data_ref.append(d.name)
+    detail = f"manifest-valid versions: {versions or 'none（先运行 scripts/migrate_model_weights.py）'}"
+    if missing_data_ref:
+        detail += f"；缺 data_ref（数据指纹，WP-E）: {missing_data_ref}"
+    return {"name": "model_versions", "passed": bool(versions) and not missing_data_ref,
+            "detail": detail}
 
 
 def check_auth_config() -> dict:

@@ -1,7 +1,7 @@
 {
   "version": "v0.1-base",
   "dataset": "golden_test_set",
-  "evaluated_at": "2026-09-06 09:04:53",
+  "evaluated_at": "2026-09-06 09:48:20",
   "metrics": {
     "n_samples": 300,
     "subject_acc": 0.99,
@@ -11,8 +11,8 @@
     "knowledge_acc": 0.9133,
     "knowledge_f1": 0.8929,
     "cascade_acc": 0.8967,
-    "avg_latency_ms": 32.24,
-    "total_eval_ms": 9681.65
+    "avg_latency_ms": 31.4,
+    "total_eval_ms": 9429.8
   },
   "subject_cascade_accuracy": {
     "化学": 0.9118,
