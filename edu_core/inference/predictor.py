@@ -105,12 +105,17 @@ class HierarchicalPredictor:
 
         # ---------- tokenizer（原始主干目录）+ 模型（结构取原始主干，权重覆盖为微调） ----------
         self.tokenizer = AutoTokenizer.from_pretrained(str(base_backbone_dir))
+        # 架构声明（改进计划 WP-G2）：subject_embedding_dim>0 = 知识头注入学科 embedding。
+        # 旧版本 manifest 无该字段 → 0 = 旧结构，向后兼容
+        self.subject_embedding_dim = int(
+            (self.manifest.get("architecture") or {}).get("subject_embedding_dim", 0))
         self.model = HierarchicalClassifier(
             str(base_backbone_dir),
             n_subjects=len(self.id2subject),
             n_types=len(self.id2type),
             n_knowledge=len(self.id2knowledge),
             freeze_ratio=float(self.settings.freeze_ratio),
+            subject_embedding_dim=self.subject_embedding_dim,
         )
         # 主干覆盖为微调权重（fail-fast：文件缺失即拒绝启动，绝不带随机头服务）
         ft_weights = finetuned_dir / "pytorch_model.bin"
@@ -150,6 +155,12 @@ class HierarchicalPredictor:
                         "启用" if self.knowledge_mask_enabled else "关闭",
                         n_legal, self.knowledge_mask.numel())
 
+        # ---------- 置信度温度（改进计划 WP-G3）：logits/T 后再 softmax ----------
+        # 由 scripts/fit_temperature.py 在验证集上拟合后写入版本 manifest；缺省 1.0（不校准）
+        self.temperature = float(self.manifest.get("temperature", 1.0))
+        if verbose and self.temperature != 1.0:
+            logger.info("置信度校准温度 T=%.4f", self.temperature)
+
     # ------------------------------------------------------------------
     # 核心推理
     # ------------------------------------------------------------------
@@ -169,7 +180,7 @@ class HierarchicalPredictor:
         for key, id2label in (("subject", self.id2subject),
                               ("question_type", self.id2type),
                               ("knowledge", self.id2knowledge)):
-            logits = out[key]
+            logits = out[key] / self.temperature
             if key == "knowledge":
                 if subject_idx is None:
                     # 学科先行：mask 依赖本次预测的学科

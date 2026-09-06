@@ -106,8 +106,12 @@ class QuestionDataset(Dataset):
         }
 
 
-def evaluate(model: nn.Module, dataloader: DataLoader, device: torch.device) -> dict:
-    """验证/测试：返回三个头的宏平均 F1 与准确率。"""
+def evaluate(model: nn.Module, dataloader: DataLoader, device: torch.device,
+             with_subject_ids: bool = False) -> dict:
+    """验证/测试：返回三个头的宏平均 F1 与准确率。
+
+    with_subject_ids=True 时向模型传真实学科 id（WP-G2 学科感知知识头的训练评估形态）。
+    """
     model.eval()
     preds: dict[str, list] = {"subject": [], "question_type": [], "knowledge": []}
     trues: dict[str, list] = {"subject": [], "question_type": [], "knowledge": []}
@@ -115,7 +119,8 @@ def evaluate(model: nn.Module, dataloader: DataLoader, device: torch.device) -> 
         for batch in dataloader:
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
-            out = model(input_ids, attention_mask)
+            subject_ids = batch["subject"].to(device) if with_subject_ids else None
+            out = model(input_ids, attention_mask, subject_ids=subject_ids)
             for k in preds:
                 preds[k].extend(out[k].argmax(dim=-1).cpu().tolist())
                 trues[k].extend(batch[k].tolist())
@@ -183,10 +188,12 @@ def train(version: str | None = None, settings: Settings | None = None,
         raise FileExistsError(f"模型版本目录已存在且非空：{version_dir}")
     version_dir.mkdir(parents=True, exist_ok=True)
 
-    # 共享主干目录：微调权重直接覆盖写入（单机单训练场景；
-    # backbone_ref 记录在 manifest 中，推理时按 manifest 加载）
+    # 微调主干写入版本目录内（改进计划 WP-G2 前置修复）：
+    # 旧实现写入共享目录 bert-base-chinese-finetuned，重训会悄悄覆盖旧版本
+    # manifest.backbone_ref 指向的权重，破坏版本隔离；现每版本独立存放，
+    # 权重不入 git（models/versions/**/*.bin 已在 .gitignore）
     backbone_dir = settings.abs_path(settings.backbone_dir)
-    finetuned_dir = backbone_dir.parent / (backbone_dir.name + "-finetuned")
+    finetuned_dir = version_dir / "backbone"
     finetuned_dir.mkdir(parents=True, exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(str(backbone_dir))
@@ -205,9 +212,11 @@ def train(version: str | None = None, settings: Settings | None = None,
     val_loader = DataLoader(QuestionDataset(val_df, tokenizer, labels, max_len),
                             batch_size=t_cfg["batch_size"], shuffle=False, num_workers=0)
 
+    subject_embedding_dim = int(getattr(settings, "subject_embedding_dim", 0) or 0)
     model = HierarchicalClassifier(
         str(backbone_dir), n_subjects=n_subjects, n_types=n_types,
         n_knowledge=n_knowledge, freeze_ratio=float(settings.freeze_ratio),
+        subject_embedding_dim=subject_embedding_dim,
     ).to(device)
 
     trainable = [p for p in model.parameters() if p.requires_grad]
@@ -239,7 +248,8 @@ def train(version: str | None = None, settings: Settings | None = None,
         for step, batch in enumerate(train_loader):
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
-            out = model(input_ids, attention_mask)
+            subject_ids = batch["subject"].to(device)
+            out = model(input_ids, attention_mask, subject_ids=subject_ids)
             loss = (LOSS_WEIGHTS["subject"] * loss_subject(out["subject"], batch["subject"].to(device))
                     + LOSS_WEIGHTS["question_type"] * loss_type(out["question_type"], batch["question_type"].to(device))
                     + LOSS_WEIGHTS["knowledge"] * loss_knowledge(out["knowledge"], batch["knowledge"].to(device)))
@@ -253,7 +263,7 @@ def train(version: str | None = None, settings: Settings | None = None,
                 logger.info("epoch %s/%s step %s/%s loss %.4f",
                             epoch, t_cfg["epochs"], step + 1, len(train_loader), epoch_loss / (step + 1))
 
-        val_metric = evaluate(model, val_loader, device)
+        val_metric = evaluate(model, val_loader, device, with_subject_ids=subject_embedding_dim > 0)
         mean_f1 = val_metric["mean_f1"]
         logger.info(
             "epoch %s 完成 | 验证 学科 acc %.4f f1 %.4f | 题型 f1 %.4f | 知识点 f1 %.4f | mean_f1 %.4f | 耗时 %.0fs",
@@ -296,8 +306,7 @@ def train(version: str | None = None, settings: Settings | None = None,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "description": f"多任务微调训练（epochs={t_cfg['epochs']}，best mean_f1={best_f1:.4f}）",
         # manifest 统一记录项目相对路径；predictor/preflight 按项目根解析
-        "backbone_ref": str(finetuned_dir.relative_to(settings.root())),
-        "labels_stats": {
+        "backbone_ref": str(finetuned_dir.relative_to(settings.root())),        "labels_stats": {
             "n_subjects": n_subjects, "n_types": n_types, "n_knowledge": n_knowledge,
             "n_train": len(train_df), "n_val": len(val_df),
         },
@@ -305,6 +314,12 @@ def train(version: str | None = None, settings: Settings | None = None,
         "val_metrics": {k: round(float(v), 4) for k, v in val_metric.items()},
         "loss_weights": LOSS_WEIGHTS,
         "data_ref": data_ref,
+        "architecture": {
+            # predictor 按该声明构建知识头输入维度（0 = 旧结构）；改进计划 WP-G2
+            "subject_embedding_dim": subject_embedding_dim,
+            "max_seq_length": int(settings.max_seq_length),
+            "freeze_ratio": float(settings.freeze_ratio),
+        },
         "source": "training",
     }
     (version_dir / "manifest.json").write_text(

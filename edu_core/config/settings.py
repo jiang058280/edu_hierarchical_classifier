@@ -61,6 +61,9 @@ class Settings(BaseSettings):
     # 实测（v0.1-base 全量测试集 1039 条）：开启后级联持平、知识点 F1 微降
     # （学科预测错误的样本被 mask 连坐），故默认关闭；学科感知增强（WP-G2）落地后可重测开启
     knowledge_mask_enabled: bool = False
+    # 学科感知知识头（改进计划 WP-G2）：>0 时学科 embedding 与 pooler 拼接进知识点头，
+    # 写入版本 manifest.architecture，predictor 按声明构建（0 = 旧结构，兼容旧版本）
+    subject_embedding_dim: int = 64
 
     # ---------- 分类接口 ----------
     classify_max_chars: int = 4000
