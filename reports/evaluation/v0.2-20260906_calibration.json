@@ -1,0 +1,47 @@
+{
+  "version": "v0.2-20260906",
+  "split": "val.csv",
+  "n_samples": 1033,
+  "temperature": 0.9678,
+  "before": {
+    "subject": {
+      "nll": 0.0585,
+      "ece": 0.0411,
+      "acc": 0.9923,
+      "bins_used": 7.0
+    },
+    "question_type": {
+      "nll": 0.073,
+      "ece": 0.0313,
+      "acc": 0.9855,
+      "bins_used": 6.0
+    },
+    "knowledge": {
+      "nll": 0.3808,
+      "ece": 0.0496,
+      "acc": 0.9119,
+      "bins_used": 7.0
+    }
+  },
+  "after": {
+    "subject": {
+      "nll": 0.0524,
+      "ece": 0.0366,
+      "acc": 0.9923,
+      "bins_used": 7.0
+    },
+    "question_type": {
+      "nll": 0.0697,
+      "ece": 0.0275,
+      "acc": 0.9855,
+      "bins_used": 6.0
+    },
+    "knowledge": {
+      "nll": 0.3892,
+      "ece": 0.0483,
+      "acc": 0.9119,
+      "bins_used": 7.0
+    }
+  },
+  "fitted_at": "2026-09-06 10:30:12"
+}

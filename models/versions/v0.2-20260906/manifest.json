@@ -1,0 +1,50 @@
+{
+  "version": "v0.2-20260906",
+  "created_at": "2026-09-06 10:27:20",
+  "description": "多任务微调训练（epochs=12，best mean_f1=0.9535）",
+  "backbone_ref": "models\\versions\\v0.2-20260906\\backbone",
+  "labels_stats": {
+    "n_subjects": 9,
+    "n_types": 3,
+    "n_knowledge": 50,
+    "n_train": 4829,
+    "n_val": 1033
+  },
+  "train_metrics": {
+    "best_mean_f1": 0.9535
+  },
+  "val_metrics": {
+    "subject_acc": 0.9923,
+    "subject_f1": 0.992,
+    "question_type_acc": 0.9855,
+    "question_type_f1": 0.9588,
+    "knowledge_acc": 0.9138,
+    "knowledge_f1": 0.9096,
+    "mean_f1": 0.9535
+  },
+  "loss_weights": {
+    "subject": 0.28,
+    "question_type": 0.27,
+    "knowledge": 0.45
+  },
+  "data_ref": {
+    "manifest_sha256": "28dce7aaf6cdc334",
+    "train_sha256": "a7c0ab3f9620b616d8a8f75dfb30e615229b56a14d4c27c3c461d222532c406f",
+    "n_train": 4829,
+    "n_val": 1033,
+    "n_test": 1039,
+    "labels_source": {
+      "rule": 4829,
+      "manual": 0,
+      "manual_ratio": 0.0
+    },
+    "created_at": "2026-09-06 09:43:52"
+  },
+  "architecture": {
+    "subject_embedding_dim": 64,
+    "max_seq_length": 256,
+    "freeze_ratio": 0.75
+  },
+  "source": "training",
+  "temperature": 0.9678
+}

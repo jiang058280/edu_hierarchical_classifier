@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-09-05 21:27:20",
+  "verified_at": "2026-09-06 10:37:30",
   "all_passed": true,
   "results": [
     {
@@ -15,12 +15,17 @@
     {
       "name": "model_versions",
       "passed": true,
-      "detail": "manifest-valid versions: ['v0.1-base']"
+      "detail": "manifest-valid versions: ['v0.1-base', 'v0.2-20260906']"
+    },
+    {
+      "name": "auth_config",
+      "passed": true,
+      "detail": "JWT secret configured（46 chars）"
     },
     {
       "name": "pytest",
       "passed": true,
-      "detail": "..............................                                           [100%]\n30 passed in 11.75s"
+      "detail": "....................................................                     [100%]\n52 passed in 14.52s"
     },
     {
       "name": "mysql",

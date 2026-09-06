@@ -1,26 +1,18 @@
 {
-  "experiment": "knowledge subject mask on/off comparison（改进计划 WP-G1）",
+  "experiment": "knowledge subject mask on/off comparison（改进计划 WP-G1，v0.2 复测）",
   "date": "2026-09-06",
-  "version": "v0.1-base",
-  "dataset": "data/processed/test.csv（增强后全量 1039 条）",
   "mechanism": "按预测学科将 labels.json subject_knowledge 合法组合之外的知识点 logits 置 -inf（EDU_KNOWLEDGE_MASK_ENABLED）",
-  "results": {
-    "mask_off": {
-      "subject_acc": 0.9894,
-      "type_f1": 0.9252,
-      "knowledge_f1": 0.9139,
-      "knowledge_acc": 0.9153,
-      "cascade_acc": 0.898
-    },
-    "mask_on": {
-      "subject_acc": 0.9894,
-      "type_f1": 0.9252,
-      "knowledge_f1": 0.9106,
-      "knowledge_acc": 0.9124,
-      "cascade_acc": 0.898
-    }
+  "results_full_test_1039": {
+    "v0.1-base_mask_off": {"subject_acc": 0.9894, "type_f1": 0.9252, "knowledge_f1": 0.9139, "knowledge_acc": 0.9153, "cascade_acc": 0.898},
+    "v0.1-base_mask_on": {"subject_acc": 0.9894, "type_f1": 0.9252, "knowledge_f1": 0.9106, "knowledge_acc": 0.9124, "cascade_acc": 0.898},
+    "v0.2-20260906_mask_off": {"subject_acc": 0.9885, "type_f1": 0.9404, "knowledge_f1": 0.9042, "knowledge_acc": 0.9066, "cascade_acc": 0.8951},
+    "v0.2-20260906_mask_on": {"subject_acc": 0.9885, "type_f1": 0.9404, "knowledge_f1": 0.9033, "knowledge_acc": 0.9057, "cascade_acc": 0.8951}
   },
-  "golden_300": "mask 开/关指标完全一致（0.99 / 0.883 / 0.8929 / 0.8967）",
-  "conclusion": "级联准确率持平，知识点 F1 微降约 0.3pt（-3 条）：学科预测错误的约 1% 样本中，部分原知识点预测正确但被 mask 连坐改错。按验收标准（净收益为正才默认开启），EDU_KNOWLEDGE_MASK_ENABLED 默认 false；功能保留为开关，学科感知增强（WP-G2，知识点头注入学科 embedding）落地后应重测——届时知识头自身具备学科感知，mask 连坐面将收窄。",
-  "note": "当前测试集为增强后数据，指标显著高于 README 记录的增强前基线（级联 71.3%），版本间相对比较仍然有效；数据卫生问题登记于 DATA_PROVENANCE.md。"
+  "conclusions": [
+    "G1（v0.1-base）：mask 使级联持平、知识点 F1 -0.33pt（-3 条，学科错误连坐）→ 默认关闭",
+    "G2 复测（v0.2 学科感知知识头）：连坐面从 3 条收窄到 1 条（方向符合预期），但仍无净收益 → 维持默认关闭，保留开关",
+    "v0.2 vs v0.1-base（全量 1039 条）：题型 F1 +1.5pt（0.9252→0.9404），知识点 F1 -1.0pt，级联 -0.3pt，三头 mean F1 0.9428→0.9444；差异多为 3~5 个样本量级",
+    "golden 300：v0.2 题型 F1 0.883→0.9406（+5.8pt），学科 0.99→0.9833，知识点 0.8929→0.8779，级联 0.8967→0.89；门禁 5 项全过"
+  ],
+  "note": "当前测试集为增强后数据，绝对指标高于 README 的增强前基线（级联 71.3%）；两版本同数据训练，横向对比公平。"
 }
