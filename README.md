@@ -4,7 +4,7 @@
 
 本仓库是 **v0.1-demo（Gradio 单体，见 `legacy/`）的企业级改造版**，工程模式对齐 `knowforge-rag-platform`：薄入口 + 分层核心包 + **模型版本治理** + **评测质量门禁** + **反馈再训练闭环** + MySQL 持久化 + Milvus 语义查重 + Docker 交付。
 
-> 改造范围与决策记录见《企业级改造计划.md》；本文档描述当前（改造后）架构。
+> 改造范围与决策记录见 `docs/企业级改造计划.md`，改进执行计划见 `docs/改进落地计划书.md`；本文档描述当前（改造后）架构。
 
 ## 一、核心能力
 
@@ -45,22 +45,24 @@ edu_hierarchical_classifier/
 │   ├── data/               #   dataset.py（raw 清洗/标签映射/分层划分）
 │   ├── training/           #   train.py（多任务损失 + 早停 + 版本产物）
 │   ├── application/        #   service.py（分类编排）/ confidence.py（置信度分级）/ factory.py（单例）
-│   ├── storage/            #   runtime_schema.sql / bootstrap.py / stores.py（5 个 Store）
+│   ├── storage/            #   migrations/V*__*.sql（版本化 DDL）/ bootstrap.py / stores.py（7 个 Store）
+│   ├── security/           #   auth.py（JWT / RBAC 依赖，改进计划 WP-D）
 │   ├── governance/         #   model_versions.py（注册/激活/回滚）
 │   ├── quality/            #   evaluation.py（golden set 回归）/ gate.py（门禁）
 │   ├── dedup/              #   milvus_client.py（语义查重，可降级）
 │   ├── observability/      #   阶段耗时
-│   └── api/                #   classify/questions/stats/models/pages 路由 + 限流 + 错误处理
+│   └── api/                #   auth/classify/questions/stats/models/pages 路由 + 限流 + 错误处理
 ├── scripts/                # 运维脚本（见第六节命令表）
-├── tests/                  # pytest 纯逻辑测试
+├── tests/                  # pytest 纯逻辑测试（含迁移/鉴权/mask 集成测试）
 ├── static/                 # index.html 分类页 / admin.html 治理工作台 / katex
+├── docs/                   # 设计与历史文档（改进计划/介绍与流程；history/ 为 v0.1 需求原文）
 ├── eval_sets/              # golden_test_set.json、bad_cases.json
 ├── reports/                # evaluation/（评估报告）verification/（发布验收）
-├── models/versions/<ver>/  # 三头权重 + manifest.json（权重不入 git，manifest 入 git）
+├── models/versions/<ver>/  # 三头权重 + manifest.json + backbone/（权重不入 git，manifest 入 git）
 ├── legacy/                 # v0.1-demo 旧版归档（Gradio 单体 + 旧 src + 旧前端，可运行）
-├── data/processed/         # train/val/test.csv + labels.json
+├── data/processed/         # train/val/test.csv + labels.json + data_manifest.json
 ├── Dockerfile / docker-compose.yml / .env.example / requirements.txt（锁定版本）
-└── VERSIONING.md           # 版本与发布流程说明
+└── VERSIONING.md / DATA_PROVENANCE.md / CLAUDE.md   # 版本流程 / 溯源规则 / AI 协作指南
 ```
 
 ## 四、架构与主链路
