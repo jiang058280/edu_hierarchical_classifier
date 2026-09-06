@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>题库管理 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<div class="content">
+  <div class="page-head"><h2>题库管理</h2><p>完整题目信息的增删改查，支持按学段、学科、题型、难度与状态筛选</p></div>
+
+  <div class="card">
+    <div class="filter-row">
+      <select class="input" id="fSubject"><option value="">全部学科</option></select>
+      <select class="input" id="fType"><option value="">全部题型</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select>
+      <select class="input" id="fBand"><option value="">全部学段</option><option>初中</option><option>高中</option></select>
+      <select class="input" id="fStatus"><option value="">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option><option value="pending">待审核</option></select>
+      <input class="input" type="text" id="fKw" placeholder="关键词" style="width:170px">
+      <button class="btn" onclick="loadList(0)">查询</button>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="openEdit(null)">＋ 新增题目</button>
+    </div>
+    <table class="table">
+      <thead><tr>
+        <th>ID</th><th style="width:36%">题干</th><th>学科</th><th>题型</th><th>知识点</th>
+        <th>学段</th><th>难度</th><th>状态</th><th style="width:120px">操作</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="pager">
+      <span id="totalInfo"></span>
+      <span style="flex:1"></span>
+      <button class="btn plain sm" id="prevBtn" onclick="loadList(Math.max(0, offset - 50))">上一页</button>
+      <button class="btn plain sm" id="nextBtn" onclick="loadList(offset + 50)">下一页</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="editModal">
+  <div class="box">
+    <h3 id="modalTitle">新增题目</h3>
+    <div class="field"><label class="lbl">题干（含材料与图示说明）</label><textarea class="input" id="eText" rows="4" placeholder="粘贴或输入题干"></textarea></div>
+    <div class="field"><label class="lbl">选项（仅选择题需要，其他题型留空）</label>
+      <div class="grid2">
+        <input class="input" type="text" id="eOptA" placeholder="A. 选项内容">
+        <input class="input" type="text" id="eOptB" placeholder="B. 选项内容">
+        <input class="input" type="text" id="eOptC" placeholder="C. 选项内容">
+        <input class="input" type="text" id="eOptD" placeholder="D. 选项内容">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">学科</label>
+        <select class="input" id="eSubject"><option value="">— 请选择 —</option></select></div>
+      <div class="field"><label class="lbl">题型</label>
+        <select class="input" id="eType"><option value="">— 请选择 —</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select></div>
+      <div class="field"><label class="lbl">学段</label>
+        <select class="input" id="eBand"><option value="">—</option><option>初中</option><option>高中</option></select></div>
+      <div class="field"><label class="lbl">年级</label>
+        <input class="input" type="text" id="eGrade" placeholder="如 初三 / 高一"></div>
+      <div class="field"><label class="lbl">知识点（格式：学科::知识点）</label>
+        <input class="input" type="text" id="eKp" placeholder="如 数学::代数"></div>
+      <div class="field"><label class="lbl">难度（1~5）</label>
+        <select class="input" id="eDiff"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+      <div class="field"><label class="lbl">参考答案（客观题为选项键）</label>
+        <input class="input" type="text" id="eAnswer" placeholder="如 B / 正确 / 具体解答"></div>
+      <div class="field"><label class="lbl">状态</label>
+        <select class="input" id="eStatus"><option value="published">已发布</option><option value="draft">草稿</option><option value="pending">待审核</option></select></div>
+    </div>
+    <div class="field"><label class="lbl">解析（可空）</label><textarea class="input" id="eAnalysis" rows="3"></textarea></div>
+    <div class="err" id="editErr" style="margin-bottom:8px"></div>
+    <div class="modal-foot">
+      <button class="btn plain" onclick="closeEdit()">取消</button>
+      <button class="btn" onclick="saveEdit()">保 存</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/teacher_common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T.renderShell('bank', '题库管理');
+let offset = 0, editingId = null;
+const SUBJECTS = ["数学","语文","英语","物理","化学","生物","历史","地理","政治"];
+
+SUBJECTS.forEach(s => {
+  $('fSubject').add(new Option(s, s));
+  $('eSubject').add(new Option(s, s));
+});
+['fSubject','fType','fBand','fStatus'].forEach(id =>
+  $(id).addEventListener('change', () => loadList(0)));
+$('fKw').addEventListener('keydown', e => { if (e.key === 'Enter') loadList(0); });
+
+function updatePager() {
+  $('totalInfo').textContent = `共 ${total} 题 · 第 ${offset / 50 + 1} 页`;
+  $('prevBtn').disabled = offset === 0;
+  $('nextBtn').disabled = offset + 50 >= total;
+}
+let total = 0;
+
+async function loadList(newOffset) {
+  offset = newOffset;
+  const params = new URLSearchParams({
+    subject: $('fSubject').value, question_type: $('fType').value,
+    grade_band: $('fBand').value, status: $('fStatus').value,
+    keyword: $('fKw').value.trim(), limit: 50, offset
+  });
+  try {
+    const data = await T.api('/api/v1/teacher/questions?' + params);
+    total = data.total;
+    updatePager();
+    $('rows').innerHTML = data.items.length ? data.items.map(q => `
+      <tr>
+        <td class="num">${q.id}</td>
+        <td title="${T.escapeHtml(q.content)}">${T.escapeHtml((q.content || '').slice(0, 64))}${(q.content || '').length > 64 ? '…' : ''}</td>
+        <td>${T.escapeHtml(q.subject)}</td><td>${T.escapeHtml(q.question_type)}</td>
+        <td>${T.escapeHtml((q.knowledge_point || '—').slice(0, 22))}</td>
+        <td>${T.escapeHtml(q.grade_band || '—')}</td>
+        <td>${T.diffStars(q.difficulty)}</td>
+        <td>${T.statusLabel(q.status)}</td>
+        <td>
+          <button class="btn ghost sm" onclick="openEdit(${q.id})">编辑</button>
+          <button class="btn danger sm" onclick="removeQuestion(${q.id})">删除</button>
+        </td>
+      </tr>`).join('')
+      : '<tr><td colspan="9"><div class="empty"><div class="ico">📭</div>没有匹配的题目<div class="hint">调整筛选条件，或用「AI 智能录入」扩充题库</div></div></td></tr>';
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function removeQuestion(id) {
+  if (!await T.confirm('确定删除题目 #' + id + '？删除后不可恢复。')) return;
+  try {
+    await T.api('/api/v1/teacher/questions/' + id, { method: 'DELETE' });
+    T.toast('题目已删除', 'ok');
+    loadList(offset);
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+function openEdit(id) {
+  editingId = id;
+  $('editErr').textContent = '';
+  $('modalTitle').textContent = id ? '编辑题目 #' + id : '新增题目';
+  ['eText','eOptA','eOptB','eOptC','eOptD','eAnswer','eAnalysis','eGrade','eKp'].forEach(i => $(i).value = '');
+  $('eSubject').value = ''; $('eType').value = ''; $('eBand').value = '';
+  $('eDiff').value = ''; $('eStatus').value = 'published';
+  if (id) {
+    T.api('/api/v1/teacher/questions/' + id).then(q => {
+      $('eText').value = q.content || '';
+      (q.options || []).forEach(o => { const el = $('eOpt' + o.key); if (el) el.value = o.text || ''; });
+      $('eAnswer').value = q.answer || ''; $('eAnalysis').value = q.analysis || '';
+      $('eDiff').value = q.difficulty ?? ''; $('eSubject').value = q.subject || '';
+      $('eType').value = q.question_type || ''; $('eBand').value = q.grade_band || '';
+      $('eGrade').value = q.grade || ''; $('eKp').value = q.knowledge_point || '';
+      $('eStatus').value = q.status || 'published';
+    }).catch(e => T.toast(e.message, 'err'));
+  }
+  $('editModal').classList.add('show');
+}
+function closeEdit() { $('editModal').classList.remove('show'); }
+
+async function saveEdit() {
+  $('editErr').textContent = '';
+  const payload = {
+    text: $('eText').value, subject: $('eSubject').value, question_type: $('eType').value,
+    knowledge_point: $('eKp').value.trim(), answer: $('eAnswer').value.trim(),
+    analysis: $('eAnalysis').value, grade_band: $('eBand').value, grade: $('eGrade').value.trim(),
+    difficulty: $('eDiff').value ? parseInt($('eDiff').value) : null,
+    status: $('eStatus').value,
+    options: ['A','B','C','D'].map(k => ({ key: k, text: $('eOpt' + k).value.trim() })).filter(o => o.text),
+  };
+  try {
+    if (editingId) {
+      await T.api('/api/v1/teacher/questions/' + editingId,
+        { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      T.toast('题目已更新', 'ok');
+    } else {
+      await T.api('/api/v1/teacher/questions',
+        { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      T.toast('题目已入库', 'ok');
+    }
+    closeEdit(); loadList(offset);
+  } catch (e) { $('editErr').textContent = e.message; }
+}
+
+if (T.token()) { loadList(0); } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fbank'; }
+</script>
+</body>
+</html>

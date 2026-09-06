@@ -16,6 +16,9 @@ python-multipart==0.0.32
 PyJWT==2.13.0
 bcrypt==5.0.0
 
+# 平台 M1：试卷 Word 导出
+python-docx==1.2.0
+
 # 模型推理与训练
 torch==2.11.0
 transformers==5.15.0

@@ -41,6 +41,30 @@ def teacher_portal() -> FileResponse:
     return _page("teacher.html")
 
 
+@router.get("/teacher/bank")
+def teacher_bank() -> FileResponse:
+    """题库管理。"""
+    return _page("teacher_bank.html")
+
+
+@router.get("/teacher/entry")
+def teacher_entry() -> FileResponse:
+    """AI 智能录入。"""
+    return _page("teacher_entry.html")
+
+
+@router.get("/teacher/papers")
+def teacher_papers() -> FileResponse:
+    """组卷与试卷。"""
+    return _page("teacher_papers.html")
+
+
+@router.get("/login")
+def login_page() -> FileResponse:
+    """独立登录页（portal=teacher/student）。"""
+    return _page("login.html")
+
+
 @router.get("/student")
 def student_portal() -> FileResponse:
     """学生门户。"""

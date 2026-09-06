@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · 智慧教研平台</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div class="login-page">
+  <!-- 左：品牌区 -->
+  <div class="login-brand">
+    <svg class="bg-svg" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" fill="none">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8FA0FF" stop-opacity=".35"/><stop offset="1" stop-color="#8FA0FF" stop-opacity="0"/>
+        </linearGradient>
+        <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+          <circle cx="1.5" cy="1.5" r="1.5" fill="#fff" opacity=".14"/>
+        </pattern>
+      </defs>
+      <rect x="500" y="-60" width="360" height="360" rx="24" fill="url(#g1)" transform="rotate(12 680 120)"/>
+      <rect x="640" y="330" width="300" height="300" rx="20" fill="url(#g1)" transform="rotate(-9 790 480)"/>
+      <circle cx="120" cy="760" r="180" fill="url(#g1)"/>
+      <rect x="0" y="560" width="800" height="340" fill="url(#dots)"/>
+      <rect x="418" y="180" width="120" height="120" rx="14" fill="#fff" opacity=".10" transform="rotate(14 478 240)"/>
+      <rect x="96" y="120" width="72" height="72" rx="12" fill="#fff" opacity=".08" transform="rotate(-12 132 156)"/>
+    </svg>
+    <div class="brand-top">
+      <div class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+      </div>
+      <div class="name">智慧教研平台<small>SMART TEACHING PLATFORM</small></div>
+    </div>
+    <div class="brand-main">
+      <h2>让每一道题<br>都被更好地使用</h2>
+      <p>面向初中与高中教学场景的题库自动化建设平台：AI 智能录题与三级标签预标注、按知识点智能组卷、作业自动判分与学情沉淀。</p>
+      <div class="feats">
+        <div class="f">
+          <div class="fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div><b>AI 智能录题</b><span>粘贴题干自动完成学科、题型、知识点与学段预标注，教师一键确认入库</span></div>
+        </div>
+        <div class="f">
+          <div class="fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 2 5-6"/></svg></div>
+          <div><b>组卷与导出</b><span>按题型、难度与知识点配比生成试卷，一键导出可打印的 Word 版本</span></div>
+        </div>
+        <div class="f">
+          <div class="fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
+          <div><b>师生双门户</b><span>教师建班发卷、学生作答沉淀学情，作答数据回流题库与模型迭代</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="brand-foot">© 2026 智慧教研平台 · 私有化部署 · 数据不出校</div>
+  </div>
+
+  <!-- 右：登录卡 -->
+  <div class="login-side">
+    <div class="login-card">
+      <h2>欢迎回来</h2>
+      <div class="sub">登录后进入对应的工作门户</div>
+      <div class="portal-seg">
+        <button type="button" id="segTeacher" class="on">教师登录</button>
+        <button type="button" id="segStudent">学生登录</button>
+      </div>
+      <form id="loginForm" autocomplete="on">
+        <div class="field">
+          <label class="lbl">账号</label>
+          <div class="input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input class="input" type="text" id="username" placeholder="请输入用户名" autocomplete="username" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">密码</label>
+          <div class="input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input class="input" type="password" id="password" placeholder="请输入密码" autocomplete="current-password" required>
+            <svg class="eye" id="eyeToggle" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+        <div class="login-err" id="loginErr"></div>
+        <button class="btn btn-login" id="btnLogin" type="submit">登 录</button>
+      </form>
+      <div class="tip">忘记密码请联系学校管理员重置 · <a href="/">返回门户</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const KEYS = { teacher: 'edu_token_teacher', student: 'edu_token_student' };
+const HOME = { teacher: '/teacher', student: '/student' };
+let portal = 'teacher';
+
+const params = new URLSearchParams(location.search);
+const p = params.get('portal');
+if (p === 'student') portal = 'student';
+applyPortal();
+
+function applyPortal() {
+  $('segTeacher').classList.toggle('on', portal === 'teacher');
+  $('segStudent').classList.toggle('on', portal === 'student');
+  document.title = (portal === 'teacher' ? '教师登录' : '学生登录') + ' · 智慧教研平台';
+}
+$('segTeacher').onclick = () => { portal = 'teacher'; applyPortal(); };
+$('segStudent').onclick = () => { portal = 'student'; applyPortal(); };
+
+$('eyeToggle').onclick = () => {
+  const el = $('password');
+  el.type = el.type === 'password' ? 'text' : 'password';
+};
+
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = $('username').value.trim(), password = $('password').value;
+  if (!username || !password) { $('loginErr').textContent = '请输入账号和密码'; return; }
+  $('loginErr').textContent = '';
+  const btn = $('btnLogin');
+  btn.disabled = true; btn.textContent = '登录中…';
+  try {
+    const resp = await fetch('/api/v1/auth/login?portal=' + portal, {
+      method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({username, password})
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      $('loginErr').textContent = data.error || data.detail || '登录失败';
+      return;
+    }
+    localStorage.setItem(KEYS[portal], data.access_token);
+    const next = params.get('next');
+    location.href = next && next.startsWith('/') ? next : HOME[portal];
+  } catch (err) {
+    $('loginErr').textContent = '网络异常，请确认服务已启动';
+  } finally {
+    btn.disabled = false; btn.textContent = '登 录';
+  }
+});
+</script>
+</body>
+</html>

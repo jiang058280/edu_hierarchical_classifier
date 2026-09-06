@@ -3,173 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>教师门户 · 智慧教研平台</title>
-<style>
-  :root { --primary:#2563EB; --ok:#16A34A; --warn:#D97706; --bad:#DC2626; --bg:#F1F5F9; --card:#fff; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-  header { background:var(--card); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:space-between; align-items:center; }
-  header h1 { font-size:18px; }
-  header .meta { font-size:13px; color:var(--muted); }
-  header a { color:var(--primary); text-decoration:none; margin-left:12px; }
-  main { max-width:960px; margin:20px auto; padding:0 16px; display:flex; flex-direction:column; gap:14px; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
-  .card h2 { font-size:15px; margin-bottom:10px; }
-  button { cursor:pointer; border:none; border-radius:8px; padding:8px 14px; font-size:13px; background:var(--primary); color:#fff; }
-  button.ghost { background:#fff; color:var(--primary); border:1px solid var(--border); }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
-  th { color:var(--muted); font-weight:500; }
-  .code { font-weight:700; color:var(--primary); letter-spacing:1px; }
-  input, select { border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .muted { color:var(--muted); font-size:12px; }
-  #error { color:var(--bad); font-size:13px; min-height:16px; }
-  #loginOverlay { position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:center; justify-content:center; z-index:100; }
-  #loginOverlay .box { background:var(--card); border-radius:12px; padding:24px; width:320px; }
-  #loginOverlay h3 { font-size:16px; margin-bottom:12px; }
-  #loginOverlay input { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; margin-bottom:10px; }
-  #loginOverlay .err { color:var(--bad); font-size:12px; min-height:16px; }
-  .badge { background:#EFF6FF; color:var(--primary); border-radius:6px; padding:2px 8px; font-size:12px; }
-</style>
+<title>工作台 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
 </head>
 <body>
-<header>
-  <h1>教师门户 · 智慧教研平台</h1>
-  <div class="meta">
-    <span id="userBadge"></span>
-    <button class="ghost" id="btnLogout" style="display:none" onclick="logout()">登出</button>
-    <a href="/classify">题目分类工具</a><a href="/admin">治理工作台</a>
-  </div>
-</header>
+<div id="shell"></div>
+<div class="content">
+  <div class="page-head"><h2>工作台</h2><p>题库、试卷与班级的整体概览</p></div>
 
-<div id="loginOverlay">
-  <div class="box">
-    <h3>教师登录</h3>
-    <input type="text" id="loginUser" placeholder="用户名" autocomplete="username">
-    <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password">
-    <div class="err" id="loginErr"></div>
-    <button style="width:100%" onclick="doLogin()">登 录</button>
+  <div class="stat-grid">
+    <div class="stat"><div class="k">题库总数</div><div class="v" id="stBank">—<small> 题</small></div></div>
+    <div class="stat"><div class="k">试卷总数</div><div class="v" id="stPapers">—<small> 份</small></div></div>
+    <div class="stat"><div class="k">我的班级</div><div class="v" id="stClasses">—<small> 个</small></div></div>
+    <div class="stat"><div class="k">知识点树</div><div class="v" id="stNodes">—<small> 个</small></div></div>
   </div>
-</div>
 
-<main>
-  <div class="card">
-    <h2>创建班级</h2>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h3>快捷操作</h3></div>
     <div class="row">
-      <input type="text" id="clsName" placeholder="班级名，如 初三(2)班" style="width:180px">
-      <select id="clsBand"><option>初中</option><option>高中</option></select>
-      <input type="text" id="clsGrade" placeholder="年级，如 初三" style="width:100px">
-      <button onclick="createClass()">创建（生成邀请码）</button>
-      <span id="error"></span>
+      <a class="btn" href="/teacher/entry">AI 智能录入</a>
+      <a class="btn ghost" href="/teacher/papers">去组卷</a>
+      <a class="btn ghost" href="/teacher/bank">管理题库</a>
     </div>
   </div>
 
   <div class="card">
-    <h2>我的班级</h2>
-    <table>
-      <thead><tr><th>班级</th><th>学段/年级</th><th>邀请码</th><th>学生数</th><th>操作</th></tr></thead>
-      <tbody id="classRows"><tr><td colspan="5" class="muted">加载中…</td></tr></tbody>
+    <div class="card-head">
+      <h3>我的班级</h3>
+      <div class="row">
+        <input class="input" type="text" id="clsName" placeholder="班级名，如 初三(2)班" style="width:170px">
+        <select class="input" id="clsBand" style="width:90px"><option>初中</option><option>高中</option></select>
+        <input class="input" type="text" id="clsGrade" placeholder="年级" style="width:90px">
+        <button class="btn" onclick="createClass()">创建班级</button>
+      </div>
+    </div>
+    <table class="table">
+      <thead><tr><th>班级</th><th>学段 / 年级</th><th>入班邀请码</th><th>学生数</th><th>操作</th></tr></thead>
+      <tbody id="classRows"></tbody>
     </table>
   </div>
 
   <div class="card" id="studentCard" style="display:none">
-    <h2>学生名册：<span id="studentClassName"></span></h2>
-    <table>
+    <div class="card-head"><h3>学生名册 · <span id="studentClassName"></span></h3>
+      <button class="btn plain sm" onclick="this.closest('.card').style.display='none'">收起</button></div>
+    <table class="table">
       <thead><tr><th>姓名</th><th>用户名</th><th>学号</th><th>状态</th></tr></thead>
       <tbody id="studentRows"></tbody>
     </table>
   </div>
-</main>
-
+</div>
+<script src="/static/teacher_common.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const TOKEN_KEY = 'edu_token_teacher';
-const getToken = () => localStorage.getItem(TOKEN_KEY) || '';
-const setToken = t => t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
+T.renderShell('home', '工作台');
 
-async function api(path, options) {
-  const headers = Object.assign({}, (options && options.headers) || {});
-  if (getToken()) headers['Authorization'] = 'Bearer ' + getToken();
-  const resp = await fetch(path, Object.assign({}, options, {headers}));
-  const data = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    if (resp.status === 401) { showLogin(); throw new Error(data.error || '请先登录'); }
-    throw new Error(data.error || (resp.status + ' ' + resp.statusText));
-  }
-  return data;
+async function loadStats() {
+  const [bank, papers, classes, nodes] = await Promise.all([
+    T.api('/api/v1/teacher/questions?limit=1'),
+    T.api('/api/v1/teacher/papers?limit=1'),
+    T.api('/api/v1/teacher/classes'),
+    T.api('/api/v1/teacher/knowledge-nodes'),
+  ]);
+  $('stBank').innerHTML = bank.total + '<small> 题</small>';
+  $('stPapers').innerHTML = papers.total + '<small> 份</small>';
+  $('stClasses').innerHTML = classes.classes.length + '<small> 个</small>';
+  $('stNodes').innerHTML = nodes.total + '<small> 个</small>';
 }
-function showLogin(msg) { $('loginErr').textContent = msg || ''; $('loginOverlay').style.display = 'flex'; $('loginUser').focus(); }
-function hideLogin() { $('loginOverlay').style.display = 'none'; }
-
-async function doLogin() {
-  const username = $('loginUser').value.trim(), password = $('loginPass').value;
-  if (!username || !password) { $('loginErr').textContent = '请输入用户名与密码'; return; }
-  try {
-    const resp = await fetch('/api/v1/auth/login', {
-      method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams({username, password, portal: 'teacher'})
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) { $('loginErr').textContent = data.error || data.detail || '登录失败'; return; }
-    setToken(data.access_token);
-    hideLogin(); $('loginPass').value = '';
-    await loadIdentity(); loadClasses();
-  } catch (e) { $('loginErr').textContent = '登录失败：' + e.message; }
-}
-async function loadIdentity() {
-  try {
-    const me = await api('/api/v1/auth/me');
-    $('userBadge').innerHTML = `当前用户：<b>${me.username}</b>（${me.role}）`;
-    $('btnLogout').style.display = '';
-    return true;
-  } catch (e) { return false; }
-}
-function logout() { setToken(''); location.reload(); }
-$('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 async function createClass() {
-  $('error').textContent = '';
+  const name = $('clsName').value.trim(), grade = $('clsGrade').value.trim();
+  if (!name || !grade) { T.toast('请填写班级名和年级', 'err'); return; }
   try {
-    const r = await api('/api/v1/teacher/classes', {
+    const r = await T.api('/api/v1/teacher/classes', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: $('clsName').value.trim(), grade_band: $('clsBand').value, grade: $('clsGrade').value.trim()})
+      body: JSON.stringify({name, grade_band: $('clsBand').value, grade})
     });
     $('clsName').value = ''; $('clsGrade').value = '';
-    await loadClasses();
-    alert('班级创建成功！邀请码：' + r.invite_code + '（告知学生在学生门户输入即可加入）');
-  } catch (e) { $('error').textContent = e.message; }
+    T.toast('班级已创建，邀请码 ' + r.invite_code, 'ok');
+    loadClasses();
+  } catch (e) { T.toast(e.message, 'err'); }
 }
 
 async function loadClasses() {
   try {
-    const data = await api('/api/v1/teacher/classes');
+    const data = await T.api('/api/v1/teacher/classes');
     $('classRows').innerHTML = data.classes.length ? data.classes.map(c => `
       <tr>
-        <td><b>${c.name}</b></td>
-        <td>${c.grade_band} / ${c.grade}</td>
-        <td><span class="code">${c.invite_code}</span></td>
-        <td>${c.student_count}</td>
-        <td><button class="ghost" onclick="viewStudents(${c.id}, '${c.name}')">查看学生</button></td>
-      </tr>`).join('') : '<tr><td colspan="5" class="muted">还没有班级，先创建一个</td></tr>';
-  } catch (e) { $('classRows').innerHTML = `<tr><td colspan="5" class="muted">加载失败：${e.message}</td></tr>`; }
+        <td><b>${T.escapeHtml(c.name)}</b></td>
+        <td>${c.grade_band} / ${T.escapeHtml(c.grade)}</td>
+        <td class="num" style="font-weight:700;color:var(--primary);letter-spacing:1px">${c.invite_code}</td>
+        <td class="num">${c.student_count}</td>
+        <td><button class="btn ghost sm" onclick="viewStudents(${c.id}, '${T.escapeHtml(c.name)}')">名册</button></td>
+      </tr>`).join('')
+      : '<tr><td colspan="5"><div class="empty"><div class="ico">🏫</div>还没有班级<div class="hint">创建班级后把邀请码发给学生，学生在学生门户即可加入</div></div></td></tr>';
+  } catch (e) { T.toast(e.message, 'err'); }
 }
 
 async function viewStudents(classId, name) {
   try {
-    const data = await api(`/api/v1/teacher/classes/${classId}/students`);
+    const data = await T.api(`/api/v1/teacher/classes/${classId}/students`);
     $('studentCard').style.display = '';
     $('studentClassName').textContent = name;
     $('studentRows').innerHTML = data.students.length ? data.students.map(s => `
-      <tr><td>${s.real_name || '—'}</td><td>${s.username}</td><td>${s.student_no || '—'}</td>
-      <td>${s.is_active ? '<span class="badge">在班</span>' : '停用'}</td></tr>`).join('')
-      : '<tr><td colspan="4" class="muted">暂无学生，把邀请码发给学生即可加入</td></tr>';
-  } catch (e) { alert(e.message); }
+      <tr><td>${T.escapeHtml(s.real_name || '—')}</td><td>${T.escapeHtml(s.username)}</td>
+      <td class="num">${T.escapeHtml(s.student_no || '—')}</td>
+      <td>${s.is_active ? '<span class="badge b-ok">在班</span>' : '<span class="badge b-gray">停用</span>'}</td></tr>`).join('')
+      : '<tr><td colspan="4" class="muted">暂无学生</td></tr>';
+  } catch (e) { T.toast(e.message, 'err'); }
 }
 
-// 初始化：未登录先弹登录框，再加载班级
-if (!getToken()) { showLogin('请先登录'); }
-else { loadIdentity().then(() => loadClasses()); }
+loadStats(); loadClasses();
 </script>
 </body>
 </html>

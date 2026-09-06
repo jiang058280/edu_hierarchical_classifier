@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>组卷与试卷 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<div class="content">
+  <div class="page-head"><h2>组卷与试卷</h2><p>按题型配比与学段从题库抽题组卷，保存后可导出 Word 打印版</p></div>
+
+  <div class="card">
+    <h3>① 组卷条件</h3>
+    <div class="row" style="margin-bottom:10px">
+      <select class="input" id="gSubject" style="width:130px"></select>
+      <select class="input" id="gBand" style="width:110px"><option value="">全部学段</option><option>初中</option><option>高中</option></select>
+      <input class="input" type="text" id="gKp" placeholder="知识点（可空）" style="width:160px">
+      <select class="input" id="gDiff" style="width:130px">
+        <option value="">任意难度</option><option value="1">★ 基础</option><option value="3">★★★ 中档</option><option value="5">★★★★★ 拔高</option>
+      </select>
+    </div>
+    <div class="row">
+      <span class="muted">题型配比：</span>
+      <span class="muted">选择题</span><input class="input num" type="number" id="nChoice" value="10" min="0" max="50" style="width:64px">
+      <span class="muted">判断题</span><input class="input num" type="number" id="nJudge" value="0" min="0" max="50" style="width:64px">
+      <span class="muted">填空题</span><input class="input num" type="number" id="nFill" value="0" min="0" max="50" style="width:64px">
+      <span class="muted">解答题</span><input class="input num" type="number" id="nSolve" value="4" min="0" max="50" style="width:64px">
+      <button class="btn" onclick="generate()">生成试卷</button>
+    </div>
+  </div>
+
+  <div class="card" id="previewCard" style="display:none">
+    <div class="card-head">
+      <h3>② 试卷预览（取消勾选可剔除题目）</h3>
+      <input class="input" type="text" id="paperTitle" placeholder="试卷标题，如 初三数学期中卷" style="width:240px">
+    </div>
+    <div id="previewList" style="max-height:420px;overflow:auto"></div>
+    <div class="row" style="margin-top:12px">
+      <span class="muted" id="pickInfo"></span>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="savePaper()">保存为试卷</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>我的试卷</h3>
+      <button class="btn plain sm" onclick="loadPapers()">刷新</button></div>
+    <table class="table">
+      <thead><tr><th>ID</th><th>标题</th><th>学科</th><th>学段</th><th>题数</th><th>创建时间</th><th style="width:170px">操作</th></tr></thead>
+      <tbody id="paperRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/static/teacher_common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T.renderShell('papers', '组卷与试卷');
+let generated = [];
+
+['数学','语文','英语','物理','化学','生物','历史','地理','政治']
+  .forEach(s => $('gSubject').add(new Option(s, s)));
+
+async function generate() {
+  const subject = $('gSubject').value;
+  if (!subject) { T.toast('请选择学科', 'err'); return; }
+  const type_counts = {};
+  const map = {选择题: 'nChoice', 判断题: 'nJudge', 填空题: 'nFill', 解答题: 'nSolve'};
+  for (const [label, id] of Object.entries(map)) {
+    const n = parseInt($(id).value) || 0;
+    if (n > 0) type_counts[label] = n;
+  }
+  if (!Object.keys(type_counts).length) { T.toast('至少设置一种题型的数量', 'err'); return; }
+  try {
+    const data = await T.api('/api/v1/teacher/papers/generate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        subject, grade_band: $('gBand').value, knowledge: $('gKp').value.trim(),
+        difficulty: $('gDiff').value ? parseInt($('gDiff').value) : null, type_counts
+      })
+    });
+    generated = data.questions;
+    renderPreview();
+    T.toast('已生成 ' + data.total + ' 题，勾选后保存', 'ok');
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+function renderPreview() {
+  $('previewCard').style.display = '';
+  $('previewList').innerHTML = generated.map((q, i) => `
+    <label class="row" style="padding:8px 6px;border-bottom:1px dashed var(--border);cursor:pointer;align-items:flex-start">
+      <input type="checkbox" checked data-idx="${i}" style="margin-top:4px">
+      <span style="flex:1">
+        <b class="num">${i + 1}.</b>（${T.escapeHtml(q.question_type)}）
+        ${T.escapeHtml((q.content || '').slice(0, 90))}${(q.content || '').length > 90 ? '…' : ''}
+        <span class="muted">｜# ${q.id}｜${T.escapeHtml(q.knowledge_point || '知识点未标')}</span>
+      </span>
+    </label>`).join('');
+  updatePick();
+  $('previewList').addEventListener('change', updatePick);
+}
+function updatePick() {
+  const n = [...$('previewList').querySelectorAll('input:checked')].length;
+  $('pickInfo').textContent = '已选 ' + n + ' / ' + generated.length + ' 题';
+}
+
+async function savePaper() {
+  const title = $('paperTitle').value.trim();
+  const ids = [...$('previewList').querySelectorAll('input:checked')]
+    .map(el => generated[parseInt(el.dataset.idx)].id);
+  if (!title) { T.toast('请填写试卷标题', 'err'); return; }
+  if (!ids.length) { T.toast('请至少保留一道题', 'err'); return; }
+  try {
+    const r = await T.api('/api/v1/teacher/papers', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({title, subject: $('gSubject').value,
+        grade_band: $('gBand').value || '高中', question_ids: ids})
+    });
+    T.toast('试卷已保存 #' + r.id, 'ok');
+    $('previewCard').style.display = 'none'; generated = [];
+    loadPapers();
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function loadPapers() {
+  try {
+    const data = await T.api('/api/v1/teacher/papers');
+    $('paperRows').innerHTML = data.items.length ? data.items.map(p => `
+      <tr>
+        <td class="num">${p.id}</td><td><b>${T.escapeHtml(p.title)}</b></td>
+        <td>${T.escapeHtml(p.subject)}</td><td>${T.escapeHtml(p.grade_band)}</td>
+        <td class="num">${p.question_count}</td><td class="muted">${p.created_at}</td>
+        <td>
+          <button class="btn ghost sm" onclick="T.downloadFile('/api/v1/teacher/papers/${p.id}/export', '${T.escapeHtml(p.title)}.docx').catch(e => T.toast(e.message, 'err'))">导出 Word</button>
+          <button class="btn danger sm" onclick="removePaper(${p.id})">删除</button>
+        </td>
+      </tr>`).join('')
+      : '<tr><td colspan="7"><div class="empty"><div class="ico">📄</div>还没有试卷<div class="hint">设置组卷条件并生成后保存</div></div></td></tr>';
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+async function removePaper(id) {
+  if (!await T.confirm('确定删除试卷 #' + id + '？')) return;
+  try { await T.api('/api/v1/teacher/papers/' + id, {method: 'DELETE'}); T.toast('已删除', 'ok'); loadPapers(); }
+  catch (e) { T.toast(e.message, 'err'); }
+}
+
+if (T.token()) { loadPapers(); } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fpapers'; }
+</script>
+</body>
+</html>

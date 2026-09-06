@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能录入 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<div class="content">
+  <div class="page-head"><h2>AI 智能录入</h2><p>粘贴题目后自动切分与三级标签预标注，逐题确认入库（人工确认结果会沉淀为高质量标注数据）</p></div>
+
+  <div class="card">
+    <h3>① 粘贴题目（支持多题，按题号自动切分）</h3>
+    <textarea class="input" id="rawInput" rows="8" placeholder="示例：
+1. 已知函数 f(x)=x²+1，求 f(2) 的值。
+2. 下列关于细胞呼吸的叙述，正确的是（　　）
+A．有氧呼吸的场所是线粒体
+B．无氧呼吸不产生 ATP"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" onclick="splitAndPredict()">智能切分并预标注</button>
+      <button class="btn plain" onclick="resetAll()">清空</button>
+      <span class="muted" id="splitInfo"></span>
+      <span style="flex:1"></span>
+      <span class="muted">单次最多 50 题</span>
+    </div>
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="card" id="emptyCard" style="display:none">
+    <div class="empty"><div class="ico">✂️</div>暂无待确认题目<div class="hint">粘贴题目后点击「智能切分并预标注」，AI 会给出三级标签建议，确认后入库</div></div>
+  </div>
+</div>
+
+<script src="/static/teacher_common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T.renderShell('entry', 'AI 智能录入');
+const SUBJECTS = ["数学","语文","英语","物理","化学","生物","历史","地理","政治"];
+const NUM_START = /^\s*(\d{1,3})\s*[.．、)]\s*/;
+const BRACKET_START = /^\s*[（(]\s*\d{1,3}\s*[)）]\s*/;
+let batchSeq = 0;
+
+function splitQuestions(raw) {
+  const lines = raw.split(/\r?\n/);
+  const blocks = [];
+  let cur = [];
+  for (const ln of lines) {
+    const isStart = (NUM_START.test(ln) || BRACKET_START.test(ln));
+    if (isStart && cur.length) {
+      blocks.push(cur.join('\n').trim());
+      cur = [ln];
+    } else {
+      cur.push(ln);
+    }
+  }
+  if (cur.join('').trim()) blocks.push(cur.join('\n').trim());
+  return blocks.filter(b => b.length >= 8);
+}
+
+function cardHtml(item) {
+  const conf = item.conf || {};
+  const bar = (v) => `<span style="display:inline-block;width:64px;height:5px;border-radius:3px;background:#EDF0F7;vertical-align:middle;margin-left:6px"><span style="display:block;height:5px;border-radius:3px;background:var(--primary);width:${Math.round((v || 0) * 100)}%"></span></span>`;
+  const opts = ['A','B','C','D'];
+  return `
+  <div class="card qcard" id="qc_${item.seq}">
+    <div class="card-head">
+      <h3>第 ${item.seq + 1} 题 <span class="badge b-info">AI 预标注</span></h3>
+      <span class="muted">置信度 学科${bar(conf.subject)} 题型${bar(conf.question_type)} 知识点${bar(conf.knowledge_point)}</span>
+    </div>
+    <textarea class="input" id="t_${item.seq}" rows="4">${T.escapeHtml(item.text)}</textarea>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label class="lbl">学科</label>
+        <select class="input" id="s_${item.seq}">${SUBJECTS.map(s => `<option ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label class="lbl">题型</label>
+        <select class="input" id="ty_${item.seq}">${['选择题','填空题','解答题','判断题'].map(t => `<option ${t === item.question_type ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="field"><label class="lbl">知识点</label>
+        <input class="input" id="k_${item.seq}" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="学科::知识点"></div>
+      <div class="field"><label class="lbl">学段</label>
+        <select class="input" id="g_${item.seq}"><option value="">—</option>${['初中','高中'].map(g => `<option ${g === item.grade_band ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
+      <div class="field"><label class="lbl">参考答案（可空）</label>
+        <input class="input" id="a_${item.seq}"></div>
+      <div class="field"><label class="lbl">难度</label>
+        <select class="input" id="d_${item.seq}"><option value="">—</option>${[1,2,3,4,5].map(n => `<option>${n}</option>`).join('')}</select></div>
+    </div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost sm" onclick="removeCard(${item.seq})">丢弃</button>
+      <button class="btn sm" onclick="saveCard(${item.seq}, 'published')">确认入库</button>
+      <button class="btn ghost sm" onclick="saveCard(${item.seq}, 'draft')">存为草稿</button>
+    </div>
+  </div>`;
+}
+
+async function splitAndPredict() {
+  const raw = $('rawInput').value;
+  if (!raw.trim()) { T.toast('请先粘贴题目', 'err'); return; }
+  const texts = splitQuestions(raw);
+  $('splitInfo').textContent = `切分出 ${texts.length} 题`;
+
+  if (!texts.length) { $('cards').innerHTML = ''; $('emptyCard').style.display = ''; return; }
+  try {
+    const data = await T.api('/api/v1/teacher/questions/classify-batch', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ texts: texts.slice(0, 50) })
+    });
+    $('cards').innerHTML = '';
+    $('emptyCard').style.display = 'none';
+    data.items.forEach((item, i) => {
+      item.seq = batchSeq++;
+      const div = document.createElement('div');
+      div.innerHTML = cardHtml(item);
+      $('cards').appendChild(div.firstElementChild);
+    });
+    if (!data.items.length) { $('emptyCard').style.display = ''; }
+    T.toast(`预标注完成，共 ${data.items.length} 题，请逐题确认`, 'ok');
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+function collect(seq) {
+  const text = $('t_' + seq).value.trim();
+  if (text.length < 10) { T.toast('第 ' + (seq + 1) + ' 题题干过短', 'err'); return null; }
+  return {
+    text,
+    subject: $('s_' + seq).value,
+    question_type: $('ty_' + seq).value,
+    knowledge_point: $('k_' + seq).value.trim(),
+    grade_band: $('g_' + seq).value,
+    answer: $('a_' + seq).value.trim(),
+    difficulty: $('d_' + seq).value ? parseInt($('d_' + seq).value) : null,
+    status: 'published',
+  };
+}
+
+async function saveCard(seq, status) {
+  const payload = collect(seq);
+  if (!payload) return;
+  payload.status = status;
+  try {
+    const r = await T.api('/api/v1/teacher/questions', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const card = document.getElementById('qc_' + seq);
+    card.style.opacity = '.45';
+    card.querySelectorAll('button').forEach(b => b.disabled = true);
+    card.querySelector('.card-head h3').innerHTML =
+      `第 ${seq + 1} 题 <span class="badge b-ok">已入库 #${r.id}</span>`;
+    T.toast('已入库，题目 #' + r.id, 'ok');
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+function removeCard(seq) {
+  const card = document.getElementById('qc_' + seq);
+  card.remove();
+  if (!$('cards').children.length) $('emptyCard').style.display = '';
+}
+
+function resetAll() {
+  $('rawInput').value = ''; $('cards').innerHTML = '';
+  $('splitInfo').textContent = ''; $('emptyCard').style.display = 'none';
+}
+
+if (T.token()) { /* 页面就绪 */ } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fentry'; }
+</script>
+</body>
+</html>

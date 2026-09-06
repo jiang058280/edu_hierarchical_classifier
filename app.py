@@ -100,10 +100,10 @@ async def warmup_runtime() -> None:
                        service.dedup.unavailable_reason())
 
 
-# 路由注册：/api/v1 正式前缀 + /api 旧契约别名（同一 router 复用，旧前端无需改路径）
-app.include_router(pages.router)  # 根路径 / 与 /admin 不带前缀
+# 路由注册：页面（无前缀）与 API（/api/v1 正式前缀 + /api 旧契约别名）
+# 注意：pages 必须只在根路径注册一次——页面与 API 同路径时前缀注册会让 HTML 遮蔽 JSON
+app.include_router(pages.router)
 for prefix in ("/api/v1", "/api"):
-    app.include_router(pages.router, prefix=prefix)
     app.include_router(auth.router, prefix=prefix)
     app.include_router(teacher.router, prefix=prefix)
     app.include_router(student.router, prefix=prefix)
