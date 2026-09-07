@@ -53,5 +53,6 @@
     "max_seq_length": 256,
     "freeze_ratio": 0.75
   },
-  "source": "training"
+  "source": "training",
+  "temperature": 0.9706
 }
