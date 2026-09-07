@@ -33,6 +33,7 @@ reports/evaluation/*
 !reports/evaluation/*.json
 reports/verification/*
 !reports/verification/*.json
+!reports/verification/*.md
 
 # ===== 环境配置（只提交 .env.example）=====
 .env
