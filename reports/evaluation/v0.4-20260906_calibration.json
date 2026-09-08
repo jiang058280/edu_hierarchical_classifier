@@ -1,0 +1,85 @@
+{
+  "version": "v0.4-20260906",
+  "split": "val.csv",
+  "n_samples": 1917,
+  "heads": [
+    "subject",
+    "question_type",
+    "knowledge",
+    "grade"
+  ],
+  "temperature": 0.9984,
+  "grade_included": false,
+  "calibration_decision": "学段头校准使主三头 NLL 变差，已跳过 grade 头参与拟合（grade 仍随全局 T 缩放）",
+  "candidates": {
+    "all_heads": {
+      "temperature": 0.9684,
+      "primary_nll_sum": 0.5575
+    },
+    "primary_only": {
+      "temperature": 0.9984,
+      "primary_nll_sum": 0.5567
+    }
+  },
+  "before": {
+    "subject": {
+      "nll": 0.0849,
+      "ece": 0.0414,
+      "acc": 0.987,
+      "bins_used": 7.0,
+      "n_valid": 1917
+    },
+    "question_type": {
+      "nll": 0.0486,
+      "ece": 0.0297,
+      "acc": 0.9927,
+      "bins_used": 6.0,
+      "n_valid": 1917
+    },
+    "knowledge": {
+      "nll": 0.4232,
+      "ece": 0.0597,
+      "acc": 0.9042,
+      "bins_used": 7.0,
+      "n_valid": 1033
+    },
+    "grade": {
+      "nll": 0.0927,
+      "ece": 0.0188,
+      "acc": 0.9697,
+      "bins_used": 5.0,
+      "n_valid": 660
+    }
+  },
+  "after": {
+    "subject": {
+      "nll": 0.0846,
+      "ece": 0.0411,
+      "acc": 0.987,
+      "bins_used": 7.0,
+      "n_valid": 1917
+    },
+    "question_type": {
+      "nll": 0.0484,
+      "ece": 0.0295,
+      "acc": 0.9927,
+      "bins_used": 6.0,
+      "n_valid": 1917
+    },
+    "knowledge": {
+      "nll": 0.4237,
+      "ece": 0.0598,
+      "acc": 0.9042,
+      "bins_used": 7.0,
+      "n_valid": 1033
+    },
+    "grade": {
+      "nll": 0.0926,
+      "ece": 0.0186,
+      "acc": 0.9697,
+      "bins_used": 5.0,
+      "n_valid": 660
+    }
+  },
+  "fitted_at": "2026-09-07 21:59:59"
+}

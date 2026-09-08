@@ -1,16 +1,16 @@
 {
-  "created_at": "2026-09-06 09:43:52",
-  "git_commit": "17edcf1",
+  "created_at": "2026-09-07 21:13:18",
+  "git_commit": "0bb4f9b",
   "files": {
     "train.csv": {
-      "sha256": "a7c0ab3f9620b616d8a8f75dfb30e615229b56a14d4c27c3c461d222532c406f",
-      "bytes": 2477463,
-      "rows": 4829
+      "sha256": "371d49eb78addc89731fe33f5ee5ead63ff0a9ace6cb73b6555277cbbc90fdca",
+      "bytes": 5421167,
+      "rows": 11721
     },
     "val.csv": {
-      "sha256": "05337a014fcb29f5994a7a9b63fb7dc3f9c15e8dec2f9fc3fb63e0b0dd548dbd",
-      "bytes": 513986,
-      "rows": 1033
+      "sha256": "66ab6d2a67f187961846d3be2ee9052e5312b31d147e4734b0b7b6b465142cc4",
+      "bytes": 883492,
+      "rows": 1917
     },
     "test.csv": {
       "sha256": "1fdbeabd942267813d4cd9aff5eadf4820f0171aa7d1342674770c72e3849b4b",
@@ -18,14 +18,14 @@
       "rows": 1039
     },
     "labels.json": {
-      "sha256": "699eefbfd1bf5d10452ab041b28120468d9f186be859f6cbdec292c554b53b4a",
-      "bytes": 9272
+      "sha256": "b18d5a61d9eabeece0489f3968ae53c24d08f0ae7a7740cfb4a2cb8b08a9a171",
+      "bytes": 9433
     }
   },
   "labels_summary": {
-    "n_samples": 6901,
-    "n_train": 4829,
-    "n_val": 1033,
+    "n_samples": 12849,
+    "n_train": 9893,
+    "n_val": 1917,
     "n_test": 1039,
     "n_subjects": 9,
     "n_types": 3,
@@ -33,7 +33,7 @@
     "split_rule": "按学科分层 70/15/15（seed=42）"
   },
   "labels_source": {
-    "rule": 4829,
+    "rule": 11721,
     "manual": 0,
     "manual_ratio": 0.0
   },

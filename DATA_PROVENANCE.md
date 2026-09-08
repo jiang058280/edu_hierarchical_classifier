@@ -58,3 +58,18 @@
 1. 每次新增/更换数据集（来源、规模、获取方式、合规留痕）；
 2. 每次数据增强/预处理参数变更（参数值、种子、影响行数、生成的 data_manifest 哈希）；
 3. 每次主干模型更换（来源、选型评估报告位置）。
+
+## 七、2026-09-08 训练集题型重采样（v0.4 训练轮，B1）
+
+| 项 | 记录 |
+| --- | --- |
+| 动因 | v0.3 golden 300 中 4 条判断题错 → 题型宏 F1 0.8522；训练集判断题仅 256/9,893（2.6%） |
+| 脚本 | `scripts/rebalance_train.py`（幂等护栏：备份已存在或已含 oversampled 列即拒绝执行） |
+| 参数 | 判断题 ×4（每行总份数 4）、解答题 ×1.5（按行序偶数行 2 份/奇数行 1 份）、选择题不动；无随机种子（确定性复制） |
+| 影响行数 | train 9,893 → 11,721（判断题 256→1,024、解答题 2,120→3,180、选择题 7,517 不变）；净增 1,828 份副本，副本行 `oversampled=1`，**文本与全部标签列零修改**（pandas 逐单元格比对验证） |
+| 备份 | `data/processed/train.pre_rebalance.csv`（重采样前原版字节级副本，不入 git；git 历史亦含原版） |
+| 复制报告 | `data/processed/rebalance_report.json`（前后分布、净增副本数、参数） |
+| 数据指纹 | data_manifest 已由 `scripts/preprocess_all.py` 刷新；v0.4 manifest 的 data_ref 记录新 train.csv sha256（371d49eb…） |
+| val/test | **未改动**（val 1,917 / test 1,039 保持固定基准） |
+| 模型产出 | `models/versions/v0.4-20260906/`（golden 题型宏 F1 0.9406，温度 T=0.9984，详见 `reports/evaluation/v0.4-20260906_*.json`） |
+

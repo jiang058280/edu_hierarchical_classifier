@@ -1,0 +1,26 @@
+{
+  "created_at": "2026-09-07 21:13:16",
+  "backup": "data\\processed\\train.pre_rebalance.csv",
+  "params": {
+    "judge_times": 4.0,
+    "solve_times": 1.5
+  },
+  "rows_before": 9893,
+  "rows_after": 11721,
+  "distribution_before": {
+    "选择题": 7517,
+    "解答题": 2120,
+    "判断题": 256
+  },
+  "distribution_after": {
+    "选择题": 7517,
+    "解答题": 3180,
+    "判断题": 1024
+  },
+  "copies_added": {
+    "选择题": 0,
+    "解答题": 1060,
+    "判断题": 768
+  },
+  "note": "仅复制行（text/labels 不变），副本行 oversampled=1；val/test 未改动"
+}

@@ -21,6 +21,10 @@ models/versions/**/*.safetensors
 
 # ===== 原始数据集（可用 scripts 重新下载；processed 清洗产物入库）=====
 data/raw/
+# 重采样前的本地备份副本（git 历史已含原版，不入库）
+data/processed/train.pre_rebalance.csv
+# MySQL JSON 快照（体积大且含业务数据，不入库）
+backups/
 
 # ===== 运行时产物 =====
 logs/

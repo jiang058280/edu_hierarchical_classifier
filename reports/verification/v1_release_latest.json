@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-09-07 20:24:25",
+  "verified_at": "2026-09-08 08:51:16",
   "all_passed": true,
   "results": [
     {
@@ -15,7 +15,7 @@
     {
       "name": "model_versions",
       "passed": true,
-      "detail": "manifest-valid versions: ['v0.1-base', 'v0.2-20260906', 'v0.3-20260906']"
+      "detail": "manifest-valid versions: ['v0.1-base', 'v0.2-20260906', 'v0.3-20260906', 'v0.4-20260906']"
     },
     {
       "name": "auth_config",
@@ -25,7 +25,7 @@
     {
       "name": "pytest",
       "passed": true,
-      "detail": "..........................................................               [100%]\n58 passed in 19.26s"
+      "detail": "..........................................................               [100%]\n58 passed in 72.10s (0:01:12)"
     },
     {
       "name": "mysql",
