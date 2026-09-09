@@ -1,7 +1,8 @@
-"""教师端路由组（平台计划 M0/M1，require_teacher 门禁）。
+"""教师端路由组（平台计划 M0/M1/M2，require_teacher 门禁）。
 
 M0：班级管理（建班/名单/邀请码）。
 M1：题库完整 CRUD 与筛选、AI 预标注（单/批）、组卷生成/保存/Word 导出。
+M2：作业发布、详情、提交进度与教师批改。
 """
 
 from __future__ import annotations
@@ -79,6 +80,22 @@ def knowledge_nodes(subject: str = "", level: int | None = None,
     return {"total": len(nodes), "nodes": nodes}
 
 
+@router.get("/teacher/question-taxonomy")
+def question_taxonomy(subject: str = "", grade_band: str = "", knowledge: str = "",
+                      difficulty: int | None = None,
+                      _: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """统一题型目录；选择学科时同时返回已发布题目的可用数量。"""
+    from edu_core.application.question_taxonomy import taxonomy_payload
+
+    counts = _stores().questions.question_type_counts(
+        subject=subject, grade_band=grade_band, status="published",
+        knowledge=knowledge, difficulty=difficulty)
+    try:
+        return taxonomy_payload(subject, counts)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.get("/teacher/questions")
 def list_questions(subject: str = "", question_type: str = "", keyword: str = "",
                    grade_band: str = "", difficulty: int | None = None,
@@ -117,6 +134,8 @@ def delete_teacher_question(question_id: int, request: Request,
         from edu_core.storage.stores import sqlalchemy_error_to_message
         if isinstance(exc, ValidationError):
             raise HTTPException(status_code=404, detail=str(exc))
+        if isinstance(exc, ValueError):
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         msg = sqlalchemy_error_to_message(exc)
         raise HTTPException(status_code=500, detail=msg or str(exc))
     _stores().audit.insert(
@@ -157,11 +176,24 @@ def _full_fields(payload: dict, *, require_content: bool = True) -> dict:
     return fields
 
 
+def _validate_question_classification(fields: dict, existing: dict | None = None) -> None:
+    """保证人工细分题型来自统一目录，避免页面与题库再次产生漂移。"""
+    from edu_core.application.question_taxonomy import is_type_allowed
+
+    subject = fields.get("subject", (existing or {}).get("subject", ""))
+    question_type = fields.get("question_type", (existing or {}).get("question_type", ""))
+    if not subject or not question_type:
+        raise HTTPException(status_code=400, detail="subject 与 question_type 必填")
+    if not is_type_allowed(subject, question_type):
+        raise HTTPException(status_code=400, detail=f"{subject} 不支持题型：{question_type}")
+
+
 @router.post("/teacher/questions")
 def create_question(payload: dict,
                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
     """录入完整题目（AI 确认流保存入口）：题干/选项/答案/解析/难度/学段/知识点。"""
     fields = _full_fields(payload)
+    _validate_question_classification(fields)
     stores = _stores()
     question_id = stores.questions.insert(
         fields["content"], fields.get("subject", ""),
@@ -171,7 +203,7 @@ def create_question(payload: dict,
         answer=fields.get("answer"), analysis=fields.get("analysis"),
         difficulty=fields.get("difficulty"), grade_band=fields.get("grade_band"),
         grade=fields.get("grade"), knowledge_node_id=fields.get("knowledge_node_id"),
-        created_by=int(user["id"]), )
+        created_by=int(user["id"]), status=fields.get("status", "published"))
     return {"status": "ok", "id": question_id}
 
 
@@ -180,8 +212,12 @@ def update_question(question_id: int, payload: dict,
                     _: dict[str, Any] = Depends(require_teacher)) -> dict:
     """编辑题目（部分字段即可）。"""
     fields = _full_fields(payload, require_content=False)
-    if not _stores().questions.update(question_id, **fields):
+    stores = _stores()
+    existing = stores.questions.get(question_id)
+    if not existing:
         raise HTTPException(status_code=404, detail="题目不存在")
+    _validate_question_classification(fields, existing)
+    stores.questions.update(question_id, **fields)
     return {"status": "ok"}
 
 
@@ -246,10 +282,22 @@ def generate_paper(payload: dict,
     knowledge = (payload.get("knowledge") or "").strip()
     difficulty = payload.get("difficulty")
     type_counts = payload.get("type_counts") or {}
-    if not type_counts or sum(int(v) for v in type_counts.values()) < 1:
+    try:
+        normalized_counts = {str(key): int(value) for key, value in type_counts.items()}
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="type_counts 必须是题型到数量的映射") from exc
+    if (not normalized_counts or sum(normalized_counts.values()) < 1
+            or any(value < 0 or value > 100 for value in normalized_counts.values())):
         raise HTTPException(status_code=400, detail="type_counts 至少配置一种题型的数量")
+    type_counts = normalized_counts
+    from edu_core.application.question_taxonomy import is_type_allowed
+    invalid_types = [name for name in type_counts if not is_type_allowed(subject, name)]
+    if invalid_types:
+        raise HTTPException(
+            status_code=400, detail=f"{subject} 不支持题型：{', '.join(invalid_types)}")
     stores = _stores()
     picked: list[dict] = []
+    shortages: list[dict] = []
     import random
 
     rng = random.Random()
@@ -262,11 +310,15 @@ def generate_paper(payload: dict,
             grade_band=grade_band, difficulty=difficulty,
             status="published", limit=500)
         if not items:
+            shortages.append({"question_type": qtype, "requested": want, "available": 0})
             continue
-        picked.extend(rng.sample(items, min(want, len(items))))
+        actual = min(want, len(items))
+        picked.extend(rng.sample(items, actual))
+        if actual < want:
+            shortages.append({"question_type": qtype, "requested": want, "available": actual})
     if not picked:
         raise HTTPException(status_code=404, detail="题库中没有匹配的题目，请调整筛选条件")
-    return {"questions": picked, "total": len(picked)}
+    return {"questions": picked, "total": len(picked), "shortages": shortages}
 
 
 @router.post("/teacher/papers")
@@ -296,28 +348,29 @@ def list_papers(limit: int = 50, offset: int = 0,
 
 
 @router.get("/teacher/papers/{paper_id}")
-def get_paper(paper_id: int, _: dict[str, Any] = Depends(require_teacher)) -> dict:
+def get_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) -> dict:
     paper = _stores().papers.get(paper_id)
     if not paper:
         raise HTTPException(status_code=404, detail="试卷不存在")
+    if int(paper["created_by"]) != int(user["id"]):
+        raise HTTPException(status_code=403, detail="只能查看自己创建的试卷")
     return paper
 
 
 @router.delete("/teacher/papers/{paper_id}")
-def delete_paper(paper_id: int, _: dict[str, Any] = Depends(require_teacher)) -> dict:
+def delete_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    get_paper(paper_id, user)
     if not _stores().papers.delete(paper_id):
         raise HTTPException(status_code=404, detail="试卷不存在")
     return {"status": "ok"}
 
 
 @router.get("/teacher/papers/{paper_id}/export")
-def export_paper(paper_id: int, _: dict[str, Any] = Depends(require_teacher)) -> Response:
+def export_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) -> Response:
     """导出 Word 打印版：第一页试卷，第二页参考答案与解析。"""
     from docx import Document
 
-    paper = _stores().papers.get(paper_id)
-    if not paper:
-        raise HTTPException(status_code=404, detail="试卷不存在")
+    paper = get_paper(paper_id, user)
     doc = Document()
     doc.add_heading(paper["title"], level=0)
     doc.add_paragraph(f"学科：{paper['subject']}    学段：{paper['grade_band']}    "
@@ -350,3 +403,67 @@ def export_paper(paper_id: int, _: dict[str, Any] = Depends(require_teacher)) ->
         headers={"Content-Disposition":
                  f"attachment; filename=\"paper_{paper_id}.docx\"; "
                  f"filename*=UTF-8''{quote(filename)}"})
+
+
+# ---------------------------------------------------------------------------
+# 作业发布与批改（M2 / C3）
+# ---------------------------------------------------------------------------
+
+@router.get("/teacher/assignments")
+def list_assignments(limit: int = 50, offset: int = 0,
+                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().list_for_teacher(
+        int(user["id"]), limit=limit, offset=offset)
+
+
+@router.post("/teacher/assignments")
+def create_assignment(payload: dict, request: Request,
+                      user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    result = get_assignment_service().create_assignment(
+        paper_id=payload.get("paper_id"), class_id=payload.get("class_id"),
+        title=payload.get("title", ""), created_by=int(user["id"]),
+        mode=payload.get("mode", "homework"), due_at=payload.get("due_at"),
+        allow_self_check=payload.get("allow_self_check", True),
+    )
+    _stores().audit.insert(
+        action="create_assignment", user_id=user.get("id") or None,
+        username=user.get("username"), resource=f"assignments/{result['id']}",
+        detail={"paper_id": result["paper_id"], "class_id": result["class_id"],
+                "mode": result["mode"]},
+        client_ip=request.client.host if request.client else None)
+    return result
+
+
+@router.get("/teacher/assignments/{assignment_id}")
+def get_assignment(assignment_id: int,
+                   user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().get_for_teacher(assignment_id, int(user["id"]))
+
+
+@router.get("/teacher/assignments/{assignment_id}/submissions")
+def assignment_submissions(assignment_id: int,
+                           user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().list_submissions(assignment_id, int(user["id"]))
+
+
+@router.post("/teacher/submissions/{submission_id}/check")
+def check_submission(submission_id: int, payload: dict, request: Request,
+                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    result = get_assignment_service().check_submission(
+        submission_id, int(user["id"]), payload.get("final_score"))
+    _stores().audit.insert(
+        action="check_submission", user_id=user.get("id") or None,
+        username=user.get("username"), resource=f"submissions/{submission_id}",
+        detail={"final_score": result["final_score"]},
+        client_ip=request.client.host if request.client else None)
+    return result

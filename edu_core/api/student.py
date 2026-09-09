@@ -1,6 +1,6 @@
-"""学生端路由组（平台计划 M0，require_student 门禁）。
+"""学生端路由组（平台计划 M0/M2，require_student 门禁）。
 
-M0 范围：加入班级（邀请码）、我的班级信息；作业/作答在 M2 接入本组。
+M0：加入班级、我的班级；M2：作业列表、作答提交与结果查看。
 """
 
 from __future__ import annotations
@@ -44,3 +44,45 @@ def my_class(user: dict[str, Any] = Depends(require_student)) -> dict:
         "classmates": [{"real_name": c.get("real_name"), "student_no": c.get("student_no")}
                        for c in classmates if c["id"] != user["id"]],
     }
+
+
+@router.get("/student/question-taxonomy")
+def student_question_taxonomy(
+        _: dict[str, Any] = Depends(require_student)) -> dict:
+    """学生作答控件所需的统一题型及 answer_mode。"""
+    from edu_core.application.question_taxonomy import taxonomy_payload
+
+    return taxonomy_payload()
+
+
+@router.get("/student/assignments")
+def list_assignments(user: dict[str, Any] = Depends(require_student)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    items = get_assignment_service().list_for_student(int(user["id"]))
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/student/assignments/{assignment_id}")
+def get_assignment(assignment_id: int,
+                   user: dict[str, Any] = Depends(require_student)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().get_for_student(assignment_id, int(user["id"]))
+
+
+@router.post("/student/assignments/{assignment_id}/submit")
+def submit_assignment(assignment_id: int, payload: dict,
+                      user: dict[str, Any] = Depends(require_student)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().submit(
+        assignment_id, int(user["id"]), payload.get("answers"))
+
+
+@router.get("/student/assignments/{assignment_id}/result")
+def assignment_result(assignment_id: int,
+                      user: dict[str, Any] = Depends(require_student)) -> dict:
+    from edu_core.application.factory import get_assignment_service
+
+    return get_assignment_service().get_result(assignment_id, int(user["id"]))

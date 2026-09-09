@@ -8,6 +8,12 @@ from fastapi.responses import JSONResponse
 
 from edu_core.api.dependencies import RateLimitExceeded
 from edu_core.application.service import ValidationError
+from edu_core.application.assignment_service import (
+    AssignmentConflictError,
+    AssignmentNotFoundError,
+    AssignmentPermissionError,
+    AssignmentValidationError,
+)
 from edu_core.config.logging_config import get_logger
 from edu_core.config.preflight import PreflightError
 from edu_core.inference.predictor import ModelArtifactError
@@ -29,6 +35,22 @@ def register_api_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ValidationError)
     async def _validation_error(_: Request, exc: ValidationError):
         return JSONResponse({"error": str(exc)}, status_code=400)
+
+    @app.exception_handler(AssignmentValidationError)
+    async def _assignment_validation(_: Request, exc: AssignmentValidationError):
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+    @app.exception_handler(AssignmentNotFoundError)
+    async def _assignment_not_found(_: Request, exc: AssignmentNotFoundError):
+        return JSONResponse({"error": str(exc)}, status_code=404)
+
+    @app.exception_handler(AssignmentPermissionError)
+    async def _assignment_permission(_: Request, exc: AssignmentPermissionError):
+        return JSONResponse({"error": str(exc)}, status_code=403)
+
+    @app.exception_handler(AssignmentConflictError)
+    async def _assignment_conflict(_: Request, exc: AssignmentConflictError):
+        return JSONResponse({"error": str(exc)}, status_code=409)
 
     @app.exception_handler(RateLimitExceeded)
     async def _rate_limit(_: Request, exc: RateLimitExceeded):

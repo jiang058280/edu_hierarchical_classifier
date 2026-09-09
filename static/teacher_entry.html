@@ -34,14 +34,25 @@ B．无氧呼吸不产生 ATP"></textarea>
   </div>
 </div>
 
-<script src="/static/teacher_common.js"></script>
+<script src="/static/teacher_common.js?v=20260909-h"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 T.renderShell('entry', 'AI 智能录入');
-const SUBJECTS = ["数学","语文","英语","物理","化学","生物","历史","地理","政治"];
+let taxonomy = null;
 const NUM_START = /^\s*(\d{1,3})\s*[.．、)]\s*/;
 const BRACKET_START = /^\s*[（(]\s*\d{1,3}\s*[)）]\s*/;
 let batchSeq = 0;
+
+function typeOptions(subject, selected) {
+  const names = [...((taxonomy && taxonomy.types_by_subject[subject]) || [])];
+  if (selected && !names.includes(selected)) names.unshift(selected);
+  return names.map(t => `<option ${t === selected ? 'selected' : ''}>${T.escapeHtml(t)}</option>`).join('');
+}
+
+function updateCardTypes(seq) {
+  const subject = $('s_' + seq).value, type = $('ty_' + seq).value;
+  $('ty_' + seq).innerHTML = typeOptions(subject, type);
+}
 
 function splitQuestions(raw) {
   const lines = raw.split(/\r?\n/);
@@ -73,9 +84,9 @@ function cardHtml(item) {
     <textarea class="input" id="t_${item.seq}" rows="4">${T.escapeHtml(item.text)}</textarea>
     <div class="grid2" style="margin-top:10px">
       <div class="field"><label class="lbl">学科</label>
-        <select class="input" id="s_${item.seq}">${SUBJECTS.map(s => `<option ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+        <select class="input" id="s_${item.seq}" onchange="updateCardTypes(${item.seq})">${taxonomy.subjects.map(s => `<option ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
       <div class="field"><label class="lbl">题型</label>
-        <select class="input" id="ty_${item.seq}">${['选择题','填空题','解答题','判断题'].map(t => `<option ${t === item.question_type ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        <select class="input" id="ty_${item.seq}">${typeOptions(item.subject, item.question_type)}</select></div>
       <div class="field"><label class="lbl">知识点</label>
         <input class="input" id="k_${item.seq}" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="学科::知识点"></div>
       <div class="field"><label class="lbl">学段</label>
@@ -94,6 +105,10 @@ function cardHtml(item) {
 }
 
 async function splitAndPredict() {
+  if (!taxonomy) {
+    try { taxonomy = await T.api('/api/v1/teacher/question-taxonomy'); }
+    catch (e) { T.toast(e.message, 'err'); return; }
+  }
   const raw = $('rawInput').value;
   if (!raw.trim()) { T.toast('请先粘贴题目', 'err'); return; }
   const texts = splitQuestions(raw);
@@ -162,7 +177,10 @@ function resetAll() {
   $('splitInfo').textContent = ''; $('emptyCard').style.display = 'none';
 }
 
-if (T.token()) { /* 页面就绪 */ } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fentry'; }
+if (T.token()) {
+  T.api('/api/v1/teacher/question-taxonomy').then(data => { taxonomy = data; })
+    .catch(e => T.toast(e.message, 'err'));
+} else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fentry'; }
 </script>
 </body>
 </html>

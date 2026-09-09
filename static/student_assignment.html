@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线作答 · 学生门户</title><link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<div class="content" style="max-width:920px">
+  <a class="assignment-back" href="/student">← 返回我的学习</a>
+  <div class="page-head"><h2 id="pageTitle">在线作答</h2><p id="pageMeta">正在加载作业…</p></div>
+  <div id="scorePanel" class="stat-grid" style="display:none"></div>
+  <div id="questionList"></div>
+  <div class="card sticky-submit" id="submitPanel" style="display:none">
+    <div class="row"><div style="flex:1"><div class="row" style="justify-content:space-between"><b id="progressText">0 / 0 已作答</b><span class="muted" id="countdown">不限时</span></div><div class="progress-track" style="margin-top:7px"><span id="progressBar" style="width:0"></span></div></div><button class="btn student" id="submitBtn" onclick="submitAnswers()">提交作业</button></div>
+  </div>
+</div>
+<script src="/static/student_common.js?v=20260909-h"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T2.renderShell('assignments', '在线作答');
+const assignmentId = Number(location.pathname.split('/').filter(Boolean).at(-1));
+const resultMode = new URLSearchParams(location.search).get('result') === '1';
+let assignment = null, typeMeta = {}, countdownTimer = null;
+let submitting = false, done = false, expired = false, serverOffset = 0;
+
+function formatTime(value) { return value ? String(value).replace('T', ' ') : '不限'; }
+function optionText(option) { return typeof option === 'object' ? `${option.key}. ${option.text}` : String(option); }
+function cleanQuestionText(value) {
+  return typeof T2.cleanText === 'function' ? T2.cleanText(value) : String(value ?? '').replace(/\r\n?/g, '\n').replace(/[ \t]*\n[ \t]*/g, ' ').replace(/[ \t]{2,}/g, ' ').trim();
+}
+
+function answerControl(question) {
+  const meta = typeMeta[question.question_type] || {}, mode = meta.answer_mode || 'text';
+  const options = question.options || [];
+  if ((mode === 'choice_single' || mode === 'choice_multiple') && options.length) {
+    const inputType = mode === 'choice_multiple' ? 'checkbox' : 'radio';
+    return options.map(option => {
+      const key = typeof option === 'object' ? option.key : option;
+      return `<label class="answer-option"><input type="${inputType}" name="q-${question.id}" value="${T2.escapeHtml(key)}" onchange="updateProgress()"><span>${T2.escapeHtml(optionText(option))}</span></label>`;
+    }).join('');
+  }
+  if (mode === 'judgment') {
+    return ['正确', '错误'].map(value => `<label class="answer-option"><input type="radio" name="q-${question.id}" value="${value}" onchange="updateProgress()"><span>${value}</span></label>`).join('');
+  }
+  if (mode === 'choice_single' || mode === 'choice_multiple') {
+    return `<label class="field"><span class="muted">${mode === 'choice_multiple' ? '填写所有选项字母，如 A,C' : '填写选项字母，如 A'}</span><input class="input text-answer" data-question="${question.id}" maxlength="512" aria-label="选择题答案" placeholder="请根据题干填写选项字母" oninput="updateProgress()"></label>`;
+  }
+  const selfCheck = assignment.allow_self_check && !meta.objective ? `<div class="field" style="margin-top:9px"><label>自我评价（不会替代教师最终评分）</label><select class="input self-check" data-question="${question.id}"><option value="">暂不评价</option><option value="true">我已掌握</option><option value="false">需要巩固</option></select></div>` : '';
+  return `<textarea class="input text-answer" data-question="${question.id}" rows="4" maxlength="512" placeholder="请输入作答过程或答案" oninput="updateProgress()"></textarea>${selfCheck}`;
+}
+
+function renderAssignment(detail) {
+  assignment = detail;
+  const serverTime = Date.parse(detail.server_time);
+  serverOffset = Number.isFinite(serverTime) ? serverTime - Date.now() : 0;
+  if ((detail.submission || {}).status === 'submitted' || (detail.submission || {}).status === 'checked') {
+    location.replace(`/student/assignments/${assignmentId}?result=1`); return;
+  }
+  $('pageTitle').textContent = detail.title;
+  $('pageMeta').textContent = `${detail.subject} · ${detail.mode === 'exam' ? '考试' : '课后作业'} · ${detail.class_name} · 截止 ${formatTime(detail.due_at)}`;
+  $('questionList').innerHTML = (detail.questions || []).map((question, index) => `
+    <div class="card answer-card" data-question-card="${question.id}"><div class="card-head"><h3>第 ${index + 1} 题 · ${T2.escapeHtml(question.question_type)}</h3>${Number(question.score) > 0 ? `<span class="badge b-gray">${T2.escapeHtml(question.score)} 分</span>` : ''}</div>
+    <div class="answer-text" style="font-size:14px">${T2.escapeHtml(cleanQuestionText(question.content))}</div><div style="margin-top:10px">${answerControl(question)}</div></div>`).join('');
+  $('submitPanel').style.display = '';
+  updateProgress(); updateCountdown();
+  if (!expired && detail.due_at) countdownTimer = setInterval(updateCountdown, 1000);
+}
+
+function collectAnswer(question) {
+  const input = document.querySelector(`.text-answer[data-question="${question.id}"]`);
+  if (input) return input.value.trim();
+  const mode = (typeMeta[question.question_type] || {}).answer_mode || 'text';
+  if (mode === 'choice_multiple') {
+    return [...document.querySelectorAll(`input[name="q-${question.id}"]:checked`)].map(el => el.value).sort().join(',');
+  }
+  if (mode === 'choice_single' || mode === 'judgment') {
+    const checked = document.querySelector(`input[name="q-${question.id}"]:checked`);
+    return checked ? checked.value : '';
+  }
+  return '';
+}
+
+function updateProgress() {
+  if (!assignment) return;
+  const questions = assignment.questions || [];
+  const answered = questions.filter(question => collectAnswer(question) !== '').length;
+  $('progressText').textContent = `${answered} / ${questions.length} 已作答`;
+  $('progressBar').style.width = `${questions.length ? answered / questions.length * 100 : 0}%`;
+}
+
+function syncFormState() {
+  const disabled = submitting || done || expired;
+  document.querySelectorAll('#questionList input, #questionList textarea, #questionList select').forEach(input => { input.disabled = disabled; });
+  $('submitBtn').disabled = disabled;
+  $('submitBtn').textContent = submitting ? '提交中…' : done ? '已提交' : expired ? '作业已截止' : '提交作业';
+}
+
+function updateCountdown() {
+  if (expired) {
+    $('countdown').textContent = '已截止'; $('countdown').style.color = 'var(--bad)';
+    syncFormState(); clearInterval(countdownTimer); return;
+  }
+  if (!assignment || !assignment.due_at) { $('countdown').textContent = '不限时'; return; }
+  let due = String(assignment.due_at).replace(' ', 'T');
+  const zone = String(assignment.server_time || '').match(/(Z|[+-]\d{2}:\d{2})$/);
+  if (zone && !/(Z|[+-]\d{2}:\d{2})$/.test(due)) due += zone[1];
+  const left = Date.parse(due) - (Date.now() + serverOffset);
+  if (!Number.isFinite(left)) { $('countdown').textContent = '截止时间暂不可用'; return; }
+  if (left <= 0) {
+    expired = true;
+    $('countdown').textContent = '已截止'; $('countdown').style.color = 'var(--bad)';
+    syncFormState(); clearInterval(countdownTimer); return;
+  }
+  const seconds = Math.floor(left / 1000), days = Math.floor(seconds / 86400);
+  const hours = Math.floor(seconds % 86400 / 3600), minutes = Math.floor(seconds % 3600 / 60);
+  $('countdown').textContent = seconds < 60 ? `剩余 ${seconds} 秒` : `剩余 ${days ? days + '天 ' : ''}${hours}小时${minutes}分`;
+}
+
+async function submitAnswers() {
+  if (!assignment || submitting || done) return;
+  updateCountdown();
+  if (expired) return;
+  const questions = assignment.questions || [];
+  const answers = questions.map(question => {
+    const item = {question_id: question.id, answer: collectAnswer(question)};
+    const self = document.querySelector(`.self-check[data-question="${question.id}"]`);
+    if (self && self.value) item.self_check = self.value === 'true';
+    return item;
+  });
+  const missing = answers.filter(item => !item.answer).length;
+  if (!confirm(missing ? `还有 ${missing} 题未作答，仍要提交吗？提交后不能修改。` : '确认提交吗？提交后不能修改。')) return;
+  updateCountdown();
+  if (expired) { T2.toast('作业已截止，不能提交', 'err'); return; }
+  submitting = true; syncFormState();
+  try {
+    const result = await T2.api(`/api/v1/student/assignments/${assignmentId}/submit`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({answers})});
+    done = true; clearInterval(countdownTimer);
+    T2.toast(result.auto_score == null ? '提交成功，等待教师批改' : `提交成功，自动得分 ${result.auto_score}`, 'ok');
+    location.replace(`/student/assignments/${assignmentId}?result=1`);
+  } catch (e) {
+    if (e.status === 409 && /已经提交|重复提交/.test(e.message)) {
+      done = true; location.replace(`/student/assignments/${assignmentId}?result=1`);
+    }
+    if (e.status === 409 && e.message.includes('已截止')) expired = true;
+    T2.toast(e.message, 'err');
+  } finally { submitting = false; updateCountdown(); syncFormState(); }
+}
+
+function correctness(item) {
+  if (item.self_assessed) return item.is_correct === true ? '<span class="badge b-info">自评掌握</span>' : '<span class="badge b-warn">自评需巩固</span>';
+  if (item.is_correct === true) return '<span class="badge b-ok">正确</span>';
+  if (item.is_correct === false) return '<span class="badge b-bad">错误</span>';
+  return '<span class="badge b-warn">待教师评阅</span>';
+}
+function renderResult(data) {
+  const submission = data.submission || {}, items = data.results || [];
+  $('pageTitle').textContent = data.assignment.title + ' · 作答结果';
+  $('pageMeta').textContent = `${data.assignment.subject} · 提交时间 ${formatTime(submission.submitted_at)}`;
+  $('scorePanel').style.display = '';
+  $('scorePanel').innerHTML = `<div class="stat"><div class="k">自动得分</div><div class="v">${submission.auto_score == null ? '待评' : submission.auto_score}<small>${submission.auto_score == null ? '' : ' 分'}</small></div></div>
+    <div class="stat"><div class="k">最终分数</div><div class="v">${submission.final_score == null ? '待评' : submission.final_score}<small>${submission.final_score == null ? '' : ' 分'}</small></div></div>
+    <div class="stat"><div class="k">客观题正确</div><div class="v">${items.filter(x => (typeMeta[x.question_type] || {}).objective && !x.self_assessed && x.is_correct === true).length}<small> 题</small></div></div>
+    <div class="stat"><div class="k">需要巩固</div><div class="v">${items.filter(x => x.is_correct === false).length}<small> 题</small></div></div>`;
+  $('questionList').innerHTML = items.map((item, index) => `<div class="card answer-card"><div class="card-head"><h3>第 ${index + 1} 题 · ${T2.escapeHtml(item.question_type)}</h3>${correctness(item)}</div>
+    <div class="answer-text">${T2.escapeHtml(cleanQuestionText(item.content))}</div>
+    ${(item.options || []).map(option => `<div class="answer-text result-option">${T2.escapeHtml(optionText(option))}</div>`).join('')}
+    <div class="answer-text" style="margin-top:10px"><b>你的答案：</b>${T2.escapeHtml(item.student_answer || '未作答')}</div>
+    <div class="answer-text" style="margin-top:5px"><b>参考答案：</b>${T2.escapeHtml(item.answer || '暂无')}</div>
+    <div class="muted answer-text" style="margin-top:5px"><b>解析：</b>${T2.escapeHtml(item.analysis || '暂无解析')}</div></div>`).join('');
+}
+
+async function init() {
+  if (!Number.isInteger(assignmentId) || assignmentId < 1) { T2.toast('无效的作业编号', 'err'); return; }
+  try {
+    const taxonomy = await T2.api('/api/v1/student/question-taxonomy');
+    typeMeta = Object.fromEntries(taxonomy.types.map(item => [item.name, item]));
+    if (resultMode) renderResult(await T2.api(`/api/v1/student/assignments/${assignmentId}/result`));
+    else renderAssignment(await T2.api(`/api/v1/student/assignments/${assignmentId}`));
+  } catch (e) { $('questionList').innerHTML = `<div class="card"><div class="empty">${T2.escapeHtml(e.message)}<div class="hint"><a href="/student">返回我的学习</a></div></div></div>`; }
+}
+if (T2.token()) init(); else location.href = '/login?portal=student&next=' + encodeURIComponent(location.pathname + location.search);
+</script>
+</body>
+</html>

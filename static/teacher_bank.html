@@ -13,8 +13,8 @@
 
   <div class="card">
     <div class="filter-row">
-      <select class="input" id="fSubject"><option value="">全部学科</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>地理</option><option>政治</option></select>
-      <select class="input" id="fType"><option value="">全部题型</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select>
+      <select class="input" id="fSubject"><option value="">全部学科</option></select>
+      <select class="input" id="fType"><option value="">全部题型</option></select>
       <select class="input" id="fBand"><option value="">全部学段</option><option>初中</option><option>高中</option></select>
       <select class="input" id="fStatus"><option value="">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option><option value="pending">待审核</option></select>
       <input class="input" type="text" id="fKw" placeholder="关键词" style="width:170px">
@@ -52,9 +52,9 @@
     </div>
     <div class="grid2">
       <div class="field"><label class="lbl">学科</label>
-        <select class="input" id="eSubject"><option value="">— 请选择 —</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>地理</option><option>政治</option></select></div>
+        <select class="input" id="eSubject"><option value="">— 请选择 —</option></select></div>
       <div class="field"><label class="lbl">题型</label>
-        <select class="input" id="eType"><option value="">— 请选择 —</option><option>选择题</option><option>填空题</option><option>解答题</option><option>判断题</option></select></div>
+        <select class="input" id="eType"><option value="">— 请选择 —</option></select></div>
       <div class="field"><label class="lbl">学段</label>
         <select class="input" id="eBand"><option value="">—</option><option>初中</option><option>高中</option></select></div>
       <div class="field"><label class="lbl">年级</label>
@@ -77,14 +77,35 @@
   </div>
 </div>
 
-<script src="/static/teacher_common.js"></script>
+<script src="/static/teacher_common.js?v=20260909-h"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 T.renderShell('bank', '题库管理');
 let offset = 0, editingId = null;
-['fSubject','fType','fBand','fStatus'].forEach(id =>
+let taxonomy = null;
+['fType','fBand','fStatus'].forEach(id =>
   $(id).addEventListener('change', () => loadList(0)));
+$('fSubject').addEventListener('change', () => { updateTypeSelect('fType', $('fSubject').value, '', true); loadList(0); });
+$('eSubject').addEventListener('change', () => updateTypeSelect('eType', $('eSubject').value));
 $('fKw').addEventListener('keydown', e => { if (e.key === 'Enter') loadList(0); });
+
+function typeNames(subject) {
+  if (!taxonomy) return [];
+  return subject ? (taxonomy.types_by_subject[subject] || []) : taxonomy.types.map(t => t.name);
+}
+function updateTypeSelect(id, subject, selected = '', allOption = false) {
+  const names = [...typeNames(subject)];
+  if (selected && !names.includes(selected)) names.unshift(selected);
+  $(id).innerHTML = `<option value="">${allOption ? '全部题型' : '— 请选择 —'}</option>` +
+    names.map(name => `<option ${name === selected ? 'selected' : ''}>${T.escapeHtml(name)}</option>`).join('');
+}
+async function initTaxonomy() {
+  taxonomy = await T.api('/api/v1/teacher/question-taxonomy');
+  const options = taxonomy.subjects.map(s => `<option>${T.escapeHtml(s)}</option>`).join('');
+  $('fSubject').innerHTML = '<option value="">全部学科</option>' + options;
+  $('eSubject').innerHTML = '<option value="">— 请选择 —</option>' + options;
+  updateTypeSelect('fType', '', '', true);
+}
 
 function updatePager() {
   $('totalInfo').textContent = `共 ${total} 题 · 第 ${offset / 50 + 1} 页`;
@@ -108,7 +129,7 @@ async function loadList(newOffset) {
     $('rows').innerHTML = data.items.length ? data.items.map(q => `
       <tr>
         <td class="num">${q.id}</td>
-        <td title="${T.escapeHtml(q.content)}">${T.escapeHtml((q.content || '').slice(0, 64))}${(q.content || '').length > 64 ? '…' : ''}</td>
+        <td title="${T.escapeHtml(T.cleanText(q.content))}">${T.escapeHtml(T.cleanText(q.content).slice(0, 64))}${T.cleanText(q.content).length > 64 ? '…' : ''}</td>
         <td>${T.escapeHtml(q.subject)}</td><td>${T.escapeHtml(q.question_type)}</td>
         <td>${T.escapeHtml((q.knowledge_point || '—').slice(0, 22))}</td>
         <td>${T.escapeHtml(q.grade_band || '—')}</td>
@@ -137,15 +158,15 @@ function openEdit(id) {
   $('editErr').textContent = '';
   $('modalTitle').textContent = id ? '编辑题目 #' + id : '新增题目';
   ['eText','eOptA','eOptB','eOptC','eOptD','eAnswer','eAnalysis','eGrade','eKp'].forEach(i => $(i).value = '');
-  $('eSubject').value = ''; $('eType').value = ''; $('eBand').value = '';
+  $('eSubject').value = ''; updateTypeSelect('eType', ''); $('eBand').value = '';
   $('eDiff').value = ''; $('eStatus').value = 'published';
   if (id) {
     T.api('/api/v1/teacher/questions/' + id).then(q => {
-      $('eText').value = q.content || '';
+      $('eText').value = T.cleanText(q.content);
       (q.options || []).forEach(o => { const el = $('eOpt' + o.key); if (el) el.value = o.text || ''; });
       $('eAnswer').value = q.answer || ''; $('eAnalysis').value = q.analysis || '';
       $('eDiff').value = q.difficulty ?? ''; $('eSubject').value = q.subject || '';
-      $('eType').value = q.question_type || ''; $('eBand').value = q.grade_band || '';
+      updateTypeSelect('eType', q.subject || '', q.question_type || ''); $('eBand').value = q.grade_band || '';
       $('eGrade').value = q.grade || ''; $('eKp').value = q.knowledge_point || '';
       $('eStatus').value = q.status || 'published';
     }).catch(e => T.toast(e.message, 'err'));
@@ -178,7 +199,8 @@ async function saveEdit() {
   } catch (e) { $('editErr').textContent = e.message; }
 }
 
-if (T.token()) { loadList(0); } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fbank'; }
+if (T.token()) { initTaxonomy().then(() => loadList(0)).catch(e => T.toast(e.message, 'err')); }
+else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fbank'; }
 </script>
 </body>
 </html>

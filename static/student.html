@@ -1,135 +1,114 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>学生门户 · 智慧教研平台</title>
-<link rel="stylesheet" href="/static/edu.css">
-<style>
-  body { background: var(--bg); }
-  .sidebar { background: linear-gradient(180deg, #123F3B 0%, #0D9488 130%); border-right: none; }
-  .sidebar .logo .name { color: #fff; }
-  .sidebar .logo .name small { color: rgba(255,255,255,.6); }
-  .sidebar .nav a { color: rgba(255,255,255,.82); }
-  .sidebar .nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
-  .sidebar .nav a.active { background: rgba(255,255,255,.16); color: #fff; }
-  .sidebar .foot { color: rgba(255,255,255,.65); border-top-color: rgba(255,255,255,.15); }
-  .card { border-top: 3px solid #0D9488; }
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习概览 · 知学课堂</title><link rel="stylesheet" href="/static/edu.css">
 </head>
 <body>
 <div id="shell"></div>
-<div class="content" style="max-width:720px">
-  <div class="page-head"><h2>我的学习</h2><p>加入班级后即可查看并完成老师布置的作业</p></div>
+<main class="content student-dashboard">
+  <section class="dashboard-intro">
+    <div><div class="eyebrow">学习概览</div><h2><span id="greeting">你好</span>，<span data-student-name>同学</span></h2><p>安排好今天的任务，保持自己的学习节奏。</p></div>
+    <div class="dashboard-date" id="todayText"></div>
+  </section>
 
-  <div class="card">
-    <h3>加入班级</h3>
-    <div class="row">
-      <input class="input" type="text" id="inviteCode" placeholder="输入老师给的 6 位邀请码" maxlength="6" style="flex:1">
-      <button class="btn" onclick="joinClass()" style="background:#0D9488">加 入</button>
+  <section class="summary-grid" aria-label="作业统计">
+    <div class="summary-tile"><div class="summary-label">全部作业</div><div class="summary-value" id="summaryAll">—<small>项</small></div></div>
+    <div class="summary-tile"><div class="summary-label">待完成</div><div class="summary-value" id="summaryPending">—<small>项</small></div></div>
+    <div class="summary-tile"><div class="summary-label">已提交</div><div class="summary-value" id="summarySubmitted">—<small>项</small></div></div>
+    <div class="summary-tile"><div class="summary-label">已批改</div><div class="summary-value" id="summaryChecked">—<small>项</small></div></div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="card dashboard-panel" id="assignments">
+      <div class="dashboard-panel-head"><div><h3>我的作业</h3><div class="muted" style="font-size:12px">按截止时间安排作答</div></div><button class="btn plain sm" onclick="loadAssignments()" aria-label="刷新作业">刷新</button></div>
+      <div class="assignment-tabs" id="assignmentTabs">
+        <button class="active" data-filter="all">全部<span class="tab-count" id="count-all">0</span></button>
+        <button data-filter="pending">待完成<span class="tab-count" id="count-pending">0</span></button>
+        <button data-filter="submitted">已提交<span class="tab-count" id="count-submitted">0</span></button>
+        <button data-filter="checked">已批改<span class="tab-count" id="count-checked">0</span></button>
+      </div>
+      <div class="assignment-list" id="assignmentList"><div class="dashboard-empty"><span>正在读取作业…</span></div></div>
     </div>
-    <div class="err" id="joinErr"></div>
-  </div>
 
-  <div class="card" id="classCard" style="display:none">
-    <h3>我的班级</h3>
-    <div id="classInfo"></div>
-  </div>
-
-  <div class="card">
-    <h3>我的作业</h3>
-    <div style="background:#FFFBEB;border:1px dashed #F0C36D;color:#92400E;border-radius:8px;padding:12px 14px;font-size:13px">
-      在线作答将在平台 M2 上线；届时作业会出现在这里，作答后自动判分并沉淀错题本。
-    </div>
-  </div>
-</div>
-
+    <aside class="side-stack">
+      <div class="card side-panel"><h3>所在班级</h3><div id="classInfo" class="class-profile"><div class="class-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7"/></svg></div><div><div class="class-name">正在加载</div><div class="class-meta">请稍候</div></div></div></div>
+      <div class="card side-panel"><h3>加入新班级</h3><div class="join-row"><input class="input" id="inviteCode" maxlength="6" placeholder="六位邀请码" aria-label="班级邀请码"><button class="btn student" id="joinBtn" onclick="joinClass()">加入</button></div><div class="err" id="joinErr" style="margin-top:7px"></div></div>
+      <div class="quiet-note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg><span>建议优先完成临近截止的任务。提交后可以查看客观题结果，主观题等待老师评阅。</span></div>
+    </aside>
+  </section>
+</main>
+<script src="/static/student_common.js?v=20260909-h"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const TOKEN_KEY = 'edu_token_student';
-const T2 = {
-  token() { return localStorage.getItem(TOKEN_KEY) || ''; },
-  setToken(t) { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); },
-  async api(path, options) {
-    const headers = Object.assign({}, (options && options.headers) || {});
-    if (this.token()) headers['Authorization'] = 'Bearer ' + this.token();
-    const resp = await fetch(path, Object.assign({}, options, { headers }));
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) {
-      if (resp.status === 401) {
-        this.setToken('');
-        location.href = '/login?portal=student';
-        throw new Error('登录已过期');
-      }
-      throw new Error(data.error || data.detail || (resp.status + ' ' + resp.statusText));
-    }
-    return data;
-  },
-  escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g,
-      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  },
-};
+T2.renderShell('home', '学习概览');
+let assignments = [], activeFilter = 'all';
+let assignmentLoadError = '', loadingAssignments = false, joining = false;
 
-document.getElementById('shell').innerHTML = `
-  <div class="sidebar">
-    <div class="logo">
-      <div class="mark" style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28)">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
-      </div>
-      <div class="name">学生门户<small>STUDENT</small></div>
-    </div>
-    <div class="nav">
-      <a class="active" href="/student">我的学习</a>
-    </div>
-    <div class="foot">智慧教研平台</div>
-  </div>
-  <div class="main">
-    <div class="topbar">
-      <div class="crumb">学生门户 / <b>我的学习</b></div>
-      <div class="right"><span id="shellUser"></span></div>
-    </div>
-  </div>`;
-
-async function loadIdentity() {
-  try {
-    const me = await T2.api('/api/v1/auth/me');
-    $('shellUser').innerHTML =
-      `<div class="avatar" style="background:#D9F2EE;color:#0D9488">${T2.escapeHtml((me.real_name || me.username).slice(0, 1))}</div>
-       <span>${T2.escapeHtml(me.real_name || me.username)}</span>
-       <a href="/login?portal=student" onclick="T2.setToken('')" style="font-size:12px;color:var(--muted)">退出</a>`;
-    return true;
-  } catch (e) { return false; }
-}
-function logout() { T2.setToken(''); location.href = '/login?portal=student'; }
+const now = new Date(), hour = now.getHours();
+$('greeting').textContent = hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
+$('todayText').textContent = new Intl.DateTimeFormat('zh-CN', {year:'numeric', month:'long', day:'numeric', weekday:'long'}).format(now);
+function formatTime(value) { return value ? T2.escapeHtml(String(value).replace('T', ' ')) : '不限'; }
+function isOverdue(item) { return Boolean(item.due_at && new Date(String(item.due_at).replace(' ', 'T')).getTime() < Date.now()); }
 
 async function joinClass() {
+  if (joining) return;
   $('joinErr').textContent = '';
+  joining = true; $('joinBtn').disabled = true;
   try {
-    const r = await T2.api('/api/v1/student/join-class', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ invite_code: $('inviteCode').value.trim() })
-    });
-    $('inviteCode').value = '';
-    showClass(r.class);
+    const result = await T2.api('/api/v1/student/join-class', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({invite_code:$('inviteCode').value.trim()})});
+    $('inviteCode').value = ''; showClass(result.class); T2.toast('已加入班级', 'ok'); loadAssignments();
   } catch (e) { $('joinErr').textContent = e.message; }
+  finally { joining = false; $('joinBtn').disabled = false; }
 }
-function showClass(c) {
-  if (!c) { $('classCard').style.display = 'none'; return; }
-  $('classCard').style.display = '';
-  $('classInfo').innerHTML = `
-    <div class="kv"><span>班级</span><b>${T2.escapeHtml(c.name)}</b></div>
-    <div class="kv"><span>学段 / 年级</span><b>${T2.escapeHtml(c.grade_band)} · ${T2.escapeHtml(c.grade)}</b></div>`;
+function showClass(item) {
+  $('classInfo').innerHTML = item ? `<div class="class-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7"/></svg></div><div><div class="class-name">${T2.escapeHtml(item.name)}</div><div class="class-meta">${T2.escapeHtml(item.grade_band)} · ${T2.escapeHtml(item.grade)}</div></div>` : '<div><div class="class-name">尚未加入班级</div><div class="class-meta">使用老师提供的邀请码加入</div></div>';
 }
 async function loadMyClass() {
-  try {
-    const data = await T2.api('/api/v1/student/my-class');
-    showClass(data.class);
-  } catch (e) { /* 401 已跳登录 */ }
+  $('classInfo').innerHTML = '<div class="class-meta">正在读取班级…</div>';
+  try { const data = await T2.api('/api/v1/student/my-class'); showClass(data.class); }
+  catch (e) { $('classInfo').innerHTML = `<div role="alert"><div class="class-name">班级信息加载失败</div><div class="class-meta">${T2.escapeHtml(e.message)}</div><button class="btn plain sm" style="margin-top:8px" onclick="loadMyClass()">重新加载</button></div>`; }
 }
-
-if (T2.token()) { loadIdentity().then(() => loadMyClass()); }
-else { location.href = '/login?portal=student'; }
+function emptyState(message) {
+  return `<div class="dashboard-empty"><svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 10.5h20a5 5 0 015 5V37H15a5 5 0 01-5-5V10.5z"/><path d="M35 37V16a5.5 5.5 0 015.5-5.5H42V32a5 5 0 01-5 5h-2zM16 18h12M16 24h9"/></svg><b>${T2.escapeHtml(message)}</b><span>老师发布任务后会显示在这里</span></div>`;
+}
+function renderAssignments() {
+  if (loadingAssignments) {
+    $('assignmentList').innerHTML = '<div class="dashboard-empty" role="status"><span>正在读取作业…</span></div>'; return;
+  }
+  if (assignmentLoadError) {
+    $('assignmentList').innerHTML = `<div class="dashboard-empty" role="alert"><b>作业加载失败</b><span>${T2.escapeHtml(assignmentLoadError)}</span><button class="btn ghost sm" style="margin-top:12px" onclick="loadAssignments()">重新加载</button></div>`; return;
+  }
+  const visible = assignments.filter(item => activeFilter === 'all' || (activeFilter === 'pending' ? ['not_started','in_progress'].includes(item.status) : item.status === activeFilter));
+  $('assignmentList').innerHTML = visible.length ? visible.map(item => {
+    const submitted = ['submitted','checked'].includes(item.status), overdue = isOverdue(item);
+    const label = submitted ? '查看结果' : overdue ? '已截止' : '开始作答';
+    return `<article class="assignment-item"><div class="assignment-subject-mark">${T2.escapeHtml((item.subject || '课').slice(0,1))}</div><div style="flex:1;min-width:0"><div class="row"><span class="assignment-title">${T2.escapeHtml(item.title)}</span>${T2.statusBadge(item.status)}${overdue && !submitted ? '<span class="badge b-bad">已截止</span>' : ''}</div><div class="assignment-meta">${T2.escapeHtml(item.subject || '未指定学科')} · ${item.mode === 'exam' ? '考试' : '课后作业'} · 截止 ${formatTime(item.due_at)}</div>${submitted ? `<div class="assignment-meta">自动得分 ${item.auto_score == null ? '待评' : item.auto_score}${item.final_score == null ? '' : ` · 最终分 ${item.final_score}`}</div>` : ''}</div><div class="item-action"><a class="btn ${submitted ? 'ghost' : 'student'} sm" ${overdue && !submitted ? 'style="pointer-events:none;opacity:.48" aria-disabled="true"' : ''} href="/student/assignments/${item.id}${submitted ? '?result=1' : ''}">${label}</a></div></article>`;
+  }).join('') : emptyState('当前没有需要处理的作业');
+}
+function setCount(id, value) { $(id).innerHTML = `${value}<small>项</small>`; }
+async function loadAssignments() {
+  if (loadingAssignments) return;
+  loadingAssignments = true; assignmentLoadError = ''; renderAssignments();
+  try {
+    const data = await T2.api('/api/v1/student/assignments'); assignments = data.items || [];
+    const pending = assignments.filter(x => ['not_started','in_progress'].includes(x.status)).length;
+    const submitted = assignments.filter(x => x.status === 'submitted').length;
+    const checked = assignments.filter(x => x.status === 'checked').length;
+    setCount('summaryAll', assignments.length); setCount('summaryPending', pending); setCount('summarySubmitted', submitted); setCount('summaryChecked', checked);
+    $('count-all').textContent = assignments.length; $('count-pending').textContent = pending; $('count-submitted').textContent = submitted; $('count-checked').textContent = checked;
+  } catch (e) {
+    assignmentLoadError = e.message;
+    ['summaryAll', 'summaryPending', 'summarySubmitted', 'summaryChecked'].forEach(id => setCount(id, '—'));
+    ['count-all', 'count-pending', 'count-submitted', 'count-checked'].forEach(id => { $(id).textContent = '—'; });
+  } finally { loadingAssignments = false; renderAssignments(); }
+}
+$('assignmentTabs').addEventListener('click', event => {
+  const button = event.target.closest('button[data-filter]'); if (!button) return;
+  activeFilter = button.dataset.filter; $('assignmentTabs').querySelectorAll('button').forEach(el => el.classList.toggle('active', el === button)); renderAssignments();
+});
+if (T2.token()) { loadMyClass(); loadAssignments(); }
+else { location.href = '/login?portal=student&next=%2Fstudent'; }
 </script>
 </body>
 </html>

@@ -61,6 +61,12 @@ def teacher_papers() -> FileResponse:
     return _page("teacher_papers.html")
 
 
+@router.get("/teacher/assignments")
+def teacher_assignments() -> FileResponse:
+    """作业发布、进度与批改。"""
+    return _page("teacher_assignments.html")
+
+
 @router.get("/login")
 def login_page() -> FileResponse:
     """独立登录页（portal=teacher/student）。"""
@@ -71,6 +77,12 @@ def login_page() -> FileResponse:
 def student_portal() -> FileResponse:
     """学生门户。"""
     return _page("student.html")
+
+
+@router.get("/student/assignments/{assignment_id}")
+def student_assignment(assignment_id: int) -> FileResponse:
+    """学生作答及提交后结果页（assignment_id 由页面脚本读取）。"""
+    return _page("student_assignment.html")
 
 
 @router.get("/admin")

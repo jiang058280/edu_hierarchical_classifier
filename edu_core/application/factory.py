@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from edu_core.application.assignment_service import AssignmentService
 from edu_core.application.service import ClassificationService
 from edu_core.config.logging_config import get_logger
 from edu_core.config.settings import get_settings
@@ -45,3 +46,10 @@ def reload_classification_service() -> ClassificationService:
     logger.info("热重载分类服务（active 指针变更）")
     get_classification_service.cache_clear()
     return get_classification_service()
+
+
+@lru_cache(maxsize=1)
+def get_assignment_service() -> AssignmentService:
+    """返回作业链路的进程级服务实例。"""
+    settings = get_settings()
+    return AssignmentService(stores=StoreBundle(settings=settings))

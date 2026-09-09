@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作业与批改 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<div class="content">
+  <div class="page-head"><h2>作业与批改</h2><p>将已有试卷发布给班级，并跟踪学生提交和批改进度</p></div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h3>发布新作业</h3><span class="muted">先在“组卷与试卷”中保存试卷</span></div>
+    <div class="grid2">
+      <div class="field"><label>作业标题</label><input class="input" id="aTitle" maxlength="128" placeholder="如：函数单元巩固练习"></div>
+      <div class="field"><label>选择试卷</label><select class="input" id="aPaper"><option value="">加载中…</option></select></div>
+      <div class="field"><label>发布班级</label><select class="input" id="aClass"><option value="">加载中…</option></select></div>
+      <div class="field"><label>截止时间（可不填）</label><input class="input" type="datetime-local" id="aDue"></div>
+      <div class="field"><label>作业模式</label><select class="input" id="aMode"><option value="homework">课后作业</option><option value="exam">考试</option></select></div>
+      <div class="field"><label>主观题处理</label><label class="row" style="height:38px;cursor:pointer"><input type="checkbox" id="aSelf" checked> 允许学生提交时自评</label></div>
+    </div>
+    <div class="row"><button class="btn" id="publishBtn" onclick="publishAssignment()">发布作业</button><span class="muted" id="publishHint"></span></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h3>我发布的作业</h3><button class="btn plain sm" onclick="loadAssignments()">刷新</button></div>
+    <div style="overflow:auto">
+      <table class="table">
+        <thead><tr><th>ID</th><th>作业</th><th>班级 / 学科</th><th>模式</th><th>截止时间</th><th>完成</th><th>操作</th></tr></thead>
+        <tbody id="assignmentRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="detailCard" style="display:none">
+    <div class="card-head"><h3 id="detailTitle">作业详情</h3><button class="btn plain sm" onclick="closeDetail()">收起</button></div>
+    <div class="stat-grid" id="detailStats"></div>
+    <h3>班级提交情况</h3>
+    <div style="overflow:auto">
+      <table class="table assignment-submission-table">
+        <thead><tr id="submissionHead"><th>学生</th><th>状态</th><th>作答数</th><th>客观题得分</th><th>最终分数</th><th>提交时间</th><th>操作</th></tr></thead>
+        <tbody id="submissionRows"></tbody>
+      </table>
+    </div>
+    <details style="margin-top:16px"><summary style="cursor:pointer;font-weight:600">查看试题清单</summary><div id="questionList" style="margin-top:8px"></div></details>
+  </div>
+</div>
+
+<script src="/static/teacher_common.js?v=20260909-h"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T.renderShell('assignments', '作业与批改');
+let activeAssignmentId = null;
+let typeMetaPromise = null, publishing = false;
+const savingSubmissions = new Set();
+
+function loadTypeMeta() {
+  if (!typeMetaPromise) typeMetaPromise = T.api('/api/v1/teacher/question-taxonomy')
+    .then(data => Object.fromEntries((data.types || []).map(item => [item.name, item])))
+    .catch(error => { typeMetaPromise = null; throw error; });
+  return typeMetaPromise;
+}
+
+function statusBadge(status) {
+  return {
+    not_started: '<span class="badge b-gray">未开始</span>',
+    in_progress: '<span class="badge b-warn">进行中</span>',
+    submitted: '<span class="badge b-info">待批改</span>',
+    checked: '<span class="badge b-ok">已批改</span>'
+  }[status] || `<span class="badge b-gray">${T.escapeHtml(status || '未知')}</span>`;
+}
+
+function formatTime(value) { return value ? T.escapeHtml(String(value).replace('T', ' ')) : '不限'; }
+
+async function loadSelectors() {
+  try {
+    const [papers, classes] = await Promise.all([
+      T.api('/api/v1/teacher/papers?limit=100'), T.api('/api/v1/teacher/classes')
+    ]);
+    const paperItems = papers.items || [], classItems = classes.classes || [];
+    $('aPaper').innerHTML = '<option value="">请选择试卷</option>' + paperItems.map(p =>
+      `<option value="${p.id}">${T.escapeHtml(p.title)}（${p.question_count}题）</option>`).join('');
+    $('aClass').innerHTML = '<option value="">请选择班级</option>' + classItems.map(c =>
+      `<option value="${c.id}">${T.escapeHtml(c.name)}（${c.student_count}人）</option>`).join('');
+    if (!paperItems.length || !classItems.length) {
+      $('publishHint').textContent = !paperItems.length ? '暂无可用试卷，请先完成组卷' : '暂无班级，请先在工作台创建班级';
+      $('publishBtn').disabled = true;
+    }
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function publishAssignment() {
+  if (publishing) return;
+  const paperId = parseInt($('aPaper').value), classId = parseInt($('aClass').value);
+  const title = $('aTitle').value.trim();
+  if (!title || !paperId || !classId) { T.toast('请填写标题并选择试卷和班级', 'err'); return; }
+  const button = $('publishBtn'); publishing = true; button.disabled = true;
+  try {
+    const result = await T.api('/api/v1/teacher/assignments', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({paper_id: paperId, class_id: classId, title,
+        mode: $('aMode').value, due_at: $('aDue').value || null,
+        allow_self_check: $('aSelf').checked})
+    });
+    T.toast('作业已发布 #' + result.id, 'ok');
+    $('aTitle').value = ''; $('aDue').value = '';
+    await loadAssignments(); await showDetail(result.id);
+  } catch (e) { T.toast(e.message, 'err'); }
+  finally { publishing = false; button.disabled = false; }
+}
+
+async function loadAssignments() {
+  try {
+    const data = await T.api('/api/v1/teacher/assignments?limit=100');
+    const items = data.items || [];
+    $('assignmentRows').innerHTML = items.length ? items.map(a => `
+      <tr><td class="num">${a.id}</td><td><b>${T.escapeHtml(a.title)}</b><div class="muted">${T.escapeHtml(a.paper_title || '')}</div></td>
+      <td>${T.escapeHtml(a.class_name || '—')}<div class="muted">${T.escapeHtml(a.subject || '—')}</div></td>
+      <td>${a.mode === 'exam' ? '<span class="badge b-warn">考试</span>' : '<span class="badge b-info">作业</span>'}</td>
+      <td class="num">${formatTime(a.due_at)}</td><td class="num">${Number(a.completed_count || 0)} 人</td>
+      <td><button class="btn ghost sm" onclick="showDetail(${a.id})">详情 / 批改</button></td></tr>`).join('')
+      : '<tr><td colspan="7"><div class="empty"><div class="ico">📝</div>还没有发布作业<div class="hint">在上方选择试卷和班级即可发布</div></div></td></tr>';
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function showDetail(id) {
+  activeAssignmentId = id;
+  try {
+    const [detail, roster, typeMeta] = await Promise.all([
+      T.api(`/api/v1/teacher/assignments/${id}`),
+      T.api(`/api/v1/teacher/assignments/${id}/submissions`), loadTypeMeta()
+    ]);
+    if (activeAssignmentId !== id) return;
+    $('detailCard').style.display = '';
+    $('detailTitle').textContent = `${detail.title} · ${detail.class_name}`;
+    $('detailStats').innerHTML = `
+      <div class="stat"><div class="k">班级人数</div><div class="v">${roster.total}<small> 人</small></div></div>
+      <div class="stat"><div class="k">已提交</div><div class="v">${roster.completed}<small> 人</small></div></div>
+      <div class="stat"><div class="k">完成率</div><div class="v">${roster.total ? Math.round(roster.completed / roster.total * 100) : 0}<small>%</small></div></div>
+      <div class="stat"><div class="k">题目数量</div><div class="v">${(detail.questions || []).length}<small> 题</small></div></div>`;
+    const students = roster.students || [], questions = detail.questions || [];
+    $('submissionHead').innerHTML = '<th>学生</th><th>状态</th>' + questions.map((q, i) =>
+      `<th title="${T.escapeHtml(T.cleanText(q.content))}">第${i + 1}题</th>`).join('') +
+      '<th>客观题得分</th><th>最终分数</th><th>提交时间</th><th>操作</th>';
+    $('submissionRows').innerHTML = students.length ? students.map(s => {
+      const score = s.final_score == null ? '' : s.final_score;
+      const canCheck = s.status === 'submitted' || s.status === 'checked';
+      const scoreId = s.submission_id ? `score-submission-${s.submission_id}` : `score-student-${s.student_id}`;
+      const saving = savingSubmissions.has(s.submission_id);
+      const answerMap = Object.fromEntries((s.answers || []).map(a => [a.question_id, a]));
+      const cells = questions.map(q => {
+        const answer = answerMap[q.id];
+        if (!answer) return '<td class="muted">—</td>';
+        const objective = (typeMeta[q.question_type] || {}).objective;
+        const mark = !objective && answer.is_correct != null ?
+          `<span style="color:var(--muted)">${answer.is_correct ? '自评掌握' : '自评需巩固'}</span>` :
+          answer.is_correct === true ? '<span style="color:var(--ok)">✓</span>' :
+          answer.is_correct === false ? '<span style="color:var(--bad)">✕</span>' : '<span style="color:var(--warn)">待评</span>';
+        return `<td title="${T.escapeHtml(answer.answer || '未作答')}">${mark}<div class="muted" style="max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${T.escapeHtml(answer.answer || '未作答')}</div></td>`;
+      }).join('');
+      return `<tr><td><b>${T.escapeHtml(s.real_name || s.username)}</b><div class="muted">${T.escapeHtml(s.student_no || s.username)}</div></td>
+        <td>${statusBadge(s.status)}</td>${cells}<td class="num">${s.auto_score == null ? '—' : s.auto_score}</td>
+        <td><input class="input num" id="${scoreId}" type="number" min="0" max="100" step="0.5" value="${score}" ${canCheck && !saving ? '' : 'disabled'} style="width:80px"></td>
+        <td class="num muted">${formatTime(s.submitted_at)}</td><td>${canCheck ? `<button class="btn sm" id="save-submission-${s.submission_id}" ${saving ? 'disabled' : ''} onclick="checkSubmission(${s.submission_id})">${saving ? '保存中…' : '保存分数'}</button>` : '—'}</td></tr>`;
+    }).join('') : `<tr><td colspan="${questions.length + 6}"><div class="empty">该班级暂无在班学生</div></td></tr>`;
+    $('questionList').innerHTML = (detail.questions || []).map((q, i) =>
+      `<div style="padding:8px 4px;border-bottom:1px dashed var(--border)"><b>${i + 1}. [${T.escapeHtml(q.question_type)}]</b> ${T.escapeHtml(T.cleanText(q.content))}<div class="muted">知识点：${T.escapeHtml(q.knowledge_point || '未标注')} · ${Number(q.score) > 0 ? T.escapeHtml(q.score) + ' 分' : '分值未设置'}</div></div>`).join('') || '<div class="muted">暂无题目</div>';
+    $('detailCard').scrollIntoView({behavior: 'smooth', block: 'start'});
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function checkSubmission(submissionId) {
+  if (savingSubmissions.has(submissionId)) return;
+  const input = $(`score-submission-${submissionId}`), button = $(`save-submission-${submissionId}`);
+  if (!input || !button) return;
+  const score = Number(input.value), assignmentId = activeAssignmentId;
+  if (input.value === '' || !Number.isFinite(score) || score < 0 || score > 100) { T.toast('最终分数需在 0~100 之间', 'err'); return; }
+  savingSubmissions.add(submissionId); input.disabled = true; button.disabled = true; button.textContent = '保存中…';
+  try {
+    await T.api(`/api/v1/teacher/submissions/${submissionId}/check`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({final_score: score})
+    });
+    T.toast('分数已保存', 'ok');
+    if (activeAssignmentId === assignmentId) await showDetail(assignmentId);
+    await loadAssignments();
+  } catch (e) { T.toast(e.message, 'err'); }
+  finally {
+    savingSubmissions.delete(submissionId);
+    const currentInput = $(`score-submission-${submissionId}`), currentButton = $(`save-submission-${submissionId}`);
+    if (currentInput) currentInput.disabled = false;
+    if (currentButton) { currentButton.disabled = false; currentButton.textContent = '保存分数'; }
+  }
+}
+
+function closeDetail() { $('detailCard').style.display = 'none'; activeAssignmentId = null; }
+
+if (T.token()) { loadSelectors(); loadAssignments(); }
+else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fassignments'; }
+</script>
+</body>
+</html>

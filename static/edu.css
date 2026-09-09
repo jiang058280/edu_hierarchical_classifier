@@ -110,10 +110,12 @@ a:hover { color: var(--primary-hover); }
   width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 8px 10px; font-size: 13px; font-family: inherit; color: var(--text);
   background: #fff; transition: border-color .15s, box-shadow .15s;
+  writing-mode: horizontal-tb; text-orientation: mixed; direction: ltr;
+  word-break: normal; overflow-wrap: normal;
 }
 .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,94,247,.12); }
 .input::placeholder { color: #B3BAC9; }
-textarea.input { resize: vertical; font-family: inherit; }
+textarea.input { resize: vertical; font-family: inherit; white-space: pre-wrap; }
 label.lbl { display: block; font-size: 12px; color: var(--text-2); margin-bottom: 5px; }
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .table th { text-align: left; padding: 9px 12px; background: #F8FAFD; color: var(--muted); font-weight: 500; white-space: nowrap; }
@@ -133,6 +135,8 @@ label.lbl { display: block; font-size: 12px; color: var(--text-2); margin-bottom
 .pager { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 12.5px; color: var(--muted); }
 .filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
 .filter-row .input, .filter-row select.input { width: auto; min-width: 120px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.muted { color: var(--muted); }
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
 .stat { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 16px 18px; }
 .stat .k { font-size: 12px; color: var(--muted); }
@@ -213,4 +217,155 @@ label.lbl { display: block; font-size: 12px; color: var(--text-2); margin-bottom
 @media (max-width: 900px) {
   .login-brand { display: none; }
   .login-side { flex: 1; }
+}
+
+/* ---------- 学生门户主题与移动端 ---------- */
+.student-theme .sidebar { background: linear-gradient(180deg, #123F3B 0%, #0D9488 130%); border-right: none; }
+.student-theme .sidebar .logo .name { color: #fff; }
+.student-theme .sidebar .logo .name small, .student-theme .sidebar .foot { color: rgba(255,255,255,.65); }
+.student-theme .sidebar .foot { border-top-color: rgba(255,255,255,.15); }
+.student-theme .sidebar .nav a { color: rgba(255,255,255,.82); }
+.student-theme .sidebar .nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+.student-theme .sidebar .nav a.active { background: rgba(255,255,255,.16); color: #fff; }
+.student-theme .card { border-top: 3px solid #0D9488; }
+.student-theme .btn.student { background: #0D9488; }
+.student-theme .btn.student:hover { background: #0B7F75; }
+.assignment-list { display: grid; gap: 10px; }
+.assignment-item { border: 1px solid var(--border); border-radius: 10px; padding: 13px 14px; display: flex; gap: 14px; align-items: center; }
+.assignment-item:hover { border-color: #A7DCD5; background: #FAFFFE; }
+.progress-track { height: 7px; background: #E8ECF3; border-radius: 99px; overflow: hidden; }
+.progress-track > span { display: block; height: 100%; background: #0D9488; transition: width .2s; }
+.answer-card { margin-bottom: 12px; }
+.answer-option { display: flex; gap: 9px; align-items: flex-start; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; margin-top: 7px; cursor: pointer; }
+.answer-option:has(input:checked) { border-color: #0D9488; background: #ECF9F7; }
+.sticky-submit { position: sticky; bottom: 12px; z-index: 8; box-shadow: var(--shadow-2); }
+@media (max-width: 700px) {
+  .student-theme .sidebar { display: none; }
+  .student-theme .topbar { margin-left: 0; padding: 0 14px; }
+  .student-theme .content { margin-left: 0; padding: 14px 12px 86px; }
+  .student-theme .grid2 { grid-template-columns: 1fr; }
+  .student-theme .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .student-theme .assignment-item { align-items: flex-start; flex-direction: column; }
+  .student-theme .assignment-item .item-action { width: 100%; }
+  .student-theme .assignment-item .item-action .btn { width: 100%; }
+  .answer-card { padding: 14px; }
+}
+
+/* 学生端视觉重构：克制的蓝灰配色、清晰的信息层级，不使用装饰性渐变。 */
+.student-theme { --student-accent: #3157D5; --student-accent-dark: #2545B5; --student-soft: #EEF2FF; background: #F5F6F8; }
+.student-theme .sidebar { width: 232px; background: #151C2B; border-right: 0; }
+.student-theme .sidebar .logo { height: 68px; border-bottom: 1px solid rgba(255,255,255,.08); padding: 0 20px; }
+.student-theme .sidebar .logo .mark { background: #3157D5 !important; border: 0 !important; border-radius: 9px; }
+.student-theme .sidebar .logo .name { font-size: 15px; letter-spacing: .2px; }
+.student-theme .sidebar .logo .name small { margin-top: 1px; letter-spacing: 1.6px; color: #8590A5; }
+.student-theme .sidebar .nav { padding: 20px 12px; }
+.student-theme .sidebar .nav .group { color: #667085; padding-left: 12px; }
+.student-theme .sidebar .nav a { min-height: 42px; padding: 10px 12px; gap: 11px; color: #AEB7C8; border-radius: 8px; }
+.student-theme .sidebar .nav a:hover { background: #202A3E; color: #fff; }
+.student-theme .sidebar .nav a.active { background: #293550; color: #fff; font-weight: 600; }
+.student-theme .sidebar .nav a.active svg { color: #8EA6FF; }
+.student-theme .sidebar .foot { padding: 16px 20px; color: #737F94; border-top-color: rgba(255,255,255,.08); }
+.student-theme .topbar { margin-left: 232px; height: 60px; padding: 0 30px; box-shadow: 0 1px 0 rgba(15,23,42,.04); }
+.student-theme .topbar .crumb { color: #98A1B2; }
+.student-theme .topbar .crumb b { color: #344054; }
+.student-theme .content { margin-left: 232px; padding: 28px 30px 48px; }
+.student-theme .card { border-top: 0; border-color: #E6E9EF; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.student-theme .btn.student { background: var(--student-accent); }
+.student-theme .btn.student:hover { background: var(--student-accent-dark); }
+.student-dashboard { max-width: 1180px !important; }
+.dashboard-intro { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; }
+.dashboard-intro .eyebrow { color: #7B8495; font-size: 12px; margin-bottom: 3px; }
+.dashboard-intro h2 { font-size: 24px; line-height: 1.35; letter-spacing: -.3px; }
+.dashboard-intro p { color: #7B8495; margin-top: 5px; }
+.dashboard-date { color: #667085; font-size: 12.5px; padding-bottom: 3px; }
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.summary-tile { background: #fff; border: 1px solid #E6E9EF; border-radius: 10px; padding: 15px 16px; }
+.summary-tile .summary-label { color: #7B8495; font-size: 12px; }
+.summary-tile .summary-value { margin-top: 5px; font-size: 23px; line-height: 1.2; font-weight: 700; font-variant-numeric: tabular-nums; color: #202939; }
+.summary-tile .summary-value small { font-size: 12px; font-weight: 400; color: #98A1B2; margin-left: 3px; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 18px; align-items: start; }
+.dashboard-panel { padding: 0; overflow: hidden; }
+.dashboard-panel-head { min-height: 62px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid #ECEEF2; }
+.dashboard-panel-head h3 { margin: 0; font-size: 15px; }
+.assignment-tabs { display: flex; gap: 4px; padding: 14px 20px 4px; overflow-x: auto; }
+.assignment-tabs button { border: 0; background: transparent; color: #7B8495; padding: 7px 11px; border-radius: 7px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.assignment-tabs button:hover { color: #344054; background: #F4F6FA; }
+.assignment-tabs button.active { color: var(--student-accent); background: var(--student-soft); font-weight: 600; }
+.assignment-tabs .tab-count { display: inline-block; min-width: 19px; padding: 0 5px; margin-left: 3px; border-radius: 9px; background: #F0F2F5; color: #667085; font-size: 11px; }
+.assignment-tabs button.active .tab-count { background: #DCE4FF; color: #3157D5; }
+.student-theme .assignment-list { padding: 8px 20px 18px; gap: 0; min-height: 260px; align-content: start; }
+.student-theme .assignment-item { border: 0; border-bottom: 1px solid #EEF0F3; border-radius: 0; padding: 15px 0; gap: 12px; }
+.student-theme .assignment-item:last-child { border-bottom: 0; }
+.student-theme .assignment-item:hover { background: transparent; }
+.assignment-subject-mark { width: 38px; height: 38px; border-radius: 9px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--student-soft); color: var(--student-accent); font-weight: 700; }
+.assignment-title { font-size: 14px; font-weight: 600; color: #273142; }
+.assignment-meta { color: #8992A3; font-size: 12px; margin-top: 4px; }
+.student-theme .assignment-item .btn { padding: 6px 12px; }
+.side-stack { display: grid; gap: 14px; }
+.side-panel { padding: 18px; }
+.side-panel h3 { margin-bottom: 14px; font-size: 14px; }
+.class-profile { display: flex; align-items: center; gap: 11px; }
+.class-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; color: #3157D5; background: #EEF2FF; }
+.class-name { font-weight: 600; color: #273142; }
+.class-meta { color: #8992A3; font-size: 12px; margin-top: 2px; }
+.join-row { display: flex; gap: 7px; }
+.join-row .input { height: 38px; text-transform: uppercase; letter-spacing: 1px; }
+.quiet-note { display: flex; gap: 10px; align-items: flex-start; padding: 12px; background: #F8F9FB; border-radius: 8px; color: #667085; font-size: 12px; }
+.dashboard-empty { min-height: 210px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8992A3; text-align: center; }
+.dashboard-empty svg { color: #B7BFCC; margin-bottom: 12px; }
+.dashboard-empty b { color: #4B5565; font-size: 13px; font-weight: 600; }
+.dashboard-empty span { font-size: 12px; margin-top: 3px; }
+.student-account { display: flex; align-items: center; gap: 9px; }
+.student-account .avatar { background: #EEF2FF !important; color: #3157D5 !important; }
+.student-theme .assignment-back { display: inline-block; margin-bottom: 16px; color: #667085; font-size: 13px; }
+.student-theme .assignment-back:hover { color: var(--student-accent); }
+.student-theme .answer-text, .student-theme .answer-option span { white-space: pre-wrap; overflow-wrap: anywhere; }
+.student-theme .answer-option span { min-width: 0; }
+.student-theme .answer-option input { flex: none; margin-top: 4px; }
+.student-theme .answer-option:has(input:checked) { border-color: var(--student-accent); background: var(--student-soft); }
+.student-theme .answer-option:has(input:disabled) { cursor: default; }
+.student-theme .progress-track > span { background: var(--student-accent); }
+.student-theme .result-option { padding: 6px 10px; margin-top: 6px; background: #F8F9FB; border-radius: 6px; }
+.student-theme .answer-card .card-head { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.student-theme .page-head h2, .student-theme .assignment-title, .student-theme .class-profile { overflow-wrap: anywhere; }
+.student-theme .join-row .input { min-width: 0; flex: 1; width: 0; }
+.student-theme .join-row .btn { flex: none; white-space: nowrap; }
+.student-theme .student-account > span:not(.avatar) { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.assignment-submission-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
+.assignment-submission-table th, .assignment-submission-table td { white-space: nowrap; }
+.assignment-submission-table .btn { white-space: nowrap; }
+.assignment-submission-table th:nth-child(n+3):nth-last-child(n+5),
+.assignment-submission-table td:nth-child(n+3):nth-last-child(n+5) { min-width: 100px; }
+.assignment-submission-table th:first-child, .assignment-submission-table td:first-child {
+  position: sticky; left: 0; z-index: 1; min-width: 140px; background: #fff; box-shadow: 1px 0 0 var(--border);
+}
+.assignment-submission-table th:last-child, .assignment-submission-table td:last-child {
+  position: sticky; right: 0; z-index: 1; min-width: 104px; background: #fff; box-shadow: -1px 0 0 var(--border);
+}
+.assignment-submission-table th:first-child, .assignment-submission-table th:last-child { background: #F8FAFD; z-index: 2; }
+@media (max-width: 900px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .side-stack { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .student-theme .topbar { margin-left: 0; height: 54px; padding: 0 14px; }
+  .student-theme .content { margin-left: 0; padding: 20px 14px 86px; }
+  .dashboard-intro { align-items: flex-start; margin-bottom: 17px; }
+  .dashboard-intro h2 { font-size: 21px; }
+  .dashboard-date { display: none; }
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-tile { padding: 12px 13px; }
+  .summary-tile .summary-value { font-size: 20px; }
+  .side-stack { grid-template-columns: 1fr; }
+  .dashboard-panel-head { padding: 0 14px; }
+  .assignment-tabs { padding-left: 14px; padding-right: 14px; }
+  .student-theme .assignment-list { padding-left: 14px; padding-right: 14px; }
+  .student-theme .assignment-item { flex-direction: row; align-items: center; }
+  .student-theme .assignment-item .item-action { width: auto; }
+  .student-theme .assignment-item .item-action .btn { width: auto; }
+  .student-theme .student-account > span:not(.avatar) { max-width: 72px; }
+  .student-theme .topbar .crumb { font-size: 12px; }
+  .student-theme .sticky-submit > .row { flex-wrap: wrap; gap: 12px; }
+  .student-theme .sticky-submit > .row > div { min-width: 100%; }
+  .student-theme .sticky-submit .btn { width: 100%; }
 }

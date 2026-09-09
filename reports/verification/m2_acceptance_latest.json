@@ -1,0 +1,49 @@
+{
+  "verified_at": "2026-09-09T15:47:55.403601",
+  "all_passed": true,
+  "checks": [
+    "管理员建教师/学生账号，真实密码登录，匿名访问401",
+    "未入班空列表、师生角色隔离、邀请码入班",
+    "20题建卷、草稿状态、选项编辑、原题引用保护、试卷归属",
+    "浏览器20题作答、93.3自动分、教师88.5批改、学生查看结果",
+    "提交时间与应用本地时间一致、/api与/api/v1双前缀兼容",
+    "作业越权、提交前答案隐藏、未提交结果409、重复提交409、已发布试卷防删",
+    "真实MySQL并发首次交卷：一次200一次409，每人恰好20条答案",
+    "截止后409、转班保留本人已提交成绩历史"
+  ],
+  "browser": {
+    "assignment_id": 9,
+    "submission_id": 9,
+    "auto_score": 93.3,
+    "final_score": 88.5,
+    "screenshots": {
+      "student-home-mobile": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\student-home-mobile.png",
+      "student-answer-mobile": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\student-answer-mobile.png",
+      "student-result-mobile": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\student-result-mobile.png",
+      "teacher-grading": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\teacher-grading.png",
+      "student-result-checked-mobile": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\student-result-checked-mobile.png",
+      "student-home-desktop": "D:\\edu_hierarchical_classifier\\reports\\verification\\m2qa_53714e6e0f\\student-home-desktop.png"
+    },
+    "checks": {
+      "teacher_form_publish": true,
+      "student_home_375px": true,
+      "answers_hidden_before_submission": true,
+      "twenty_question_cards": true,
+      "twenty_answers_collected": true,
+      "objective_controls_without_self_check": true,
+      "student_answer_375px": true,
+      "auto_score_93_3": true,
+      "self_assessment_excluded_from_objective_count": true,
+      "result_options_rendered": true,
+      "student_result_375px": true,
+      "teacher_final_score_88_5": true,
+      "teacher_self_assessment_label": true,
+      "student_checked_result_375px": true,
+      "student_receives_final_score": true,
+      "student_home_1440px": true,
+      "return_to_learning_home": true,
+      "no_browser_javascript_errors": true
+    }
+  },
+  "fixtures_removed": true
+}

@@ -19,6 +19,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime
+from uuid import uuid4
 
 import sys as _sys
 from pathlib import Path as _Path
@@ -34,16 +35,26 @@ ROOT = get_root()
 
 def run_guardrails() -> dict:
     proc = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "check_project_guardrails.py")],
-        capture_output=True, text=True, cwd=str(ROOT))
+        [sys.executable, "-X", "utf8", str(ROOT / "scripts" / "check_project_guardrails.py")],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT))
     return {"name": "guardrails", "passed": proc.returncode == 0,
             "detail": (proc.stdout + proc.stderr).strip()[-2000:]}
 
 
 def run_tests() -> dict:
-    proc = subprocess.run(
-        [sys.executable, "-m", "pytest", "tests", "-q", "--tb=short"],
-        capture_output=True, text=True, cwd=str(ROOT), timeout=600)
+    # Windows 用户 TEMP/旧 pytest 目录可能不可写；每次使用项目内全新目录，
+    # 不复用旧 basetemp（pytest 会先递归清空已有目录）。保留失败现场方便排查。
+    temp_root = ROOT / "reports" / "tmp"
+    temp_root.mkdir(parents=True, exist_ok=True)
+    base_temp = temp_root / f"pytest_release_{uuid4().hex}"
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-X", "utf8", "-m", "pytest", "tests", "-q", "--tb=short",
+             "-p", "no:cacheprovider", f"--basetemp={base_temp}"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cwd=str(ROOT), timeout=600)
+    except subprocess.TimeoutExpired:
+        return {"name": "pytest", "passed": False, "detail": "pytest timed out after 600 seconds"}
     tail = (proc.stdout + proc.stderr).strip()[-2000:]
     return {"name": "pytest", "passed": proc.returncode == 0, "detail": tail}
 
@@ -106,7 +117,8 @@ def check_mysql() -> dict:
                 tables = {row[0] for row in cur.fetchall()}
         expected = {"model_versions", "active_model_pointer", "classifications",
                     "questions", "feedback", "daily_stats", "schema_migrations",
-                    "users", "audit_logs"}
+                    "users", "audit_logs", "classes", "knowledge_nodes", "papers",
+                    "paper_questions", "assignments", "submissions", "answer_records"}
         missing = expected - tables
         return {"name": "mysql", "passed": not missing,
                 "detail": f"database={settings.mysql_db} tables ok" if not missing

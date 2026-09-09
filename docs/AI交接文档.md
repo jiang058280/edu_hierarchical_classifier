@@ -1,8 +1,8 @@
 # AI 交接文档 · 智慧教研平台（给下一个 AI 看的工作手册）
 
 > 文档目的：让任何 AI 会话接管本仓库后，**不问人、不踩坑**地继续开发。
-> 读者：AI 代理（Human 也可读）。写作日期：2026-09-06（v0.3 激活 / 平台 M0+M1 完成时点）。
-> 读完本文后，请再读 `docs/智慧教研平台建设计划书.md`（总路线）与 `README.md`（架构细节）。
+> 读者：AI 代理（Human 也可读）。写作日期：2026-09-06；最近更新 2026-09-09（M2/C5 集成验收）。
+> 总路线以 `docs/剩余工作总计划.md` 为准；`docs/智慧教研平台建设计划书.md` 为当前里程碑索引，架构细节见 `README.md`。
 
 ---
 
@@ -11,18 +11,18 @@
 | 项 | 值 |
 | --- | --- |
 | 项目根目录 | `D:\edu_hierarchical_classifier`（Windows，shell 为 cmd/PowerShell） |
-| 项目一句话 | 教育题目三级分类（学科→题型→知识点）+ 智慧教研平台（师生双门户） |
-| git 分支 | `master`，工作区干净，HEAD 见 `git log -1` |
-| 模型 | **v0.3-20260906 ACTIVE**（BERT 多任务：学科9/题型3/知识点50 + 学段头 初中/高中），v0.2/v0.1-base 已归档可回滚 |
+| 项目一句话 | 基于 RAG 与学情画像的个性化智慧学习平台；当前已实现分类、题库与作业闭环，RAG 尚未实现 |
+| git 分支 | 以 `git status` / `git log -1` 为准；当前存在 C1～C5 未提交变更及用户原有修改，不可重置或直接全量暂存 |
+| 模型 | **v0.4-20260906 ACTIVE**（BERT 多任务：学科9/题型3/知识点50 + 学段头 初中/高中；判断题重采样训练，golden 题型 F1 0.9406，温度 T=0.9984），v0.3/v0.2/v0.1-base 已归档可回滚 |
 | 后端 | FastAPI（`app.py` 薄入口 + `edu_core/` 分层包），端口 **7860** |
-| 数据库 | MySQL 8.4 **Docker 容器 `edu-classifier-mysql`，宿主端口 3307**（不是 3306！），root/root123，库 `edu_classifier`；13 张表 |
+| 数据库 | MySQL 8.4 **Docker 容器 `edu-classifier-mysql`，宿主端口 3307**（不是 3306！），库 `edu_classifier`；凭证只从本地环境读取，不写文档 |
 | 查重 | Milvus 容器（宿主 19531），**可降级**（不可用时主链路不受影响） |
-| 本地配置 | `.env` 已存在（未提交）：`EDU_MYSQL_PORT=3307`、`EDU_MILVUS_URI=http://127.0.0.1:19531`、`EDU_JWT_SECRET`、`EDU_ADMIN_BOOTSTRAP_PASSWORD=admin123` |
-| 账号 | 教师/管理员 `admin/admin123`；学生 `stu_test01/stu123`（已入班） |
-| 测试 | pytest **58 条全过**（纯逻辑，无需权重/数据库；迁移与鉴权测试连真实 MySQL） |
-| 验收 | `scripts/verify_release.py` 6/6 PASS |
+| 本地配置 | `.env` 已存在（未提交）：`EDU_MYSQL_PORT=3307`、`EDU_MILVUS_URI=http://127.0.0.1:19531`、`EDU_JWT_SECRET`；`EDU_ADMIN_BOOTSTRAP_PASSWORD` 已置空（A2 整改，users 非空后无作用） |
+| 账号 | 管理员 `lgq`（2026-09-07 由 admin 更名，密码线下留存不落仓库）；学生 `stu_test01`（已入班，class_id=2） |
+| 测试 | 192 条通过（2026-09-09）；判分、题型、作业服务、事务和接口回归，详见 `reports/verification/v1_release_latest.json` |
+| 验收 | `scripts/verify_release.py` 标准发布检查；`scripts/verify_m2.py` 真实 MySQL/HTTP/浏览器 20 题闭环，报告含失败与清理状态 |
 
-**环境事实**：venv 在 `venv/`（所有命令前缀 `venv\Scripts\python.exe`）；GPU 为 RTX 3050 6GB（训练 batch 8 / max_len 256）；pip 走清华镜像可用；GitHub codeload / hf-mirror.com 可达，Google Drive 不可达；pytest 52~58 条约 20~40 秒。
+**环境事实**：venv 在 `venv/`（所有命令前缀 `venv\Scripts\python.exe`）；GPU 为 RTX 3050 6GB（训练 batch 8 / max_len 256）。网络可用性以实际检查为准；发布脚本使用项目内独立临时目录避免 Windows TEMP 权限问题。
 
 ---
 
@@ -39,10 +39,10 @@ venv\Scripts\python scripts\init_db.py
 venv\Scripts\python -m uvicorn app:app --host 127.0.0.1 --port 7860
 
 # 4) 自证
-venv\Scripts\python -m pytest tests -q                     # 58 条应全过
+venv\Scripts\python -X utf8 -m pytest tests -q -p no:cacheprovider
 venv\Scripts\python scripts\check_project_guardrails.py    # 工程守护
 venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
-# 浏览器：http://127.0.0.1:7860/  → /login?portal=teacher  → admin/admin123
+# 浏览器：http://127.0.0.1:7860/ → 师生门户；使用线下保存的账号密码
 ```
 
 页面路由：`/` 门户选择、`/login?portal=teacher|student` 独立登录页、`/teacher` 工作台、`/teacher/bank` 题库管理、`/teacher/entry` AI 录入、`/teacher/papers` 组卷、`/student` 学生门户、`/classify` 分类工具、`/admin` 治理台、`/api/docs` Swagger。
@@ -60,27 +60,30 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 | `edu_core/inference/` | `model.py`（多任务模型，manifest.architecture 声明 grade_head/subject_embedding）、`predictor.py`（版本化加载/量化/掩码/温度/embed） |
 | `edu_core/training/train.py` | 多任务训练（掩码损失：knowledge/grade 缺失=-100） |
 | `edu_core/data/dataset.py` | K-12EduBench 清洗管道（含题型规则推断——已知天花板） |
-| `scripts/` | `build_merged_dataset.py`(v0.3 多源合并)、`train_model.py`、`rebuild_model_version.py`(--gate --activate)、`fit_temperature.py`、`seed_knowledge_nodes.py`、`create_user.py`、`export_bad_cases.py`、`merge_reviewed_cases.py`、`preprocess_all.py`、`init_db.py`、`verify_release.py`、`check_project_guardrails.py` |
+| `scripts/` | `build_merged_dataset.py`(v0.3 多源合并)、`rebalance_train.py`(v0.4 题型重采样)、`train_model.py`、`rebuild_model_version.py`(--gate --activate)、`fit_temperature.py`、`backup_db.py`/`restore_db.py`(MySQL JSON 快照)、`seed_knowledge_nodes.py`、`create_user.py`、`export_bad_cases.py`、`merge_reviewed_cases.py`、`preprocess_all.py`、`init_db.py`、`verify_release.py`、`check_project_guardrails.py` |
 | `static/` | `edu.css`(设计系统)、`teacher_common.js`(壳渲染/auth/toast/confirm)、`login.html`、`portal.html`、`teacher*.html`×4、`student.html`、`index.html`(分类页)、`admin.html`(治理台) |
-| `data/processed/` | `train.csv 9,893 / val.csv 1,917 / test.csv 1,039（固定回归基准，绝不动）` + `labels.json`（含 grade_bands）+ `data_manifest.json` + `merge_v03_report.json` |
+| `data/processed/` | `train.csv 11,721（v0.4 重采样后；train.pre_rebalance.csv 为 9,893 原版备份，不入 git）/ val.csv 1,917 / test.csv 1,039（固定回归基准，绝不动）` + `labels.json`（含 grade_bands）+ `data_manifest.json` + `merge_v03_report.json` + `rebalance_report.json` |
 | `data/raw/` | `k12edubench/`（原始 9 学科）、`_cmmlu_tmp/`、`_m3ke_tmp/`、`_gaokao_tmp/`、`_numina_shard0.parquet`（v0.3 新源快照，均不入 git） |
-| `models/versions/` | v0.1-base / v0.2-20260906 / v0.3-20260906（三头+学段头+manifest+backbone/，权重不入 git） |
-| `docs/` | 建设计划书/改进落地计划书/企业级改造计划/项目介绍；`docs/history/` 为 v0.1 旧需求（勿作为现行指令） |
+| `models/versions/` | v0.1-base / v0.2-20260906 / v0.3-20260906 / **v0.4-20260906(ACTIVE)**（三头+学段头+manifest+backbone/，权重不入 git） |
+| `docs/` | 剩余工作总计划/AI交接文档/改进落地计划书/企业级改造计划/项目介绍；**`docs/adr/`（ADR-01 干净基准，Proposed 待确认）**；`docs/history/` 为 v0.1 旧需求（勿作为现行指令） |
 | `legacy/` | v0.1 Gradio 归档（勿改，勿依赖） |
 
 ---
 
 ## 四、已实现功能全景（完成度账本）
 
-### 4.1 模型与数据（v0.1→v0.3 全部完成）
+### 4.1 模型与数据（v0.1→v0.4）
 
-- ✅ 三级分类模型 v0.3 ACTIVE：golden 300 = 学科 0.9867 / 题型 F1 0.8522 / 知识点 F1 0.8894 / 级联 0.89 / 延迟 17.9ms，门禁 5/5；
+- ✅ 三级分类模型 **v0.4-20260906 ACTIVE**：golden 300 = 学科 0.9867 / **题型 F1 0.9406** / 知识点 F1 0.8789 / 级联 0.89 / 延迟 38ms，门禁 5/5；温度 T=0.9984；
+- ✅ v0.3（Archived）：学科 0.9867 / 题型 F1 0.8522 / 知识点 F1 0.8894，温度 T=0.9706；v0.2/v0.1-base 已归档；
 - ✅ **学段头（初中/高中）**：v0.3 新增，manifest.architecture.grade_head 声明，`/classify` 响应含 `grade_band`；
-- ✅ 学科感知知识头（subject_embedding 64 维）+ 温度校准（v0.2 的 T=0.9678 只对 v0.2 生效；**v0.3 尚未拟合温度**，manifest 无 temperature 字段时 predictor 按 1.0 处理）；
-- ✅ 数据扩充：train 9,893（CMMLU 836 高中 / M3KE 3,120 初中+高中 / GAOKAO 1,193 / NuminaMath cn_k12 1,500 数学解答），规则见 `scripts/build_merged_dataset.py`；溯源见 `DATA_PROVENANCE.md` 第五节；
+- ✅ 学科感知知识头（subject_embedding 64 维）+ 每版本独立温度校准（manifest.temperature，缺失时 predictor 按 1.0 处理）；
+- ✅ 数据扩充：train 基底 9,893（CMMLU 836 高中 / M3KE 3,120 初中+高中 / GAOKAO 1,193 / NuminaMath cn_k12 1,500 数学解答），规则见 `scripts/build_merged_dataset.py`；溯源见 `DATA_PROVENANCE.md` 第五节；
+- ✅ **题型重采样（v0.4 轮，B1）**：`scripts/rebalance_train.py` 对 train 判断题 ×4、解答题 ×1.5（仅复制行、零改标注，副本 `oversampled=1`），train 9,893→**11,721**；备份 `train.pre_rebalance.csv`（不入 git）、报告 `rebalance_report.json`；val/test 未动；溯源见 `DATA_PROVENANCE.md` 第七节；
 - ✅ 训练数据账本：`data/processed/data_manifest.json`（SHA256 指纹链，训练时写入版本 manifest.data_ref）；
 - ✅ 掩码训练：knowledge/grade 缺失=-100（`train.py::_masked_loss`），旧版数据行为不变；
-- ⚠️ 已知回归：**题型 F1 0.9406→0.8522**（新增全为选择题，判断题类 3.6% 被淹没；金标归因：4 条判断题错）。修复配方见第 7.1 节 v0.4。
+- ✅ ~~题型 F1 回归（0.9406→0.8522，判断题被淹没）~~ **已由 v0.4 重采样修复（0.8522→0.9406，判断题 golden 错误 4→1）**；已知取舍：v0.4 知识点 F1 -1.05pt（Human 拍板接受，v0.3 可回滚）。
+- 📝 **B2 待办**：`docs/adr/ADR-01-clean-benchmark.md` 已起草（Proposed）——bench_clean 干净基准双轨制，**待 Human 确认 ADR 后**才实现 `scripts/build_clean_bench.py`。
 
 ### 4.2 平台基座（M0 完成）
 
@@ -97,10 +100,16 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 - ✅ 独立登录页 `/login`（分栏式品牌区+悬浮卡，师生分段切换，401 自动跳转带 next 参数）；
 - ✅ 工作台 `/teacher`：真实统计卡（题库/试卷/班级/知识点树）+ 班级管理。
 
-### 4.4 学生端（M0 部分）
+### 4.4 作业与学生端（M2 / C1～C5）
 
-- ✅ 学生门户 `/student`（新壳）：登录、加入班级、我的班级；
-- ⬜ 其余全部未做（见第五节 M2/M3）。
+- ✅ `grading.py` 纯判分、`question_taxonomy.py` 九学科题型目录、`AssignmentService` 与 `AssignmentStore`。
+- ✅ 教师 `/teacher/assignments` 发布作业、全班逐题矩阵、最终分数人工批改；学生 `/student/assignments/{id}` 作答与结果查看。
+- ✅ 学生首页蓝灰视觉重做，真实统计/筛选、班级侧栏、异常重试、375px 布局；不得添加假数据或未落地的 RAG 入口冒充功能。
+- ✅ 单选/多选/判断/文本输入、缺结构化选项的字母输入、主观题自评；自评单独标识且不计客观题自动分。自动分是可判客观题正确率 ×100，最终分由教师填写，不是逐题加权总分。
+- ✅ 提交前隐藏参考答案与解析、截止只读、服务端时钟校准、事务防重复交卷、本人已提交历史在转班后仍可查看。
+- ✅ 试卷采用受保护引用而非独立内容快照：入卷原题禁止原地修改/删除；已发布作业的试卷禁止删除。改题需另存新题并重新组卷。
+- ✅ 新建作业/提交/作答的时间由应用本地时钟统一写入，事务截止校验不用数据库 `NOW()`，避免 Docker MySQL UTC 与 Windows 本地时间相差8小时；历史行不做批量改写。迁移部署时需明确应用时区。
+- ⬜ C5 技术验收后等用户确认，再整理提交并启动 R1；不跨模块自动推进。RAG、画像与个性化推荐仍是后续目标。
 
 ### 4.5 治理与质量（持续有效）
 
@@ -126,17 +135,15 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 
 ## 六、未实现功能清单（按优先级，含"从哪开始"）
 
-### 6.1 M2 学生闭环（下一站，约 10 人日）——规格已定，表已建好
+### 6.1 当前交付点：C5 验收，下一站 R1 教育知识库
 
-数据表 `assignments / submissions / answer_records` **V3 已建**，直接写代码即可：
+M2 使用现有 V3 七表，未新增迁移。先向用户展示本轮截图和验收结果；用户确认后才进入 `docs/剩余工作总计划.md` 的 R1.1（知识资料元数据、存储和版本治理）。不能重新从教师作业发布开始实现。
 
-1. **教师发作业**：`POST /api/v1/teacher/assignments {paper_id, class_id, title, due_at}`（挂 require_teacher + 审计）；`GET /teacher/assignments`、`GET /teacher/assignments/{id}/submissions`（全班完成率）；`POST /teacher/submissions/{id}/check`（主观题抽改）。新建 `AssignmentStore` + `api/teacher.py` 扩展。
-2. **学生作答**：`GET /api/v1/student/assignments`（按 class_id 查）、`GET /student/assignments/{id}`（带题目，客观题不回显答案）、`POST /student/assignments/{id}/submit {answers:[{question_id, answer, self_check?}]}`——客观题（选择题/判断题）用 `questions.answer` 自动判分写 `answer_records`（submission 唯一键防重复提交）；主观题 `is_correct=NULL` 待自评/抽改。新建 `StudentStore` + `api/student.py` 扩展。
-3. **学生门户页**：`/student` 页面加"我的作业/作答页"（移动优先，375px 不破版），作答页逐题渲染+提交。
-4. **验收**（照抄计划书 M2）：三步发作业 <1 分钟；手机完整做一份 20 题作业；教师可见全班完成率与逐题对错。
-5. 提示：判分逻辑纯函数放 `edu_core/application/`，配 pytest；别把判分写进路由。
+复测运行 `scripts/verify_m2.py`：应用启动后，设置 `NODE_PATH` 指向带 Playwright 的依赖目录，使用已安装的 Edge 无头浏览器。脚本临时创建管理员、教师、学生及独立班级/20题试卷；凭证仅保存在内存并经 stdin 传给浏览器；finally 按本次账号 ID 与用户名核对后清理测试数据。报告与截图保存至 `reports/verification/m2qa_*/`，不更改 `stu_test01` 的作答。
 
-### 6.2 v0.4 重训（修题型 F1 回归，约 0.5 天机器时间）
+Git 整理在用户确认此模块后执行，保留 `.claude/`、`docs/adr/` 及用户已有文档修改；不得 `git add .`。
+
+### 6.2 v0.4 重训（已完成，以下仅为历史配方，不重复执行）
 
 配方：改 `scripts/build_merged_dataset.py`——把 train.csv 中 `question_type=="判断题"` 的行 oversample ×4（仅 train，不动 val/test，记入 merge report），随后 `preprocess_all.py` 刷 manifest → `train_model.py --version v0.4-xxx --epochs 7` → `rebuild_model_version.py --gate --activate`。验收：type_f1 ≥ 0.90 且其他门禁不降；golden 对比报告落盘。
 
@@ -144,13 +151,14 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 
 | 项 | 说明 | 起点 |
 | --- | --- | --- |
-| M3 学情与练习 | 错题本（answer_records 派生）/ 相似题推荐（Milvus 复用）/ 学生学情报告 / 班级学情矩阵 | M2 完成后 |
+| R1 / R2 / R3 | 教育知识库 → 带引用 RAG 问答 → 学情画像、错题与巩固推荐（吸收原 M3） | C5 用户确认后，按模块推进 |
 | M4 复核工作台 | 低置信度+高错误率队列 → 修正 → 已有回灌管道 | M3 后 |
 | Excel 导入导出（M1.5） | openpyxl + 错误行报告 | 随时可做 |
 | 知识点树对齐课标 | tal-tech/chinese-k12-evaluation 的 1900+ 二级知识点（Google Drive 被墙，需手动下载入 data/raw/） | 数据源可选 |
-| v0.3 温度校准 | `scripts/fit_temperature.py --version v0.3-20260906`（脚本现成） | 半小时 |
+| ~~v0.3 温度校准~~ | ✅ 已完成（A1，T=0.9706）；v0.4 温度 T=0.9984 亦已拟合 | — |
 | CI 真实运行 | 推 GitHub + 分支保护（workflow 已写好） | 需 Human 建远端 |
-| 生产加固 | 备份脚本/演练/HTTPS | M4 |
+| 生产加固 | ~~备份脚本/演练~~（✅ A3 完成，`backup_db.py`/`restore_db.py`，Windows 计划任务用户拍板不做）；HTTPS 待定 | M4 |
+| bench_clean 干净基准（B2） | ADR-01 已起草待 Human 确认，确认后实现 `scripts/build_clean_bench.py`（约 1 天） | ADR 批准后 |
 
 ---
 
@@ -169,21 +177,21 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 
 | 债 | 现状 | 方向 |
 | --- | --- | --- |
-| 题型 F1 回归 | v0.3 golden 0.8522（判断题被淹没，题型 acc 仍 97.3%） | 6.2 配方 |
+| ~~题型 F1 回归~~ | ✅ v0.4 重采样已修复：golden 题型宏 F1 0.8522→0.9406（判断题错误 4→1）；取舍：知识点 F1 -1.05pt（Human 接受） | 若复发走类加权损失 Plan B |
 | 学段头覆盖 | 初中仅来自 M3KE（2,167 选择题） | 平台录入飞轮积累 |
 | 知识点粗（50 类） | 新增数据无知识点标注（掩码） | 知识点树 + 人工标注积累 |
 | ck12 数据源 | Google Drive 被墙 | 手动下载入 data/raw/ |
 | 模型与 Web 同进程 | 激活靠热重载已缓解 | 独立推理服务（有需求再做） |
-| 数据测试集污染 | 增强数据进了 test 划分 | 重建干净 held-out（改动前先立 ADR） |
+| 数据测试集污染 | 增强数据进了 test 划分 | **ADR-01 已起草（Proposed）**：bench_clean 双轨制，待 Human 确认 |
 
 ---
 
 ## 九、历史脉络（30 秒版本）
 
-v0.1 Gradio 单体（`legacy/`）→ 企业级改造 v1.0（edu_core 分层/MySQL/版本治理/门禁/Docker）→ 改进落地（WP-A~H：CI/迁移/JWT 双门户+审计+热重载/数据指纹/标签来源管道/学科 mask 实验关闭）→ 平台计划 M0（三角色双门户/班级/知识点树/V3 迁移）→ M1（题库核心/AI 录入流/组卷 Word 导出）→ 数据扩充 v0.3（CMMLU/M3KE/GAOKAO/NuminaMath，学段头）。每个决策的"为什么"在 `docs/企业级改造计划.md`、`docs/改进落地计划书.md`、`docs/智慧教研平台建设计划书.md` 里，**继续任务前先对齐计划书，不要推翻已定决策**（明确不做：微服务/多租户/AI 批改主观题/LLM 问答托底已评估暂缓/学生社交）。
+v0.1 Gradio 单体 → 企业级分层、MySQL、模型版本治理 → 师生门户 M0 → 题库与组卷 M1 → 数据扩充及 v0.4 重训 → M2 作业数据闭环 → 后续 R1 知识库、R2 带引用问答、R3 画像与巩固推荐。决策依据见《剩余工作总计划》《企业级改造计划》和《改进落地计划书》。早期“暂缓 LLM 问答”的结论已由用户确认的 RAG 主线替代；仍不做微服务化、多租户、学生社交，也不把主观题自评冒充 AI 批改。
 
 ---
 
 ## 十、给接手 AI 的第一条指令建议
 
-> 读本文档与 `docs/智慧教研平台建设计划书.md` 第八节 → 跑第二节"启动与验证"确认环境 → 从 6.1（M2 学生闭环）第 1 步开始实现 → 每完成一个子任务按第七节自证并提交 → 全部完成后向 Human 演示：教师建班发卷、学生手机作答、教师看完成率。
+> 先读 `docs/剩余工作总计划.md` 与最新验收报告 → 确认用户是否已验收 C5 → 确认后进入 R1.1，不重复已完成的 M2；每个模块完成先展示效果，等用户确认后再做下一模块。

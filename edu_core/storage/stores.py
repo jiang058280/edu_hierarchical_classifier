@@ -208,7 +208,7 @@ class QuestionStore:
 
     # 可编辑字段白名单（update 动态 SET 用）
     _EDITABLE = ("content", "subject", "question_type", "knowledge_point", "answer",
-                 "analysis", "difficulty", "grade_band", "grade", "knowledge_node_id", "status")
+                 "analysis", "difficulty", "grade_band", "grade", "knowledge_node_id", "status", "options_json")
 
     def insert(self, content: str, subject: str, question_type: str = "",
                knowledge_point: str = "", source: str = "manual", *,
@@ -216,20 +216,20 @@ class QuestionStore:
                analysis: str | None = None, difficulty: int | None = None,
                grade_band: str | None = None, grade: str | None = None,
                knowledge_node_id: int | None = None,
-               created_by: int | None = None) -> int:
+               created_by: int | None = None, status: str = "published") -> int:
         with self.engine.begin() as conn:
             row = conn.execute(text("""
                 INSERT INTO questions (content, subject, question_type, knowledge_point, source,
                                        options_json, answer, analysis, difficulty,
-                                       grade_band, grade, knowledge_node_id, created_by, text_hash)
-                VALUES (:c, :s, :t, :k, :src, :oj, :a, :an, :d, :gb, :g, :kn, :by, :h)
+                                       grade_band, grade, knowledge_node_id, created_by, text_hash, status)
+                VALUES (:c, :s, :t, :k, :src, :oj, :a, :an, :d, :gb, :g, :kn, :by, :h, :status)
             """), {
                 "c": content, "s": subject, "t": question_type, "k": knowledge_point,
                 "src": source,
                 "oj": json.dumps(options, ensure_ascii=False) if options else None,
                 "a": answer, "an": analysis, "d": difficulty,
                 "gb": grade_band, "g": grade, "kn": knowledge_node_id, "by": created_by,
-                "h": text_hash(content),
+                "h": text_hash(content), "status": status,
             })
             return row.lastrowid
 
@@ -237,8 +237,8 @@ class QuestionStore:
         """按白名单更新题目；content 变更时同步 text_hash。返回是否存在。"""
         sets, params = [], {"i": question_id}
         if "options" in fields:
-            fields["options_json"] = json.dumps(fields.pop("options"), ensure_ascii=False) \
-                if fields["options"] else None
+            options = fields.pop("options")
+            fields["options_json"] = json.dumps(options, ensure_ascii=False) if options else None
         for key, value in fields.items():
             if key not in self._EDITABLE:
                 raise ValueError(f"非法编辑字段：{key}")
@@ -250,15 +250,28 @@ class QuestionStore:
         if not sets:
             return True
         with self.engine.begin() as conn:
+            self._require_unreferenced(conn, question_id)
             row = conn.execute(text(
                 f"UPDATE questions SET {', '.join(sets)} WHERE id = :i"), params)
             return row.rowcount > 0
 
     def delete(self, question_id: int) -> bool:
         with self.engine.begin() as conn:
+            self._require_unreferenced(conn, question_id)
             row = conn.execute(text(
                 "DELETE FROM questions WHERE id = :i"), {"i": question_id})
             return row.rowcount > 0
+
+    @staticmethod
+    def _require_unreferenced(conn, question_id: int) -> None:
+        # 当前试卷使用题目引用；锁定原题，避免已有试卷与学生历史被改写。
+        conn.execute(text("SELECT id FROM questions WHERE id = :i FOR UPDATE"),
+                     {"i": question_id}).first()
+        used = conn.execute(text(
+            "SELECT paper_id FROM paper_questions WHERE question_id = :i LIMIT 1"
+        ), {"i": question_id}).first()
+        if used:
+            raise ValueError("题目已被试卷使用，不能修改或删除；请另存新题后重新组卷")
 
     def get(self, question_id: int) -> dict | None:
         with self.engine.connect() as conn:
@@ -313,6 +326,35 @@ class QuestionStore:
     def count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(text("SELECT COUNT(*) FROM questions")).scalar_one())
+
+    def question_type_counts(self, subject: str = "", grade_band: str = "",
+                             status: str = "published", knowledge: str = "",
+                             difficulty: int | None = None) -> dict[str, int]:
+        """按题型聚合数量，供组卷配额在选择前展示可用库存。"""
+        conditions, params = [], {}
+        if subject:
+            conditions.append("subject = :subject")
+            params["subject"] = subject
+        if grade_band:
+            conditions.append("grade_band = :grade_band")
+            params["grade_band"] = grade_band
+        if status:
+            conditions.append("status = :status")
+            params["status"] = status
+        if knowledge:
+            conditions.append("knowledge_point LIKE :knowledge")
+            params["knowledge"] = f"%{knowledge}%"
+        if difficulty is not None:
+            conditions.append("difficulty = :difficulty")
+            params["difficulty"] = int(difficulty)
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(f"""
+                SELECT question_type, COUNT(*) AS total
+                FROM questions {where}
+                GROUP BY question_type
+            """), params).mappings().all()
+        return {str(row["question_type"]): int(row["total"]) for row in rows}
 
 
 class FeedbackStore:
@@ -461,6 +503,16 @@ class UserStore:
             """), {"u": username}).mappings().first()
         return dict(row) if row else None
 
+    def get(self, user_id: int) -> dict | None:
+        """按主键读取用户基本资料，供作业归属等服务层校验。"""
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT id, username, role, is_active, real_name,
+                       grade_band, grade, class_id, student_no
+                FROM users WHERE id = :i
+            """), {"i": int(user_id)}).mappings().first()
+        return dict(row) if row else None
+
     def count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(text("SELECT COUNT(*) FROM users")).scalar_one())
@@ -573,7 +625,7 @@ class KnowledgeNodeStore:
 
 
 class PaperStore:
-    """试卷库（平台计划 M1）：试卷 + 组卷题目快照。"""
+    """试卷库（平台计划 M1）：试卷与受保护的题目引用。"""
 
     def __init__(self, engine: Engine | None = None):
         self.engine = engine or get_engine()
@@ -591,6 +643,11 @@ class PaperStore:
                 seen.add(qid)
                 deduped.append(qid)
         with self.engine.begin() as conn:
+            for qid in sorted(deduped):
+                if not conn.execute(text(
+                    "SELECT id FROM questions WHERE id = :i FOR UPDATE"
+                ), {"i": qid}).first():
+                    raise ValueError(f"题目不存在：{qid}")
             row = conn.execute(text("""
                 INSERT INTO papers (title, subject, grade_band, created_by)
                 VALUES (:t, :s, :gb, :by)
@@ -638,7 +695,9 @@ class PaperStore:
                 f"SELECT COUNT(*) FROM papers p {where}"), params).scalar_one()
             rows = conn.execute(text(f"""
                 SELECT p.id, p.title, p.subject, p.grade_band, p.created_at,
-                       (SELECT COUNT(*) FROM paper_questions pq WHERE pq.paper_id = p.id) AS question_count
+                       (SELECT COUNT(*) FROM paper_questions pq
+                        JOIN questions q ON q.id = pq.question_id
+                        WHERE pq.paper_id = p.id) AS question_count
                 FROM papers p {where} ORDER BY p.id DESC LIMIT :limit OFFSET :offset
             """), params).mappings().all()
         items = [dict(r) | {"created_at": r["created_at"].strftime("%Y-%m-%d %H:%M:%S")}
@@ -647,8 +706,278 @@ class PaperStore:
 
     def delete(self, paper_id: int) -> bool:
         with self.engine.begin() as conn:
+            conn.execute(text("SELECT id FROM papers WHERE id = :i FOR UPDATE"),
+                         {"i": paper_id}).first()
+            if conn.execute(text(
+                "SELECT id FROM assignments WHERE paper_id = :i LIMIT 1"
+            ), {"i": paper_id}).first():
+                raise ValueError("试卷已发布为作业，不能删除，以保留学生作答记录")
             conn.execute(text("DELETE FROM paper_questions WHERE paper_id = :i"), {"i": paper_id})
             row = conn.execute(text("DELETE FROM papers WHERE id = :i"), {"i": paper_id})
+            return row.rowcount > 0
+
+
+class AssignmentStore:
+    """作业、提交与作答记录的事务型持久化。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    @staticmethod
+    def _serialize_assignment(row) -> dict:
+        data = dict(row)
+        for key in ("created_at", "due_at", "submitted_at"):
+            value = data.get(key)
+            if isinstance(value, datetime):
+                data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+        for key in ("auto_score", "final_score"):
+            if data.get(key) is not None:
+                data[key] = float(data[key])
+        if "allow_self_check" in data:
+            data["allow_self_check"] = bool(data["allow_self_check"])
+        return data
+
+    def create(self, *, paper_id: int, class_id: int, title: str,
+               created_by: int, mode: str = "homework", due_at: datetime | None = None,
+               allow_self_check: bool = True) -> int:
+        with self.engine.begin() as conn:
+            if not conn.execute(text("SELECT id FROM papers WHERE id = :i FOR UPDATE"),
+                                {"i": paper_id}).first():
+                raise ValueError("试卷不存在或已删除")
+            row = conn.execute(text("""
+                INSERT INTO assignments
+                    (paper_id, class_id, title, mode, due_at, allow_self_check, created_by, created_at)
+                VALUES (:p, :c, :t, :m, :due, :self_check, :by, :now)
+            """), {
+                "p": int(paper_id), "c": int(class_id), "t": title,
+                "m": mode, "due": due_at,
+                "self_check": 1 if allow_self_check else 0,
+                "by": int(created_by),
+                "now": datetime.now(),
+            })
+            return int(row.lastrowid)
+
+    def get(self, assignment_id: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT a.*, p.subject, p.grade_band, p.title AS paper_title,
+                       c.name AS class_name
+                FROM assignments a
+                JOIN papers p ON p.id = a.paper_id
+                JOIN classes c ON c.id = a.class_id
+                WHERE a.id = :i
+            """), {"i": int(assignment_id)}).mappings().first()
+        return self._serialize_assignment(row) if row else None
+
+    def list_by_teacher(self, teacher_id: int, limit: int = 50,
+                        offset: int = 0) -> tuple[list[dict], int]:
+        params = {"teacher": int(teacher_id), "limit": int(limit), "offset": int(offset)}
+        with self.engine.connect() as conn:
+            total = conn.execute(text(
+                "SELECT COUNT(*) FROM assignments WHERE created_by = :teacher"
+            ), params).scalar_one()
+            rows = conn.execute(text("""
+                SELECT a.id, a.paper_id, a.class_id, a.title, a.mode, a.due_at,
+                       a.allow_self_check, a.created_by, a.created_at,
+                       p.subject, p.grade_band, p.title AS paper_title, c.name AS class_name,
+                       COUNT(s.id) AS submission_count,
+                       SUM(s.status IN ('submitted', 'checked')) AS completed_count
+                FROM assignments a
+                JOIN papers p ON p.id = a.paper_id
+                JOIN classes c ON c.id = a.class_id
+                LEFT JOIN submissions s ON s.assignment_id = a.id
+                WHERE a.created_by = :teacher
+                GROUP BY a.id, a.paper_id, a.class_id, a.title, a.mode, a.due_at,
+                         a.allow_self_check, a.created_by, a.created_at,
+                         p.subject, p.grade_band, p.title, c.name
+                ORDER BY a.id DESC LIMIT :limit OFFSET :offset
+            """), params).mappings().all()
+        return [self._serialize_assignment(r) for r in rows], int(total)
+
+    def list_by_student(self, student_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT a.id, a.paper_id, a.class_id, a.title, a.mode, a.due_at,
+                       a.allow_self_check, a.created_at, p.subject, p.grade_band,
+                       s.id AS submission_id, COALESCE(s.status, 'not_started') AS status,
+                       s.auto_score, s.final_score, s.submitted_at
+                FROM users u
+                JOIN assignments a ON a.class_id = u.class_id OR EXISTS (
+                    SELECT 1 FROM submissions history
+                    WHERE history.assignment_id = a.id AND history.student_id = u.id
+                      AND history.status IN ('submitted', 'checked'))
+                JOIN papers p ON p.id = a.paper_id
+                LEFT JOIN submissions s
+                    ON s.assignment_id = a.id AND s.student_id = u.id
+                WHERE u.id = :student AND u.role = 'student'
+                ORDER BY a.id DESC
+            """), {"student": int(student_id)}).mappings().all()
+        return [self._serialize_assignment(r) for r in rows]
+
+    def get_detail(self, assignment_id: int, student_id: int | None = None) -> dict | None:
+        assignment = self.get(assignment_id)
+        if not assignment:
+            return None
+        with self.engine.connect() as conn:
+            qrows = conn.execute(text("""
+                SELECT q.id, q.content, q.subject, q.question_type, q.knowledge_point,
+                       q.options_json, q.answer, q.analysis, q.difficulty, q.grade_band,
+                       pq.order_no, pq.score
+                FROM assignments a
+                JOIN paper_questions pq ON pq.paper_id = a.paper_id
+                JOIN questions q ON q.id = pq.question_id
+                WHERE a.id = :i ORDER BY pq.order_no
+            """), {"i": int(assignment_id)}).mappings().all()
+            submission = None
+            records = []
+            if student_id is not None:
+                submission = conn.execute(text("""
+                    SELECT id, assignment_id, student_id, status, auto_score,
+                           final_score, submitted_at
+                    FROM submissions
+                    WHERE assignment_id = :a AND student_id = :s
+                """), {"a": int(assignment_id), "s": int(student_id)}).mappings().first()
+                if submission:
+                    records = conn.execute(text("""
+                        SELECT question_id, answer, is_correct, source, created_at
+                        FROM answer_records WHERE submission_id = :submission
+                        ORDER BY id
+                    """), {"submission": int(submission["id"])}).mappings().all()
+
+        questions = []
+        for row in qrows:
+            item = dict(row)
+            item["options"] = json.loads(item.pop("options_json")) if item.get("options_json") else None
+            item["score"] = float(item["score"])
+            questions.append(item)
+        assignment["questions"] = questions
+        assignment["submission"] = self._serialize_assignment(submission) if submission else None
+        assignment["answers"] = []
+        for row in records:
+            item = self._serialize_assignment(row)
+            if item.get("is_correct") is not None:
+                item["is_correct"] = bool(item["is_correct"])
+            assignment["answers"].append(item)
+        return assignment
+
+    def submit(self, *, assignment_id: int, student_id: int,
+               answers: list[dict]) -> dict:
+        """原子写入一次提交及其全部作答；已提交/已批改时拒绝重复提交。"""
+        gradable = [item for item in answers
+                    if item.get("auto_gradable", True) and item.get("is_correct") is not None]
+        auto_score = None
+        if gradable:
+            correct = sum(1 for item in gradable if item["is_correct"] is True)
+            auto_score = round(correct / len(gradable) * 100.0, 1)
+
+        with self.engine.begin() as conn:
+            # 唯一键 upsert 先获得记录锁，避免两个首次提交同时查空后的插入竞态。
+            conn.execute(text("""
+                INSERT INTO submissions (assignment_id, student_id, status)
+                VALUES (:a, :s, 'in_progress')
+                ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)
+            """), {"a": int(assignment_id), "s": int(student_id)})
+            existing = conn.execute(text("""
+                SELECT id, status FROM submissions
+                WHERE assignment_id = :a AND student_id = :s FOR UPDATE
+            """), {"a": int(assignment_id), "s": int(student_id)}).mappings().first()
+            if existing and existing["status"] in ("submitted", "checked"):
+                raise ValueError("该作业已经提交，不能重复提交")
+            # 截止字段采用应用本地时间；不能与可能运行在 UTC 的数据库 NOW() 混用。
+            now = datetime.now()
+            allowed = conn.execute(text("""
+                SELECT a.id FROM assignments a JOIN users u ON u.class_id = a.class_id
+                WHERE a.id = :a AND u.id = :s AND u.is_active = 1
+                  AND (a.due_at IS NULL OR a.due_at > :now)
+            """), {"a": int(assignment_id), "s": int(student_id), "now": now}).first()
+            if not allowed:
+                raise ValueError("作业已截止或学生班级已变化，请刷新后重试")
+            submission_id = int(existing["id"])
+            conn.execute(text(
+                "DELETE FROM answer_records WHERE submission_id = :i"
+            ), {"i": submission_id})
+
+            for item in answers:
+                conn.execute(text("""
+                    INSERT INTO answer_records
+                        (submission_id, student_id, question_id, answer, is_correct, source, created_at)
+                    VALUES (:submission, :student, :question, :answer, :correct, 'assignment', :now)
+                """), {
+                    "submission": submission_id,
+                    "student": int(student_id),
+                    "question": int(item["question_id"]),
+                    "answer": item.get("answer"),
+                    "correct": None if item.get("is_correct") is None
+                    else (1 if item["is_correct"] else 0),
+                    "now": now,
+                })
+            conn.execute(text("""
+                UPDATE submissions
+                SET status = 'submitted', auto_score = :score, submitted_at = :now
+                WHERE id = :i
+            """), {"score": auto_score, "i": submission_id, "now": now})
+        return {"submission_id": submission_id, "status": "submitted", "auto_score": auto_score}
+
+    def get_submission(self, submission_id: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT s.*, a.created_by, a.class_id, a.title AS assignment_title
+                FROM submissions s JOIN assignments a ON a.id = s.assignment_id
+                WHERE s.id = :i
+            """), {"i": int(submission_id)}).mappings().first()
+        return self._serialize_assignment(row) if row else None
+
+    def list_submissions(self, assignment_id: int) -> list[dict]:
+        """返回班级完整名册及提交状态，未开始的学生也包含在内。"""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT u.id AS student_id, u.username, u.real_name, u.student_no,
+                       s.id AS submission_id,
+                       COALESCE(s.status, 'not_started') AS status,
+                       s.auto_score, s.final_score, s.submitted_at,
+                       SUM(ar.answer IS NOT NULL AND TRIM(ar.answer) <> '') AS answered_count,
+                       SUM(ar.id IS NOT NULL AND ar.is_correct IS NULL) AS pending_count
+                FROM assignments a
+                JOIN users u
+                  ON u.class_id = a.class_id
+                 AND u.role = 'student'
+                 AND u.is_active = 1
+                LEFT JOIN submissions s
+                  ON s.assignment_id = a.id AND s.student_id = u.id
+                LEFT JOIN answer_records ar ON ar.submission_id = s.id
+                WHERE a.id = :assignment
+                GROUP BY u.id, u.username, u.real_name, u.student_no,
+                         s.id, s.status, s.auto_score, s.final_score, s.submitted_at
+                ORDER BY u.id
+            """), {"assignment": int(assignment_id)}).mappings().all()
+            answer_rows = conn.execute(text("""
+                SELECT s.id AS submission_id, ar.question_id, ar.answer, ar.is_correct
+                FROM submissions s
+                JOIN answer_records ar ON ar.submission_id = s.id
+                WHERE s.assignment_id = :assignment
+                ORDER BY s.id, ar.id
+            """), {"assignment": int(assignment_id)}).mappings().all()
+        answers_by_submission: dict[int, list[dict]] = {}
+        for row in answer_rows:
+            item = dict(row)
+            if item["is_correct"] is not None:
+                item["is_correct"] = bool(item["is_correct"])
+            answers_by_submission.setdefault(int(item.pop("submission_id")), []).append(item)
+        items = []
+        for row in rows:
+            item = self._serialize_assignment(row)
+            item["answered_count"] = int(item.get("answered_count") or 0)
+            item["pending_count"] = int(item.get("pending_count") or 0)
+            item["answers"] = answers_by_submission.get(item.get("submission_id"), [])
+            items.append(item)
+        return items
+
+    def check(self, submission_id: int, final_score: float) -> bool:
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""
+                UPDATE submissions SET status = 'checked', final_score = :score
+                WHERE id = :i AND status IN ('submitted', 'checked')
+            """), {"i": int(submission_id), "score": float(final_score)})
             return row.rowcount > 0
 
 
@@ -702,3 +1031,4 @@ class StoreBundle:
         self.classes = ClassStore(self.engine)
         self.knowledge_nodes = KnowledgeNodeStore(self.engine)
         self.papers = PaperStore(self.engine)
+        self.assignments = AssignmentStore(self.engine)
