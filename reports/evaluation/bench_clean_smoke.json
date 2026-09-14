@@ -1,0 +1,36 @@
+{
+  "version": "v0.3-20260906",
+  "dataset": "bench_clean",
+  "evaluated_at": "2026-09-13 08:57:59",
+  "metrics": {
+    "n_samples": 2,
+    "subject_acc": 0.5,
+    "subject_f1": 0.3333,
+    "type_acc": 1.0,
+    "type_f1": 1.0,
+    "knowledge_acc": 0.5,
+    "knowledge_f1": 0.3333,
+    "cascade_acc": 0.5,
+    "avg_latency_ms": 514.94,
+    "total_eval_ms": 1029.95
+  },
+  "subject_cascade_accuracy": {
+    "历史": 0.0,
+    "数学": 1.0
+  },
+  "error_samples": [
+    {
+      "text_preview": "据图可知，“一五”计划的特点是（　　）\nA．全面实现工业化\nB．优先发展重工业\nC．形成全国交通网\nD．以东北作为重心",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      },
+      "predicted": {
+        "subject": "地理",
+        "question_type": "选择题",
+        "knowledge_point": "地理::人文地理"
+      }
+    }
+  ]
+}

@@ -40,10 +40,21 @@ WARN_ROWS = 200_000
 EXCLUDED_TABLES = {"schema_migrations"}
 
 
+def _write_status(payload: dict) -> None:
+    root = Path(__file__).resolve().parents[1]
+    target = root / "reports" / "verification" / "backup_status_latest.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="MySQL JSON 快照备份")
     parser.add_argument("--out-dir", default="backups", help="快照输出目录（默认 backups）")
+    parser.add_argument("--keep", type=int, default=KEEP, help="保留快照数量（默认 7）")
+    parser.add_argument("--prune", action="store_true", help="显式确认后才清理超出保留数量的旧快照")
     args = parser.parse_args()
+    if args.keep < 1:
+        parser.error("--keep 必须至少为 1")
 
     settings = get_settings()
     out_dir = Path(args.out_dir)
@@ -75,15 +86,17 @@ def main() -> int:
         json.dump(snapshot, f, ensure_ascii=False, default=str, indent=1)
     os.replace(tmp_fp, fp)
 
-    # 仅保留最近 KEEP 份
+    # 默认不删除用户数据；只在明确传入 --prune 时执行保留策略。
     snapshots = sorted(glob.glob(str(out_dir / "snapshot_*.json")))
     removed = []
-    for old in snapshots[:-KEEP] if len(snapshots) > KEEP else []:
-        try:
-            os.remove(old)
-            removed.append(os.path.basename(old))
-        except OSError:
-            pass
+    excess = snapshots[:-args.keep] if len(snapshots) > args.keep else []
+    if args.prune:
+        for old in excess:
+            try:
+                os.remove(old)
+                removed.append(os.path.basename(old))
+            except OSError:
+                pass
 
     size_mb = round(fp.stat().st_size / 1024 / 1024, 2)
     print(f"备份完成: {fp}")
@@ -96,10 +109,23 @@ def main() -> int:
             warnings.append(t)
     if removed:
         print(f"已清理旧快照: {removed}")
+    elif excess:
+        print(f"保留策略提示：现有 {len(snapshots)} 份快照，超过 {args.keep} 份；未删除。"
+              "如确认可清理，请显式使用 --prune")
     if warnings:
-        print(f"[告警] 大表体积增长提示: {warnings}（快照仅保留 {KEEP} 份，请关注体积增长）")
+        print(f"[告警] 大表体积增长提示: {warnings}（建议关注快照体积）")
+    _write_status({"status": "success", "finished_at": _dt.datetime.now().isoformat(),
+                   "snapshot": str(fp), "size_mb": size_mb, "elapsed_s": elapsed_s,
+                   "table_count": len(row_count), "warnings": warnings,
+                   "retention": {"keep": args.keep, "pruned": removed, "excess": len(excess)}})
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except Exception as exc:  # noqa: BLE001 - 备份失败也必须留下可见状态
+        _write_status({"status": "failed", "finished_at": _dt.datetime.now().isoformat(),
+                       "error": str(exc)[:500]})
+        print(f"备份失败：{exc}", file=sys.stderr)
+        sys.exit(1)

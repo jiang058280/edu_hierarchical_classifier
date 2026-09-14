@@ -1,0 +1,86 @@
+{
+  "verified_at": "2026-09-12T14:43:46+08:00",
+  "status": "passed",
+  "scope": {
+    "host": "127.0.0.1:7861",
+    "database": "edu_classifier_loadtest",
+    "business_database_touched": false,
+    "rate_limit": "isolated instance override only",
+    "rag_path": "streaming no-evidence refusal; no external LLM call"
+  },
+  "scenarios": {
+    "classify_50": {
+      "requests": 862,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "rps": 45.21,
+      "p50_ms": 460.0,
+      "p95_ms": 1300.0,
+      "p99_ms": 2000.0,
+      "max_ms": 2377.9732000002696
+    },
+    "submit_50": {
+      "requests": 50,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "rps": 26.93,
+      "p50_ms": 560.0,
+      "p95_ms": 880.0,
+      "p99_ms": 890.0,
+      "max_ms": 889.3849999985832
+    },
+    "rag_stream_10": {
+      "requests": 116,
+      "failures": 0,
+      "failure_rate": 0.0,
+      "rps": 6.24,
+      "p50_ms": 110.0,
+      "p95_ms": 490.0,
+      "p99_ms": 520.0,
+      "max_ms": 525.2075000025798
+    }
+  },
+  "database_facts": {
+    "submissions": 50,
+    "answer_records": 50,
+    "rag_messages": 360
+  },
+  "checks": {
+    "all_http_failures_zero": true,
+    "exactly_50_first_submissions": true,
+    "exactly_50_answer_records": true,
+    "rag_messages_persisted": true
+  },
+  "slow_query_sample": [
+    {
+      "digest_text": "INSERT INTO `daily_stats` ( `stat_date` , `total_processed` , `avg_confidence` ) VALUES (...) ON DUPLICATE KEY UPDATE `total_processed` = `total_processed` + ? , `avg_confidence` = `ROUND` ( ( `avg_confidence` * ( `total_processed` - ? ) + ",
+      "executions": 1021,
+      "avg_ms": 36.265,
+      "max_ms": 233.35
+    },
+    {
+      "digest_text": "DELETE FROM `answer_records` WHERE `submission_id` = ?",
+      "executions": 50,
+      "avg_ms": 70.018,
+      "max_ms": 107.882
+    },
+    {
+      "digest_text": "SELECT LEFT ( `DIGEST_TEXT` , ? ) AS `digest_text` , `COUNT_STAR` AS `executions` , `ROUND` ( `AVG_TIMER_WAIT` / ?, ... ) AS `avg_ms` , `ROUND` ( `MAX_TIMER_WAIT` / ?, ... ) AS `max_ms` FROM `performance_schema` . `events_statements_summary",
+      "executions": 1,
+      "avg_ms": 100.83,
+      "max_ms": 100.83
+    },
+    {
+      "digest_text": "INSERT INTO `student_knowledge_mastery` ( `student_id` , SUBJECT , `knowledge_point` , `attempt_count` , `correct_rate` , `recent_correct_rate` , `mastery_score` , `profile_confidence` , `consecutive_wrong` , `redo_success_rate` , `last_pra",
+      "executions": 242,
+      "avg_ms": 3.555,
+      "max_ms": 99.732
+    },
+    {
+      "digest_text": "INSERT INTO `classifications` ( `text_hash` , `text_preview` , `model_version` , `subject_pred` , `subject_conf` , `type_pred` , `type_conf` , `knowledge_pred` , `knowledge_conf` , `avg_confidence` , `confidence_band` , `latency_ms` , `cach",
+      "executions": 1020,
+      "avg_ms": 0.742,
+      "max_ms": 68.228
+    }
+  ]
+}

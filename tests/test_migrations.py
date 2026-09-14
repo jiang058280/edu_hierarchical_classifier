@@ -111,7 +111,14 @@ def test_migrations_fresh_run_and_idempotent(scratch_settings):
             cur.execute("SHOW TABLES")
             tables = {row[0] for row in cur.fetchall()}
         expected = {"schema_migrations", "model_versions", "active_model_pointer",
-                    "classifications", "questions", "feedback", "daily_stats"}
+                    "classifications", "questions", "feedback", "daily_stats",
+                    "rag_kb_versions", "rag_active_kb_pointer", "rag_documents",
+                    "rag_document_chunks", "rag_ingestion_jobs", "rag_sessions",
+                    "rag_messages", "rag_query_traces", "rag_feedback", "wrong_book_marks"}
+        expected |= {"student_knowledge_mastery", "student_profile_snapshots"}
+        expected.add("recommendation_runs")
+        expected.add("consolidation_plan_runs")
+        expected.add("rag_question_knowledge")
         assert expected <= tables
     finally:
         _drop_scratch_db(scratch_settings)

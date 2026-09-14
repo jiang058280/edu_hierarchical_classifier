@@ -1,0 +1,21 @@
+{
+  "verified_at": "2026-09-10 09:56:15",
+  "all_passed": true,
+  "checks": {
+    "rag_test_suite": {
+      "passed": true,
+      "detail": "......................                                                   [100%]\n22 passed in 33.17s"
+    },
+    "ingestion_report": {
+      "document_count": 0,
+      "document_status_counts": {},
+      "chunk_count": 0,
+      "api_tracked_reuse_count": 0,
+      "failed_job_count": 0,
+      "orphan_chunk_count": 0,
+      "empty_chunk_count": 0,
+      "empty_chunk_ratio": 0.0,
+      "active_kb_version": null
+    }
+  }
+}

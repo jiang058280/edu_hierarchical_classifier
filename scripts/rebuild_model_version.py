@@ -30,7 +30,7 @@ from edu_core.config.logging_config import get_logger
 from edu_core.config.settings import get_settings
 from edu_core.governance.model_versions import ModelVersionManager, version_dir
 from edu_core.inference.predictor import HierarchicalPredictor
-from edu_core.quality.evaluation import evaluate_predictor, load_golden_set, save_report
+from edu_core.quality.evaluation import evaluate_predictor, load_evaluation_set, save_report
 from edu_core.quality.gate import check_gate
 
 logger = get_logger(__name__)
@@ -41,6 +41,7 @@ def main() -> None:
     parser.add_argument("--version", required=True, help="版本号（models/versions/<version>）")
     parser.add_argument("--description", default="rebuild_model_version", help="版本描述")
     parser.add_argument("--limit", type=int, default=None, help="评估只取前 N 条（冒烟）")
+    parser.add_argument("--dataset", choices=("golden_test_set", "bench_clean"), default="golden_test_set")
     parser.add_argument("--evaluate-only", action="store_true", help="只评估并保存报告，不注册不激活")
     parser.add_argument("--skip-evaluation", action="store_true", help="跳过评估（要求已有评估报告或注册指标）")
     parser.add_argument("--gate", action="store_true", help="评估后执行质量门禁")
@@ -57,13 +58,18 @@ def main() -> None:
 
     # ---------- 评估 ----------
     if not args.skip_evaluation:
-        cases = load_golden_set(settings)
+        cases = load_evaluation_set(settings, args.dataset)
         if args.limit:
             cases = cases[: args.limit]
         logger.info("评估版本 %s（%s 条用例）", args.version, len(cases))
         predictor = HierarchicalPredictor(vdir, settings=settings, verbose=True)
-        report = evaluate_predictor(predictor.predict, cases, version=args.version)
-        report_path = save_report(report, settings)
+        report = evaluate_predictor(predictor.predict, cases, version=args.version,
+                                    dataset_name=args.dataset)
+        report_name = (
+            f"{args.version}_bench_clean_evaluation.json"
+            if args.dataset == "bench_clean" else None
+        )
+        report_path = save_report(report, settings, name=report_name)
         metrics = report["metrics"]
         print(f"评估完成：{report_path}")
         print(f"  学科 acc {metrics['subject_acc']} | 题型 F1 {metrics['type_f1']} | "

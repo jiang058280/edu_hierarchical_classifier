@@ -20,6 +20,8 @@ A．有氧呼吸的场所是线粒体
 B．无氧呼吸不产生 ATP"></textarea>
     <div class="row" style="margin-top:12px">
       <button class="btn" onclick="splitAndPredict()">智能切分并预标注</button>
+      <button class="btn plain" onclick="$('docxFile').click()">从 DOCX 导入</button>
+      <input id="docxFile" type="file" accept=".docx" hidden onchange="importDocx(this)">
       <button class="btn plain" onclick="resetAll()">清空</button>
       <span class="muted" id="splitInfo"></span>
       <span style="flex:1"></span>
@@ -34,7 +36,7 @@ B．无氧呼吸不产生 ATP"></textarea>
   </div>
 </div>
 
-<script src="/static/teacher_common.js?v=20260909-h"></script>
+<script src="/static/teacher_common.js?v=20260910-confidence"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 T.renderShell('entry', 'AI 智能录入');
@@ -72,14 +74,25 @@ function splitQuestions(raw) {
 }
 
 function cardHtml(item) {
-  const conf = item.conf || {};
-  const bar = (v) => `<span style="display:inline-block;width:64px;height:5px;border-radius:3px;background:#EDF0F7;vertical-align:middle;margin-left:6px"><span style="display:block;height:5px;border-radius:3px;background:var(--primary);width:${Math.round((v || 0) * 100)}%"></span></span>`;
+  // API 返回字段为 confidences；兼容早期前端曾使用的 conf，避免出现空白进度条。
+  const conf = item.confidences || item.conf || {};
+  const number = (v) => Math.max(0, Math.min(1, Number(v) || 0));
+  const level = (v) => number(v) >= .80 ? ['可信', 'b-ok', '#0D9488'] : number(v) >= .60 ? ['建议确认', 'b-warn', '#D97706'] : ['需复核', 'b-bad', '#DC2626'];
+  const meter = (label, value) => {
+    const pct = Math.round(number(value) * 100), meta = level(value);
+    return `<span style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><span>${label}</span><b style="color:${meta[2]}">${pct}%</b><span style="display:inline-block;width:52px;height:5px;border-radius:3px;background:#EDF0F7"><span style="display:block;height:5px;border-radius:3px;background:${meta[2]};width:${pct}%"></span></span></span>`;
+  };
+  const average = (number(conf.subject) + number(conf.question_type) + number(conf.knowledge_point)) / 3;
+  const averageMeta = level(average);
   const opts = ['A','B','C','D'];
   return `
   <div class="card qcard" id="qc_${item.seq}">
     <div class="card-head">
       <h3>第 ${item.seq + 1} 题 <span class="badge b-info">AI 预标注</span></h3>
-      <span class="muted">置信度 学科${bar(conf.subject)} 题型${bar(conf.question_type)} 知识点${bar(conf.knowledge_point)}</span>
+      <div class="row" style="gap:12px;justify-content:flex-end;flex-wrap:wrap;font-size:12px;color:var(--muted)">
+        <span class="badge ${averageMeta[1]}">综合 ${Math.round(average * 100)}% · ${averageMeta[0]}</span>
+        ${meter('学科', conf.subject)}${meter('题型', conf.question_type)}${meter('知识点', conf.knowledge_point)}
+      </div>
     </div>
     <textarea class="input" id="t_${item.seq}" rows="4">${T.escapeHtml(item.text)}</textarea>
     <div class="grid2" style="margin-top:10px">
@@ -120,17 +133,40 @@ async function splitAndPredict() {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ texts: texts.slice(0, 50) })
     });
-    $('cards').innerHTML = '';
-    $('emptyCard').style.display = 'none';
-    data.items.forEach((item, i) => {
-      item.seq = batchSeq++;
-      const div = document.createElement('div');
-      div.innerHTML = cardHtml(item);
-      $('cards').appendChild(div.firstElementChild);
-    });
-    if (!data.items.length) { $('emptyCard').style.display = ''; }
-    T.toast(`预标注完成，共 ${data.items.length} 题，请逐题确认`, 'ok');
+    renderPredictions(data.items || []);
   } catch (e) { T.toast(e.message, 'err'); }
+}
+
+function renderPredictions(items) {
+  $('cards').innerHTML = '';
+  $('emptyCard').style.display = items.length ? 'none' : '';
+  items.forEach(item => {
+    item.seq = batchSeq++;
+    const div = document.createElement('div');
+    div.innerHTML = cardHtml(item);
+    $('cards').appendChild(div.firstElementChild);
+  });
+  if (items.length) T.toast(`预标注完成，共 ${items.length} 题，请逐题确认`, 'ok');
+}
+
+async function importDocx(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (!taxonomy) {
+    try { taxonomy = await T.api('/api/v1/teacher/question-taxonomy'); }
+    catch (e) { T.toast(e.message, 'err'); return; }
+  }
+  $('splitInfo').textContent = `正在读取 ${file.name}…`;
+  const form = new FormData(); form.append('file', file);
+  try {
+    const data = await T.api('/api/v1/teacher/questions/import-docx', {method: 'POST', body: form});
+    $('splitInfo').textContent = `从 DOCX 切分出 ${data.total} 题`;
+    renderPredictions(data.items || []);
+  } catch (e) {
+    $('splitInfo').textContent = '';
+    T.toast(e.message, 'err');
+  }
 }
 
 function collect(seq) {
@@ -161,8 +197,8 @@ async function saveCard(seq, status) {
     card.style.opacity = '.45';
     card.querySelectorAll('button').forEach(b => b.disabled = true);
     card.querySelector('.card-head h3').innerHTML =
-      `第 ${seq + 1} 题 <span class="badge b-ok">已入库 #${r.id}</span>`;
-    T.toast('已入库，题目 #' + r.id, 'ok');
+      `第 ${seq + 1} 题 <span class="badge b-ok">已入库</span>`;
+    T.toast('题目已入库', 'ok');
   } catch (e) { T.toast(e.message, 'err'); }
 }
 

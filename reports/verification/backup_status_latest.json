@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "finished_at": "2026-09-12T06:31:59.037472",
+  "snapshot": "D:\\edu_hierarchical_classifier\\reports\\tmp\\e3_backup_probe\\snapshot_20260912_0631.json",
+  "size_mb": 0.2,
+  "elapsed_s": 0.242038,
+  "table_count": 29,
+  "warnings": [],
+  "retention": {
+    "keep": 1,
+    "pruned": [],
+    "excess": 0
+  }
+}

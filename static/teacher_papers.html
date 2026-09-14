@@ -43,7 +43,7 @@
     <div class="card-head"><h3>我的试卷</h3>
       <button class="btn plain sm" onclick="loadPapers()">刷新</button></div>
     <table class="table">
-      <thead><tr><th>ID</th><th>标题</th><th>学科</th><th>学段</th><th>题数</th><th>创建时间</th><th style="width:170px">操作</th></tr></thead>
+      <thead><tr><th>序号</th><th>标题</th><th>学科</th><th>学段</th><th>题数</th><th>创建时间</th><th style="width:170px">操作</th></tr></thead>
       <tbody id="paperRows"></tbody>
     </table>
   </div>
@@ -145,7 +145,7 @@ async function savePaper() {
       body: JSON.stringify({title, subject: $('gSubject').value,
         grade_band: $('gBand').value || '高中', question_ids: ids})
     });
-    T.toast('试卷已保存 #' + r.id, 'ok');
+    T.toast('试卷已保存', 'ok');
     $('previewCard').style.display = 'none'; generated = [];
     loadPapers();
   } catch (e) { T.toast(e.message, 'err'); }
@@ -155,9 +155,9 @@ async function loadPapers() {
   try {
     const data = await T.api('/api/v1/teacher/papers');
     data.items = data.items || []; data.total = data.total || 0;
-    $('paperRows').innerHTML = data.items.length ? data.items.map(p => `
+    $('paperRows').innerHTML = data.items.length ? data.items.map((p, index) => `
       <tr>
-        <td class="num">${p.id}</td><td><b>${T.escapeHtml(p.title)}</b></td>
+        <td class="num">${index + 1}</td><td><b>${T.escapeHtml(p.title)}</b></td>
         <td>${T.escapeHtml(p.subject)}</td><td>${T.escapeHtml(p.grade_band)}</td>
         <td class="num">${p.question_count}</td><td class="muted">${p.created_at}</td>
         <td>
@@ -169,7 +169,7 @@ async function loadPapers() {
   } catch (e) { T.toast(e.message, 'err'); }
 }
 async function removePaper(id) {
-  if (!await T.confirm('确定删除试卷 #' + id + '？')) return;
+  if (!await T.confirm('确定删除这份试卷？')) return;
   try { await T.api('/api/v1/teacher/papers/' + id, {method: 'DELETE'}); T.toast('已删除', 'ok'); loadPapers(); }
   catch (e) { T.toast(e.message, 'err'); }
 }

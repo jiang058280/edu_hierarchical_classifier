@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-09-13 21:32:21",
+  "source": "MySQL rag_question_knowledge",
+  "external_model_called": false,
+  "total_synced": 1296,
+  "sample_size": 100,
+  "top1_matched": 100,
+  "top1_recall": 1.0,
+  "answer_or_analysis_ready": 100,
+  "failed_question_ids": [],
+  "note": "这是本地题库精确命中验收，不替代 R2.5 的人工标注资料问答评测。"
+}

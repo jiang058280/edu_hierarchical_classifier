@@ -1,0 +1,290 @@
+{
+  "version": "v0.4-20260906",
+  "dataset": "bench_clean",
+  "evaluated_at": "2026-09-13 09:00:18",
+  "metrics": {
+    "n_samples": 432,
+    "subject_acc": 0.9769,
+    "subject_f1": 0.9658,
+    "type_acc": 0.9722,
+    "type_f1": 0.942,
+    "knowledge_acc": 0.8148,
+    "knowledge_f1": 0.6352,
+    "cascade_acc": 0.7894,
+    "avg_latency_ms": 38.67,
+    "total_eval_ms": 16724.19
+  },
+  "subject_cascade_accuracy": {
+    "化学": 0.5,
+    "历史": 0.8163,
+    "地理": 0.625,
+    "政治": 0.8276,
+    "数学": 0.8506,
+    "物理": 0.85,
+    "生物": 0.7797,
+    "英语": 0.7037,
+    "语文": 0.8214
+  },
+  "error_samples": [
+    {
+      "text_preview": "据图可知，“一五”计划的特点是（　　）\nA．全面实现工业化\nB．优先发展重工业\nC．形成全国交通网\nD．以东北作为重心",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      },
+      "predicted": {
+        "subject": "地理",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      }
+    },
+    {
+      "text_preview": "32. There’s  no way of knowing  why one man makes  an important  discovery\nanother  man,  also intelligent,  fails.\nA. s",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      }
+    },
+    {
+      "text_preview": "设A，B，C为△ABC的内角，则“A＜B”是“cosA＞cosB”的（　　）\nA．充分不必要条件\nB．必要不充分条件\nC．充分必要条件\nD．既不充分也不必要条件",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::三角函数"
+      }
+    },
+    {
+      "text_preview": "对于冷战结束后迅速发展的经济全球化趋势，有人予以肯定，也有人持否定态度。下列对当前经济全球化的影响，表述正确的是（　　）\n①经济全球化扩大了世界各国的贫富差距\n②经济全球化一定会使世界各国普遍受益\n③经济全球化导致风险全球化，加大全球经济发",
+      "expected": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "政治::经济生活"
+      },
+      "predicted": {
+        "subject": "政治",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      }
+    },
+    {
+      "text_preview": "4.Logistic 模型是常用数学模型之一, 可应用于流行病学领城. 有学者根据公布数据建立了某 地区新冠肺炎累计确诊病例数 $I(t)\\left(t\\right.$ 的单位: 天)的 Logistic 模型: $I(t)=\\frac{K",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::排列组合与概率统计"
+      }
+    },
+    {
+      "text_preview": "27. The next thing  he saw was smoke  _______from  behind  the house.\nA. rose         B. rising          C. to rise     ",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::语言应用"
+      }
+    },
+    {
+      "text_preview": "1．（6分）下列研究工作中由我国科学家完成的是（）\nA．以豌豆为材料发现性状遗传规律的实验\nB．用小球藻发现光合作用暗反应途径的实验\nC．证明DNA是遗传物质的肺炎双球菌转化实验\nD．首例具有生物活性的结晶牛胰岛素的人工合成",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::现代生物科技专题"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::遗传与进化"
+      }
+    },
+    {
+      "text_preview": "阅读下面的文字，完成各题。\n贾母闻知宝玉被吓，细问原由，众人不敢再隐，只得回明。贾母道：“我必料到有此事。如今各处上夜都不小心，还是小事，只怕他们就是贼也未可知。”当下邢夫人并尤氏等都过来请安，凤姐及李纨姊妹等皆陪侍，听贾母如此说，都默无所",
+      "expected": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::基础知识"
+      },
+      "predicted": {
+        "subject": "语文",
+        "question_type": "解答题",
+        "knowledge_point": "语文::阅读与鉴赏"
+      }
+    },
+    {
+      "text_preview": "6．（6分）土壤小动物对动植物遗体的分解起着重要的作用。下列关于土壤小动物的叙述，\n错误的是（）\nA．调查身体微小、活动力强的小动物数量常用标志重捕法\nB．土壤中小动物类群的丰富度高，则该类群含有的物种数目多\nC．土壤小动物的代谢活动会影响",
+      "expected": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::稳态与环境"
+      },
+      "predicted": {
+        "subject": "生物",
+        "question_type": "选择题",
+        "knowledge_point": "生物::分子与细胞"
+      }
+    },
+    {
+      "text_preview": "What puzzles Lily's friends is_______ she always has so many crazy ideas.（　　）\nA．whether\nB．why\nC．what\nD．when",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      }
+    },
+    {
+      "text_preview": "2021年，“中国天眼”正式对全球开放，它能探测到宇宙边缘的中性氢，重现宇宙早期图像。下列有关说法正确的是（　　）\nA．其塔架所用钢材的组成元素都是金属元素\nB．其射电板所用铝合金具有较强的抗腐蚀性\nC．中性氢原子构成的氢气有三种同素异形体",
+      "expected": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::化学基本概念和基本理论"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::常见无机物及其应用"
+      }
+    },
+    {
+      "text_preview": "考古学者在中原龙山文化的山西襄汾陶寺遗址中发现墓地有一千多座，大型墓长3米上下、宽2米多，随葬品有彩绘陶器、彩绘木器、玉或石制的礼器等，数量可达一、二百件。但这种规格的墓葬不及墓葬总数的1%，由此可推断（　　）\nA．社会生产与分工日趋精密细",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::选考五 探索历史的奥秘"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::古代世界"
+      }
+    },
+    {
+      "text_preview": "为了解推动出口后的亩收入（单位：万元）情况，从该种植区抽取样本，得到推动出口后亩收入的样本均值 $\\bar{x} = 2.1$，样本方差 $s^2 = 0.01$，已知该种植区以往的亩收入 $X$ 服从正态分布 $N(1.8, 0.12)$",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::排列组合与概率统计"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      }
+    },
+    {
+      "text_preview": "11. (12 分) 空间存在一方向坚直向下的匀强电场, $O 、 P$ 是电场中的两点。从 $\\mathrm{O}$ 点沿水平 方向以不同速度先后发射两个质量均为 $\\mathrm{m}$ 的小球 $\\mathrm{A} 、 \\mathr",
+      "expected": {
+        "subject": "物理",
+        "question_type": "解答题",
+        "knowledge_point": "物理::热学"
+      },
+      "predicted": {
+        "subject": "物理",
+        "question_type": "解答题",
+        "knowledge_point": "物理::电磁学"
+      }
+    },
+    {
+      "text_preview": "35．1917年3月中旬，加米涅夫和斯大林连续发表文章，主张只要临时政府不直接危及群\n众利益，就应给予支持；要求放弃无条件反对战争的立场，改行对临时政府施加压力以迫其\n开始和谈的策略。这个主张得到了党内大多数人的支持。这表明当时（）\nA．临",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::现代世界"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::近代中国"
+      }
+    },
+    {
+      "text_preview": "下面列出的是某同学记录的历史笔记。将笔记内容进行归纳，可以得出的认识是（　　）\n1、袁世凯称帝、护国运动、“府院之争”、护法运动\n2、纺织厂、面粉厂等民族资本主义企业快速发展\n3、创办《青年杂志》、拥护“德先生”“赛先生”\nA．民族危机空前",
+      "expected": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::选考一 历史上的重大改革"
+      },
+      "predicted": {
+        "subject": "历史",
+        "question_type": "选择题",
+        "knowledge_point": "历史::近代中国"
+      }
+    },
+    {
+      "text_preview": "15. 用一个摆长为 $80.0 \\mathrm{~cm}$ 的单摆做实验, 要求摆动的最大角度小于 $5^{\\circ}$, 则开始时摆球拉 离平衡位置的距离应不超过 _______ $\\mathrm{~cm}$ ( 保留 1 位小数)。",
+      "expected": {
+        "subject": "物理",
+        "question_type": "判断题",
+        "knowledge_point": "物理::力学"
+      },
+      "predicted": {
+        "subject": "物理",
+        "question_type": "判断题",
+        "knowledge_point": "物理::其他"
+      }
+    },
+    {
+      "text_preview": "关于反应\\mathrm{8NH_{3}+6NO_{2}=7N_{2}+12H_{2}O}下列说法正确的是（　　）A.$\\mathrm{NH}_{3}$中$\\mathrm{H}$元素被氧化B.$\\mathrm{NO}_2$在反应过程中失去电子",
+      "expected": {
+        "subject": "化学",
+        "question_type": "判断题",
+        "knowledge_point": "化学::化学反应原理"
+      },
+      "predicted": {
+        "subject": "化学",
+        "question_type": "选择题",
+        "knowledge_point": "化学::化学反应原理"
+      }
+    },
+    {
+      "text_preview": "William Hastie once suggested that history informs us of past mistakes ______ we can learn without repeating them.（　　）\nA",
+      "expected": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::句法"
+      },
+      "predicted": {
+        "subject": "英语",
+        "question_type": "选择题",
+        "knowledge_point": "英语::词法"
+      }
+    },
+    {
+      "text_preview": "6. (5 分) 在 $\\triangle A B C$ 中, $A D$ 为 $B C$ 边上的中线, $E$ 为 $A D$ 的中点, 则 $\\overrightarrow{E B}=(\\quad)$\nA. $\\frac{3}{4} \\",
+      "expected": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::代数"
+      },
+      "predicted": {
+        "subject": "数学",
+        "question_type": "选择题",
+        "knowledge_point": "数学::平面解析几何"
+      }
+    }
+  ]
+}

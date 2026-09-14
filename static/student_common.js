@@ -46,11 +46,13 @@ const T2 = {
     const nav = (key, href, label, icon) => `<a class="${active === key ? 'active' : ''}" href="${href}">${icon}${label}</a>`;
     const overviewIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
     const taskIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l2 2 4-4"/><path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>';
+    const qaIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.5a7.5 7.5 0 01-10.7 6.8L4 20l1.7-5.1A7.5 7.5 0 1119 11.5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg>';
+    const wrongIcon = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4l2 2"/><circle cx="12" cy="12" r="9"/><path d="M8 3.8l1.2 1.6M16 3.8l-1.2 1.6"/></svg>';
     document.getElementById('shell').innerHTML = `
       <div class="sidebar"><div class="logo"><div class="mark" style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28)">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
       </div><div class="name">知学课堂<small>STUDENT SPACE</small></div></div>
-      <div class="nav"><div class="group">学习空间</div>${nav('home', '/student', '学习概览', overviewIcon)}${nav('assignments', '/student#assignments', '我的作业', taskIcon)}</div><div class="foot">智慧教研平台 · 学生端</div></div>
+      <div class="nav"><div class="group">学习空间</div>${nav('home', '/student', '学习概览', overviewIcon)}${nav('assignments', '/student#assignments', '我的作业', taskIcon)}${nav('wrong', '/student/wrong-book', '错题与练习', wrongIcon)}${nav('report', '/student/report', '学习报告', overviewIcon)}${nav('qa', '/student/qa', '知识问答', qaIcon)}</div><div class="foot">智慧教研平台 · 学生端</div></div>
       <div class="topbar"><div class="crumb">学生门户 / <b>${this.escapeHtml(title)}</b></div><div class="right"><span id="shellUser"></span></div></div>`;
     this.api('/api/v1/auth/me').then(me => {
       const name = me.real_name || me.username;

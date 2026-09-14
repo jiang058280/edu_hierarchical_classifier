@@ -28,7 +28,7 @@
     <div class="card-head"><h3>我发布的作业</h3><button class="btn plain sm" onclick="loadAssignments()">刷新</button></div>
     <div style="overflow:auto">
       <table class="table">
-        <thead><tr><th>ID</th><th>作业</th><th>班级 / 学科</th><th>模式</th><th>截止时间</th><th>完成</th><th>操作</th></tr></thead>
+        <thead><tr><th>序号</th><th>作业</th><th>班级 / 学科</th><th>模式</th><th>截止时间</th><th>完成</th><th>操作</th></tr></thead>
         <tbody id="assignmentRows"></tbody>
       </table>
     </div>
@@ -104,7 +104,7 @@ async function publishAssignment() {
         mode: $('aMode').value, due_at: $('aDue').value || null,
         allow_self_check: $('aSelf').checked})
     });
-    T.toast('作业已发布 #' + result.id, 'ok');
+    T.toast('作业已发布', 'ok');
     $('aTitle').value = ''; $('aDue').value = '';
     await loadAssignments(); await showDetail(result.id);
   } catch (e) { T.toast(e.message, 'err'); }
@@ -115,8 +115,8 @@ async function loadAssignments() {
   try {
     const data = await T.api('/api/v1/teacher/assignments?limit=100');
     const items = data.items || [];
-    $('assignmentRows').innerHTML = items.length ? items.map(a => `
-      <tr><td class="num">${a.id}</td><td><b>${T.escapeHtml(a.title)}</b><div class="muted">${T.escapeHtml(a.paper_title || '')}</div></td>
+    $('assignmentRows').innerHTML = items.length ? items.map((a, index) => `
+      <tr><td class="num">${index + 1}</td><td><b>${T.escapeHtml(a.title)}</b><div class="muted">${T.escapeHtml(a.paper_title || '')}</div></td>
       <td>${T.escapeHtml(a.class_name || '—')}<div class="muted">${T.escapeHtml(a.subject || '—')}</div></td>
       <td>${a.mode === 'exam' ? '<span class="badge b-warn">考试</span>' : '<span class="badge b-info">作业</span>'}</td>
       <td class="num">${formatTime(a.due_at)}</td><td class="num">${Number(a.completed_count || 0)} 人</td>

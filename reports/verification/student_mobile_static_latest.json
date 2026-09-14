@@ -1,0 +1,36 @@
+{
+  "pages": [
+    {
+      "page": "student.html",
+      "viewport": true,
+      "uses_design_system": true,
+      "responsive_rule": true
+    },
+    {
+      "page": "student_assignment.html",
+      "viewport": true,
+      "uses_design_system": true,
+      "responsive_rule": true
+    },
+    {
+      "page": "student_qa.html",
+      "viewport": true,
+      "uses_design_system": true,
+      "responsive_rule": true
+    },
+    {
+      "page": "student_wrong_book.html",
+      "viewport": true,
+      "uses_design_system": true,
+      "responsive_rule": true
+    },
+    {
+      "page": "student_report.html",
+      "viewport": true,
+      "uses_design_system": true,
+      "responsive_rule": true
+    }
+  ],
+  "passed": true,
+  "note": "静态验收不替代真实 375px 浏览器或手机走查。"
+}

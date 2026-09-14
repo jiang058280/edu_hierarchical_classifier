@@ -10,8 +10,9 @@ from __future__ import annotations
 import secrets
 from io import BytesIO
 from typing import Any
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
 from edu_core.security.auth import require_teacher
@@ -22,6 +23,273 @@ router = APIRouter()
 
 def _stores() -> StoreBundle:
     return StoreBundle()
+
+
+# ---------------------------------------------------------------------------
+# 教学知识库（R1.5）：教师资料管理与版本发布
+# ---------------------------------------------------------------------------
+
+@router.get("/teacher/rag/versions")
+def list_rag_versions(user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    stores = _stores()
+    return {"items": stores.rag.list_versions(created_by=int(user["id"])),
+            "active": stores.rag.get_active_version()}
+
+
+@router.post("/teacher/rag/versions")
+def create_rag_version(payload: dict, request: Request,
+                       user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    version = (payload.get("version") or "").strip()
+    description = (payload.get("description") or "").strip()
+    try:
+        version_id = _stores().rag.create_version(version, created_by=int(user["id"]), description=description)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    _stores().audit.insert(action="create_rag_version", user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"rag/versions/{version_id}", detail={"version": version},
+                           client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "id": version_id}
+
+
+@router.get("/teacher/rag/documents")
+def list_rag_documents(kb_version_id: int | None = None,
+                       user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    return {"items": _stores().rag.list_documents(created_by=int(user["id"]), kb_version_id=kb_version_id)}
+
+
+@router.get("/teacher/rag/question-knowledge")
+def question_knowledge_status(_: dict[str, Any] = Depends(require_teacher)) -> dict:
+    return _stores().rag.question_knowledge_status()
+
+
+@router.post("/teacher/rag/question-knowledge/sync")
+def sync_question_knowledge(request: Request,
+                            user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    result = _stores().rag.sync_published_questions()
+    _stores().audit.insert(action="sync_rag_question_knowledge", user_id=int(user["id"]),
+                           username=user.get("username"), resource="rag/question-knowledge",
+                           detail=result | {"external_model_called": False},
+                           client_ip=request.client.host if request.client else None)
+    return {"status": "ok", **result, "external_model_called": False}
+
+
+@router.get("/teacher/rag/question-knowledge/search")
+def search_question_knowledge(query: str, subject: str = "", grade_band: str = "", grade: str = "",
+                              _: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """教师验证本地题库知识源；不构造 Embedding，不调用外部模型。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.retrieval import RagRetrievalService, RetrievalFilters
+
+    query = query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="请输入要检索的问题")
+    hits = RagRetrievalService(_stores().rag, get_settings()).local_question_candidates(
+        query, filters=RetrievalFilters(subject=subject.strip() or None, grade_band=grade_band.strip() or None,
+                                        grade=grade.strip() or None))
+    return {"items": hits, "external_model_called": False}
+
+
+@router.get("/teacher/rag/documents/{document_id}")
+def preview_rag_document(document_id: int, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    document = _stores().rag.get_owned_document(document_id, int(user["id"]))
+    if not document:
+        raise HTTPException(status_code=404, detail="资料不存在")
+    chunks = _stores().rag.list_document_chunks(document_id)
+    return {"document": document, "chunk_summary": {
+        "parent_count": sum(chunk["chunk_kind"] == "parent" for chunk in chunks),
+        "child_count": sum(chunk["chunk_kind"] == "child" for chunk in chunks),
+        "sample": [chunk["content"][:240] for chunk in chunks if chunk["chunk_kind"] == "child"][:3],
+    }}
+
+
+@router.post("/teacher/rag/documents/upload")
+async def upload_rag_document(request: Request, file: UploadFile = File(...), kb_version_id: int = Form(...),
+                              subject: str = Form(""), grade_band: str = Form(""), grade: str = Form(""),
+                              knowledge_node_id: int | None = Form(None),
+                              user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.ingestion import RagIngestionService
+
+    source_name = (file.filename or "").strip()
+    if not source_name:
+        raise HTTPException(status_code=400, detail="请选择资料文件")
+    settings = get_settings()
+    content = await file.read(int(settings.rag_max_upload_bytes) + 1)
+    if len(content) > int(settings.rag_max_upload_bytes):
+        raise HTTPException(status_code=400, detail="资料超过上传大小限制")
+    stores = _stores()
+    if not stores.rag.get_owned_version(kb_version_id, int(user["id"])):
+        raise HTTPException(status_code=404, detail="知识库版本不存在")
+    try:
+        result = RagIngestionService(stores.rag, settings).ingest(
+            kb_version_id=kb_version_id, created_by=int(user["id"]), source_name=source_name, content=content,
+            subject=subject.strip() or None, grade_band=grade_band.strip() or None, grade=grade.strip() or None,
+            knowledge_node_id=knowledge_node_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 - 任务本身已记录为 FAILED，接口仅返回受控信息
+        raise HTTPException(status_code=503, detail=f"资料入库失败：{str(exc)[:160]}") from exc
+    stores.audit.insert(action="upload_rag_document", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"rag/documents/{result.document_id}",
+                        detail={"source_name": source_name, "reused": result.reused},
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "document_id": result.document_id, "job_id": result.job_id,
+            "chunk_count": result.chunk_count, "reused": result.reused}
+
+
+@router.post("/teacher/rag/documents/{document_id}/rebuild")
+def rebuild_rag_document(document_id: int, request: Request,
+                         user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """以已保存的原始资料重建为新记录，旧已发布资料不被覆盖。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.ingestion import RagIngestionService
+
+    stores, settings = _stores(), get_settings()
+    document = stores.rag.get_owned_document(document_id, int(user["id"]))
+    if not document or not document.get("storage_key"):
+        raise HTTPException(status_code=404, detail="可重建的资料不存在")
+    upload_root = settings.abs_path(settings.rag_upload_dir).resolve()
+    source_path = settings.abs_path(document["storage_key"]).resolve()
+    if upload_root not in source_path.parents or not source_path.is_file():
+        raise HTTPException(status_code=404, detail="原始资料文件不存在")
+    try:
+        result = RagIngestionService(stores.rag, settings).ingest(
+            kb_version_id=int(document["kb_version_id"]), created_by=int(user["id"]),
+            source_name=document["source_name"], content=source_path.read_bytes(), subject=document.get("subject"),
+            grade_band=document.get("grade_band"), grade=document.get("grade"),
+            knowledge_node_id=document.get("knowledge_node_id"), allowed_roles=document.get("allowed_roles"),
+            allow_reuse=False)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503, detail=f"资料重建失败：{str(exc)[:160]}") from exc
+    stores.audit.insert(action="rebuild_rag_document", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"rag/documents/{result.document_id}", detail={"source_document_id": document_id},
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "document_id": result.document_id, "job_id": result.job_id,
+            "chunk_count": result.chunk_count}
+
+
+@router.post("/teacher/rag/documents/{document_id}/publication")
+def set_rag_document_publication(document_id: int, payload: dict, request: Request,
+                                 user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    try:
+        document = _stores().rag.set_document_publication(
+            document_id, created_by=int(user["id"]), published=bool(payload.get("published")))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    _stores().audit.insert(action="publish_rag_document" if payload.get("published") else "unpublish_rag_document",
+                           user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"rag/documents/{document_id}", detail={"published": bool(payload.get("published"))},
+                           client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "document": document}
+
+
+@router.post("/teacher/rag/documents/{document_id}/archive")
+def archive_rag_document(document_id: int, request: Request,
+                         user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    try:
+        document = _stores().rag.archive_document(document_id, created_by=int(user["id"]))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    _stores().audit.insert(action="archive_rag_document", user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"rag/documents/{document_id}", detail={"archived": True},
+                           client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "document": document}
+
+
+@router.delete("/teacher/rag/documents/{document_id}")
+def delete_rag_document(document_id: int, request: Request,
+                        user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """永久移除资料记录；先删向量，再删除 MySQL 关系数据与不再被引用的原文件。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.indexing.milvus_index import MilvusRagDocumentIndex
+
+    stores, settings = _stores(), get_settings()
+    document = stores.rag.get_owned_document(document_id, int(user["id"]))
+    if not document:
+        raise HTTPException(status_code=404, detail="资料不存在")
+    chunk_ids = [int(chunk["id"]) for chunk in stores.rag.list_document_chunks(document_id)]
+    try:
+        MilvusRagDocumentIndex(settings).delete_chunks(chunk_ids)
+        cleanup = stores.rag.delete_document(document_id, created_by=int(user["id"]))
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 - 向量清理失败时保留记录以便安全重试
+        raise HTTPException(status_code=503, detail=f"资料删除失败：{str(exc)[:160]}") from exc
+    if cleanup["delete_storage"]:
+        upload_root = settings.abs_path(settings.rag_upload_dir).resolve()
+        source_path = settings.abs_path(str(cleanup["storage_key"])).resolve()
+        if upload_root in source_path.parents:
+            try:
+                source_path.unlink(missing_ok=True)
+            except OSError:
+                # 记录已删除，残留文件不能再被访问，后续可由运维按上传目录清理。
+                pass
+    stores.audit.insert(action="delete_rag_document", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"rag/documents/{document_id}", detail={"permanent": True},
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "deleted_document_id": document_id}
+
+
+@router.post("/teacher/rag/versions/{version_id}/activate")
+def activate_rag_version(version_id: int, request: Request,
+                         user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    stores = _stores()
+    try:
+        report = stores.rag.build_quality_report(version_id, created_by=int(user["id"]))
+        stores.rag.set_quality_report(version_id, report)
+        version = stores.rag.activate_version(version_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    _stores().audit.insert(action="activate_rag_version", user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"rag/versions/{version_id}", detail={"report": report},
+                           client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "version": version, "quality_report": report}
+
+
+@router.post("/teacher/rag/retrieval/debug")
+def rag_retrieval_debug(payload: dict, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """R2.1 检索调试：不调用 LLM，只返回经过 MySQL 授权过滤后的证据。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.retrieval import RagRetrievalService, RetrievalFilters
+
+    filters = RetrievalFilters(
+        subject=(payload.get("subject") or "").strip() or None,
+        grade_band=(payload.get("grade_band") or "").strip() or None,
+        grade=(payload.get("grade") or "").strip() or None,
+        knowledge_node_id=int(payload["knowledge_node_id"]) if payload.get("knowledge_node_id") else None)
+    try:
+        return RagRetrievalService(_stores().rag, get_settings()).debug(
+            payload.get("query") or "", role="teacher", filters=filters)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503, detail=f"检索服务暂不可用：{str(exc)[:160]}") from exc
+
+
+@router.post("/teacher/rag/answer/preview")
+def rag_answer_preview(payload: dict, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """R2.2 教师预览：只基于已授权证据生成，返回服务端构造的引用。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.generation import RagAnswerService
+    from edu_core.rag.retrieval import RagRetrievalService, RetrievalFilters
+
+    filters = RetrievalFilters(
+        subject=(payload.get("subject") or "").strip() or None,
+        grade_band=(payload.get("grade_band") or "").strip() or None,
+        grade=(payload.get("grade") or "").strip() or None,
+        knowledge_node_id=int(payload["knowledge_node_id"]) if payload.get("knowledge_node_id") else None)
+    settings, stores = get_settings(), _stores()
+    try:
+        result = RagAnswerService(RagRetrievalService(stores.rag, settings), settings).answer(
+            payload.get("query") or "", role="teacher", filters=filters)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503, detail=f"问答服务暂不可用：{str(exc)[:160]}") from exc
+    return {"answer": result.answer, "citations": result.citations, "refused": result.refused,
+            "reason": result.reason}
 
 
 # ---------------------------------------------------------------------------
@@ -68,6 +336,23 @@ def class_students(class_id: int, user: dict[str, Any] = Depends(require_teacher
     return {"class": cls, "students": stores.users.list_by_class(class_id)}
 
 
+@router.get("/teacher/analytics/class/{class_id}")
+def class_learning_analytics(class_id: int, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """R3.6：只允许班级创建教师读取班级画像及重讲建议。"""
+    from edu_core.application.factory import get_learning_service
+
+    cls = _stores().classes.get(class_id)
+    if not cls or int(cls["created_by"]) != int(user["id"]):
+        raise HTTPException(status_code=404, detail="班级不存在")
+    return {"class": cls, **get_learning_service().class_analytics(class_id)}
+
+
+@router.get("/teacher/review-queue")
+def review_queue(limit: int = 100, _: dict[str, Any] = Depends(require_teacher)) -> dict:
+    items = _stores().classifications.review_queue(limit=max(1, min(limit, 200)))
+    return {"items": items, "total": len(items)}
+
+
 # ---------------------------------------------------------------------------
 # 题库管理（M1）：完整题目 CRUD 与筛选
 # ---------------------------------------------------------------------------
@@ -108,6 +393,128 @@ def list_questions(subject: str = "", question_type: str = "", keyword: str = ""
         grade_band=grade_band, difficulty=difficulty, status=status,
         knowledge=knowledge, limit=min(limit, 200), offset=max(offset, 0))
     return {"total": total, "items": items}
+
+
+def _xlsx_response(content: bytes, filename: str) -> Response:
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(filename)}"},
+    )
+
+
+@router.get("/teacher/questions/template")
+def download_question_template(_: dict[str, Any] = Depends(require_teacher)) -> Response:
+    """下载带字段说明和下拉校验的题库导入模板。"""
+    from edu_core.application.question_excel import build_template
+
+    try:
+        return _xlsx_response(build_template(), "题库导入模板.xlsx")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.post("/teacher/questions/import")
+async def import_questions_xlsx(request: Request, file: UploadFile = File(...),
+                                user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """提交 Excel 异步导入任务；状态与错误行通过 job_id 查询。"""
+    from edu_core.application.question_excel import get_question_import_jobs
+
+    filename = (file.filename or "").strip()
+    if not filename.lower().endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="仅支持 .xlsx 文件")
+    max_bytes = 10 * 1024 * 1024
+    payload = await file.read(max_bytes + 1)
+    if not payload:
+        raise HTTPException(status_code=400, detail="上传文件为空")
+    if len(payload) > max_bytes:
+        raise HTTPException(status_code=400, detail="Excel 文件不能超过 10 MB")
+    jobs = get_question_import_jobs()
+    job_id = jobs.submit(payload, user_id=int(user["id"]), filename=filename)
+    _stores().audit.insert(
+        action="import_questions_xlsx", user_id=int(user["id"]), username=user.get("username"),
+        resource=f"teacher/questions/import/{job_id}", detail={"filename": filename},
+        client_ip=request.client.host if request.client else None,
+    )
+    return {"status": "QUEUED", "job_id": job_id}
+
+
+@router.get("/teacher/questions/import/{job_id}")
+def question_import_status(job_id: str,
+                           user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    from edu_core.application.question_excel import get_question_import_jobs
+
+    job = get_question_import_jobs().get(job_id, int(user["id"]))
+    if not job:
+        raise HTTPException(status_code=404, detail="导入任务不存在或已随服务重启失效")
+    return {key: value for key, value in job.items() if key != "user_id"}
+
+
+@router.get("/teacher/questions/import/{job_id}/errors")
+def download_question_import_errors(job_id: str,
+                                    user: dict[str, Any] = Depends(require_teacher)) -> Response:
+    from edu_core.application.question_excel import build_error_report, get_question_import_jobs
+
+    job = get_question_import_jobs().get(job_id, int(user["id"]))
+    if not job:
+        raise HTTPException(status_code=404, detail="导入任务不存在或已随服务重启失效")
+    if job["status"] not in {"SUCCEEDED", "FAILED"}:
+        raise HTTPException(status_code=409, detail="导入任务尚未完成")
+    return _xlsx_response(build_error_report(job.get("errors") or []), f"题库导入错误-{job_id[:8]}.xlsx")
+
+
+@router.get("/teacher/questions/export")
+def export_questions_xlsx(subject: str = "", question_type: str = "", keyword: str = "",
+                          grade_band: str = "", difficulty: int | None = None,
+                          status: str = "", knowledge: str = "",
+                          _: dict[str, Any] = Depends(require_teacher)) -> Response:
+    """按题库页面当前筛选条件导出完整题目信息，可直接再次导入。"""
+    from edu_core.application.question_excel import build_export
+
+    records = _stores().questions.export_rows(
+        subject=subject, question_type=question_type, keyword=keyword,
+        grade_band=grade_band, difficulty=difficulty, status=status, knowledge=knowledge,
+    )
+    return _xlsx_response(build_export(records), "题库导出.xlsx")
+
+
+@router.post("/teacher/questions/import-docx")
+async def import_questions_docx(file: UploadFile = File(...),
+                                _: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """提取并切分 DOCX 题目，沿用 AI 预标注结果结构供教师逐题确认。"""
+    from edu_core.application.question_docx import parse_docx_questions
+    from edu_core.config.settings import get_settings
+
+    filename = (file.filename or "").strip()
+    if not filename.lower().endswith(".docx"):
+        raise HTTPException(status_code=400, detail="仅支持 .docx 文件")
+    max_bytes = 10 * 1024 * 1024
+    payload = await file.read(max_bytes + 1)
+    if not payload:
+        raise HTTPException(status_code=400, detail="上传文件为空")
+    if len(payload) > max_bytes:
+        raise HTTPException(status_code=400, detail="DOCX 文件不能超过 10 MB")
+    try:
+        questions = parse_docx_questions(payload, max_questions=50)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not questions:
+        raise HTTPException(status_code=400, detail="文档中未识别到有效题目")
+    max_chars = int(get_settings().classify_max_chars)
+    oversized = [index + 1 for index, value in enumerate(questions) if len(value) > max_chars]
+    if oversized:
+        raise HTTPException(status_code=400, detail=f"第 {oversized[0]} 题超过 {max_chars} 字符")
+    predictor = _stores_service().predictor
+    predictions = predictor.predict_batch(questions)
+    items = [{
+        "text": question,
+        "subject": prediction["subject"],
+        "question_type": prediction["question_type"],
+        "knowledge_point": prediction["knowledge_point"],
+        "grade_band": prediction.get("grade_band"),
+        "confidences": prediction["confidence"],
+    } for question, prediction in zip(questions, predictions, strict=True)]
+    return {"items": items, "total": len(items), "filename": filename}
 
 
 @router.get("/teacher/questions/{question_id}")
@@ -189,7 +596,7 @@ def _validate_question_classification(fields: dict, existing: dict | None = None
 
 
 @router.post("/teacher/questions")
-def create_question(payload: dict,
+def create_question(payload: dict, request: Request,
                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
     """录入完整题目（AI 确认流保存入口）：题干/选项/答案/解析/难度/学段/知识点。"""
     fields = _full_fields(payload)
@@ -204,12 +611,15 @@ def create_question(payload: dict,
         difficulty=fields.get("difficulty"), grade_band=fields.get("grade_band"),
         grade=fields.get("grade"), knowledge_node_id=fields.get("knowledge_node_id"),
         created_by=int(user["id"]), status=fields.get("status", "published"))
+    stores.audit.insert(action="create_question", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"teacher/questions/{question_id}", detail={"status": fields.get("status", "published")},
+                        client_ip=request.client.host if request.client else None)
     return {"status": "ok", "id": question_id}
 
 
 @router.put("/teacher/questions/{question_id}")
-def update_question(question_id: int, payload: dict,
-                    _: dict[str, Any] = Depends(require_teacher)) -> dict:
+def update_question(question_id: int, payload: dict, request: Request,
+                    user: dict[str, Any] = Depends(require_teacher)) -> dict:
     """编辑题目（部分字段即可）。"""
     fields = _full_fields(payload, require_content=False)
     stores = _stores()
@@ -218,6 +628,9 @@ def update_question(question_id: int, payload: dict,
         raise HTTPException(status_code=404, detail="题目不存在")
     _validate_question_classification(fields, existing)
     stores.questions.update(question_id, **fields)
+    stores.audit.insert(action="update_question", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"teacher/questions/{question_id}", detail={"fields": sorted(fields)},
+                        client_ip=request.client.host if request.client else None)
     return {"status": "ok"}
 
 
@@ -322,7 +735,7 @@ def generate_paper(payload: dict,
 
 
 @router.post("/teacher/papers")
-def save_paper(payload: dict, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+def save_paper(payload: dict, request: Request, user: dict[str, Any] = Depends(require_teacher)) -> dict:
     """保存试卷：{title, subject, grade_band, question_ids:[...]}。"""
     title = (payload.get("title") or "").strip()
     subject = (payload.get("subject") or "").strip()
@@ -336,6 +749,9 @@ def save_paper(payload: dict, user: dict[str, Any] = Depends(require_teacher)) -
     paper_id = stores.papers.create(title, subject, grade_band,
                                     created_by=int(user["id"]),
                                     question_ids=[int(q) for q in question_ids])
+    stores.audit.insert(action="create_paper", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"teacher/papers/{paper_id}", detail={"question_count": len(question_ids)},
+                        client_ip=request.client.host if request.client else None)
     return {"status": "ok", "id": paper_id}
 
 
@@ -358,15 +774,18 @@ def get_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) ->
 
 
 @router.delete("/teacher/papers/{paper_id}")
-def delete_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) -> dict:
+def delete_paper(paper_id: int, request: Request, user: dict[str, Any] = Depends(require_teacher)) -> dict:
     get_paper(paper_id, user)
     if not _stores().papers.delete(paper_id):
         raise HTTPException(status_code=404, detail="试卷不存在")
+    _stores().audit.insert(action="delete_paper", user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"teacher/papers/{paper_id}", detail={},
+                           client_ip=request.client.host if request.client else None)
     return {"status": "ok"}
 
 
 @router.get("/teacher/papers/{paper_id}/export")
-def export_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher)) -> Response:
+def export_paper(paper_id: int, request: Request, user: dict[str, Any] = Depends(require_teacher)) -> Response:
     """导出 Word 打印版：第一页试卷，第二页参考答案与解析。"""
     from docx import Document
 
@@ -397,6 +816,9 @@ def export_paper(paper_id: int, user: dict[str, Any] = Depends(require_teacher))
     from urllib.parse import quote
 
     filename = paper["title"].replace(" ", "_") + ".docx"
+    _stores().audit.insert(action="export_paper", user_id=int(user["id"]), username=user.get("username"),
+                           resource=f"teacher/papers/{paper_id}", detail={"format": "docx"},
+                           client_ip=request.client.host if request.client else None)
     return Response(
         content=buf.getvalue(),
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

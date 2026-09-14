@@ -67,6 +67,12 @@ def teacher_assignments() -> FileResponse:
     return _page("teacher_assignments.html")
 
 
+@router.get("/teacher/knowledge-base")
+def teacher_knowledge_base() -> FileResponse:
+    """教师资料库与 RAG 知识库发布。"""
+    return _page("teacher_knowledge_base.html")
+
+
 @router.get("/login")
 def login_page() -> FileResponse:
     """独立登录页（portal=teacher/student）。"""
@@ -83,6 +89,33 @@ def student_portal() -> FileResponse:
 def student_assignment(assignment_id: int) -> FileResponse:
     """学生作答及提交后结果页（assignment_id 由页面脚本读取）。"""
     return _page("student_assignment.html")
+
+
+@router.get("/student/qa")
+def student_qa() -> FileResponse:
+    """学生 RAG 知识问答页面。"""
+    return _page("student_qa.html")
+
+
+@router.get("/student/wrong-book")
+def student_wrong_book() -> FileResponse:
+    """学生错题本与自主练习页面。"""
+    return _page("student_wrong_book.html")
+
+
+@router.get("/student/report")
+def student_report() -> FileResponse:
+    return _page("student_report.html")
+
+
+@router.get("/teacher/analytics")
+def teacher_analytics() -> FileResponse:
+    return _page("teacher_analytics.html")
+
+
+@router.get("/teacher/review")
+def teacher_review() -> FileResponse:
+    return _page("teacher_review.html")
 
 
 @router.get("/admin")

@@ -46,8 +46,10 @@ function answerControl(question) {
   if (mode === 'choice_single' || mode === 'choice_multiple') {
     return `<label class="field"><span class="muted">${mode === 'choice_multiple' ? '填写所有选项字母，如 A,C' : '填写选项字母，如 A'}</span><input class="input text-answer" data-question="${question.id}" maxlength="512" aria-label="选择题答案" placeholder="请根据题干填写选项字母" oninput="updateProgress()"></label>`;
   }
+  const optionReference = options.length ? `<div style="margin-bottom:10px">${options.map(option =>
+    `<div class="answer-text result-option">${T2.escapeHtml(optionText(option))}</div>`).join('')}</div>` : '';
   const selfCheck = assignment.allow_self_check && !meta.objective ? `<div class="field" style="margin-top:9px"><label>自我评价（不会替代教师最终评分）</label><select class="input self-check" data-question="${question.id}"><option value="">暂不评价</option><option value="true">我已掌握</option><option value="false">需要巩固</option></select></div>` : '';
-  return `<textarea class="input text-answer" data-question="${question.id}" rows="4" maxlength="512" placeholder="请输入作答过程或答案" oninput="updateProgress()"></textarea>${selfCheck}`;
+  return `${optionReference}<textarea class="input text-answer" data-question="${question.id}" rows="4" maxlength="512" placeholder="请输入作答过程或答案" oninput="updateProgress()"></textarea>${selfCheck}`;
 }
 
 function renderAssignment(detail) {
@@ -167,7 +169,8 @@ function renderResult(data) {
     ${(item.options || []).map(option => `<div class="answer-text result-option">${T2.escapeHtml(optionText(option))}</div>`).join('')}
     <div class="answer-text" style="margin-top:10px"><b>你的答案：</b>${T2.escapeHtml(item.student_answer || '未作答')}</div>
     <div class="answer-text" style="margin-top:5px"><b>参考答案：</b>${T2.escapeHtml(item.answer || '暂无')}</div>
-    <div class="muted answer-text" style="margin-top:5px"><b>解析：</b>${T2.escapeHtml(item.analysis || '暂无解析')}</div></div>`).join('');
+    <div class="muted answer-text" style="margin-top:5px"><b>解析：</b>${T2.escapeHtml(item.analysis || '暂无解析')}</div>
+    ${item.is_correct === false ? `<div class="row" style="margin-top:14px;gap:8px"><a class="btn student sm" href="/student/qa?assignment_id=${assignmentId}&question_id=${item.question_id}&action=why_wrong">分析错因</a><a class="btn ghost sm" href="/student/qa?assignment_id=${assignmentId}&question_id=${item.question_id}&action=practice">再练一题</a></div>` : ''}</div>`).join('');
 }
 
 async function init() {

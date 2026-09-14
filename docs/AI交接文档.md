@@ -1,7 +1,7 @@
 # AI 交接文档 · 智慧教研平台（给下一个 AI 看的工作手册）
 
 > 文档目的：让任何 AI 会话接管本仓库后，**不问人、不踩坑**地继续开发。
-> 读者：AI 代理（Human 也可读）。写作日期：2026-09-06；最近更新 2026-09-09（M2/C5 集成验收）。
+> 读者：AI 代理（Human 也可读）。写作日期：2026-09-06；最近更新 2026-09-12（项目 Markdown 题库导入）。
 > 总路线以 `docs/剩余工作总计划.md` 为准；`docs/智慧教研平台建设计划书.md` 为当前里程碑索引，架构细节见 `README.md`。
 
 ---
@@ -11,15 +11,15 @@
 | 项 | 值 |
 | --- | --- |
 | 项目根目录 | `D:\edu_hierarchical_classifier`（Windows，shell 为 cmd/PowerShell） |
-| 项目一句话 | 基于 RAG 与学情画像的个性化智慧学习平台；当前已实现分类、题库与作业闭环，RAG 尚未实现 |
+| 项目一句话 | 基于 RAG 与学情画像的个性化智慧学习平台；分类、题库、作业闭环及 RAG/画像主链路已进入持续完善阶段 |
 | git 分支 | 以 `git status` / `git log -1` 为准；当前存在 C1～C5 未提交变更及用户原有修改，不可重置或直接全量暂存 |
 | 模型 | **v0.4-20260906 ACTIVE**（BERT 多任务：学科9/题型3/知识点50 + 学段头 初中/高中；判断题重采样训练，golden 题型 F1 0.9406，温度 T=0.9984），v0.3/v0.2/v0.1-base 已归档可回滚 |
 | 后端 | FastAPI（`app.py` 薄入口 + `edu_core/` 分层包），端口 **7860** |
-| 数据库 | MySQL 8.4 **Docker 容器 `edu-classifier-mysql`，宿主端口 3307**（不是 3306！），库 `edu_classifier`；凭证只从本地环境读取，不写文档 |
+| 数据库 | MySQL 8.4 **Docker 容器 `edu-classifier-mysql`，宿主端口 3307**（不是 3306！），库 `edu_classifier`；已应用 V1～V10；凭证只从本地环境读取，不写文档 |
 | 查重 | Milvus 容器（宿主 19531），**可降级**（不可用时主链路不受影响） |
 | 本地配置 | `.env` 已存在（未提交）：`EDU_MYSQL_PORT=3307`、`EDU_MILVUS_URI=http://127.0.0.1:19531`、`EDU_JWT_SECRET`；`EDU_ADMIN_BOOTSTRAP_PASSWORD` 已置空（A2 整改，users 非空后无作用） |
 | 账号 | 管理员 `lgq`（2026-09-07 由 admin 更名，密码线下留存不落仓库）；学生 `stu_test01`（已入班，class_id=2） |
-| 测试 | 192 条通过（2026-09-09）；判分、题型、作业服务、事务和接口回归，详见 `reports/verification/v1_release_latest.json` |
+| 测试 | 247 条通过（2026-09-13）；含判分、题型、作业、RAG、画像、批量题库、容量与干净基准回归 |
 | 验收 | `scripts/verify_release.py` 标准发布检查；`scripts/verify_m2.py` 真实 MySQL/HTTP/浏览器 20 题闭环，报告含失败与清理状态 |
 
 **环境事实**：venv 在 `venv/`（所有命令前缀 `venv\Scripts\python.exe`）；GPU 为 RTX 3050 6GB（训练 batch 8 / max_len 256）。网络可用性以实际检查为准；发布脚本使用项目内独立临时目录避免 Windows TEMP 权限问题。
@@ -60,7 +60,8 @@ venv\Scripts\python scripts\verify_release.py              # 发布验收 6/6
 | `edu_core/inference/` | `model.py`（多任务模型，manifest.architecture 声明 grade_head/subject_embedding）、`predictor.py`（版本化加载/量化/掩码/温度/embed） |
 | `edu_core/training/train.py` | 多任务训练（掩码损失：knowledge/grade 缺失=-100） |
 | `edu_core/data/dataset.py` | K-12EduBench 清洗管道（含题型规则推断——已知天花板） |
-| `scripts/` | `build_merged_dataset.py`(v0.3 多源合并)、`rebalance_train.py`(v0.4 题型重采样)、`train_model.py`、`rebuild_model_version.py`(--gate --activate)、`fit_temperature.py`、`backup_db.py`/`restore_db.py`(MySQL JSON 快照)、`seed_knowledge_nodes.py`、`create_user.py`、`export_bad_cases.py`、`merge_reviewed_cases.py`、`preprocess_all.py`、`init_db.py`、`verify_release.py`、`check_project_guardrails.py` |
+| `scripts/` | 模型与数据脚本之外，`import_question_bank.py` 导入 Markdown 题库，`normalize_question_options.py` 修复早期选项结构，`verify_f1_excel.py` 验收 Excel 模板/导出/100 行异步回导；`verify_release.py` 为发布总验收 |
+| `knowledge_base/` | 54 份结构化 Markdown 教学题库；通过 `scripts/import_question_bank.py` 预检与幂等导入，当前业务库已有 1292 道唯一发布题，覆盖 9 学科和初高中 |
 | `static/` | `edu.css`(设计系统)、`teacher_common.js`(壳渲染/auth/toast/confirm)、`login.html`、`portal.html`、`teacher*.html`×4、`student.html`、`index.html`(分类页)、`admin.html`(治理台) |
 | `data/processed/` | `train.csv 11,721（v0.4 重采样后；train.pre_rebalance.csv 为 9,893 原版备份，不入 git）/ val.csv 1,917 / test.csv 1,039（固定回归基准，绝不动）` + `labels.json`（含 grade_bands）+ `data_manifest.json` + `merge_v03_report.json` + `rebalance_report.json` |
 | `data/raw/` | `k12edubench/`（原始 9 学科）、`_cmmlu_tmp/`、`_m3ke_tmp/`、`_gaokao_tmp/`、`_numina_shard0.parquet`（v0.3 新源快照，均不入 git） |
@@ -153,7 +154,7 @@ Git 整理在用户确认此模块后执行，保留 `.claude/`、`docs/adr/` �
 | --- | --- | --- |
 | R1 / R2 / R3 | 教育知识库 → 带引用 RAG 问答 → 学情画像、错题与巩固推荐（吸收原 M3） | C5 用户确认后，按模块推进 |
 | M4 复核工作台 | 低置信度+高错误率队列 → 修正 → 已有回灌管道 | M3 后 |
-| Excel 导入导出（M1.5） | openpyxl + 错误行报告 | 随时可做 |
+| ~~M1.5 数据批量通道~~ | ✅ Markdown 题库入库、Excel 模板/异步导入/筛选导出、DOCX 切题与 AI 预标注均已完成 | — |
 | 知识点树对齐课标 | tal-tech/chinese-k12-evaluation 的 1900+ 二级知识点（Google Drive 被墙，需手动下载入 data/raw/） | 数据源可选 |
 | ~~v0.3 温度校准~~ | ✅ 已完成（A1，T=0.9706）；v0.4 温度 T=0.9984 亦已拟合 | — |
 | CI 真实运行 | 推 GitHub + 分支保护（workflow 已写好） | 需 Human 建远端 |

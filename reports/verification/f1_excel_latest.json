@@ -1,0 +1,24 @@
+{
+  "verified_at": "2026-09-12T14:15:27+08:00",
+  "status": "passed",
+  "template_headers": [
+    "text",
+    "subject",
+    "question_type",
+    "knowledge_point",
+    "grade_band",
+    "grade",
+    "difficulty",
+    "answer",
+    "analysis",
+    "options",
+    "status"
+  ],
+  "export_bytes": 95652,
+  "import_rows": 100,
+  "inserted": 0,
+  "skipped_existing": 100,
+  "failed": 0,
+  "import_elapsed_seconds": 0.177,
+  "total_elapsed_seconds": 0.74
+}

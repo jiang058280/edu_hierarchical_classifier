@@ -98,6 +98,43 @@ class Settings(BaseSettings):
     # 相似度超过该值提示疑似重复题
     dedup_similarity_threshold: float = 0.95
 
+    # ---------- RAG 教育知识库（R1） ----------
+    # 默认关闭：资料入库与问答均须由教师审核、配置完成后再显式启用。
+    rag_enabled: bool = False
+    rag_upload_dir: str = "data/rag_uploads"
+    rag_documents_collection: str = "edu_rag_documents"
+    rag_questions_collection: str = "edu_rag_questions"
+    rag_faq_collection: str = "edu_rag_faq"
+    rag_embedding_provider: str = "openai_compatible"
+    rag_embedding_base_url: str = ""
+    rag_embedding_api_key: str = ""
+    rag_embedding_model: str = ""
+    rag_embedding_dimension: int = 1024
+    # 百炼 text-embedding-v4 的 OpenAI 兼容接口单次最多接受 10 条输入。
+    # 保持此默认值也能兼容常见的 OpenAI-compatible 向量服务。
+    rag_embedding_batch_size: int = 10
+    # 本地题库知识源命中此阈值后直接返回答案/解析，不调用外部模型。
+    rag_local_question_min_score: float = 0.75
+    rag_reranker_provider: str = "disabled"
+    rag_reranker_base_url: str = ""
+    rag_reranker_api_key: str = ""
+    rag_reranker_model: str = ""
+    rag_llm_provider: str = "openai_compatible"
+    rag_llm_base_url: str = ""
+    rag_llm_api_key: str = ""
+    rag_llm_model: str = ""
+    rag_top_k: int = 12
+    rag_rerank_top_k: int = 5
+    rag_min_evidence_score: float = 0.55
+    rag_max_context_chars: int = 6000
+    rag_parent_chunk_chars: int = 1000
+    rag_child_chunk_chars: int = 350
+    rag_chunk_overlap_chars: int = 60
+    rag_request_timeout_seconds: float = 30.0
+    rag_max_upload_bytes: int = 25 * 1024 * 1024
+    rag_max_documents_per_teacher: int = 200
+    rag_ingestion_max_attempts: int = 3
+
     # ---------- 评测与质量门禁 ----------
     golden_set_size: int = 300
     gate_min_subject_acc: float = 0.85

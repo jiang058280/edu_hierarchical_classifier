@@ -196,6 +196,39 @@ class ClassificationStore:
             )).all()
         return {r.s: int(r.c) for r in rows}
 
+    def review_queue(self, limit: int = 100) -> list[dict]:
+        """E1 只读复核队列：低置信分类、异常错题与 RAG 失败/差评。"""
+        with self.engine.connect() as conn:
+            low = conn.execute(text("""SELECT id,text_preview,subject_pred,type_pred,knowledge_pred,avg_confidence,created_at
+                FROM classifications WHERE confidence_band='low' ORDER BY avg_confidence ASC,id DESC LIMIT :limit"""),
+                {"limit": int(limit)}).mappings().all()
+            anomalous = conn.execute(text("""SELECT q.id,q.content,q.subject,q.question_type,q.knowledge_point,COUNT(ar.id) attempts,
+                AVG(ar.is_correct) correct_rate,MAX(ar.created_at) created_at
+                FROM answer_records ar JOIN questions q ON q.id=ar.question_id WHERE ar.is_correct IS NOT NULL
+                GROUP BY q.id,q.content,q.subject,q.question_type,q.knowledge_point
+                HAVING COUNT(ar.id)>=5 AND AVG(ar.is_correct)<.4 ORDER BY correct_rate ASC,attempts DESC LIMIT :limit"""),
+                {"limit": int(limit)}).mappings().all()
+            rag = conn.execute(text("""SELECT DISTINCT t.id,t.query_text,t.failure_stage,t.created_at,
+                MAX(CASE WHEN f.rating=-1 THEN 1 ELSE 0 END) negative_feedback
+                FROM rag_query_traces t LEFT JOIN rag_sessions s ON s.id=t.session_id
+                LEFT JOIN rag_messages m ON m.session_id=s.id AND m.role='assistant'
+                LEFT JOIN rag_feedback f ON f.message_id=m.id
+                WHERE t.failure_stage IS NOT NULL OR f.rating=-1
+                GROUP BY t.id,t.query_text,t.failure_stage,t.created_at ORDER BY t.id DESC LIMIT :limit"""),
+                {"limit": int(limit)}).mappings().all()
+        items = [{"kind": "low_confidence", "key": f"classification:{row['id']}", "priority": 3,
+                  "title": "低置信分类", "content": row["text_preview"], "classification_id": row["id"],
+                  "prediction": {"subject": row["subject_pred"], "question_type": row["type_pred"], "knowledge_point": row["knowledge_pred"]},
+                  "evidence": f"综合置信度 {round(float(row['avg_confidence']) * 100)}%", "created_at": row["created_at"]} for row in low]
+        items += [{"kind": "question_anomaly", "key": f"question:{row['id']}", "priority": 2,
+                   "title": "异常错题", "content": row["content"], "question_id": row["id"],
+                   "prediction": {"subject": row["subject"], "question_type": row["question_type"], "knowledge_point": row["knowledge_point"]},
+                   "evidence": f"{row['attempts']} 次已判分作答，正确率 {round(float(row['correct_rate']) * 100)}%", "created_at": row["created_at"]} for row in anomalous]
+        items += [{"kind": "rag_quality", "key": f"rag:{row['id']}", "priority": 1,
+                   "title": "RAG 证据或反馈异常", "content": row["query_text"], "rag_trace_id": row["id"],
+                   "prediction": {}, "evidence": "低证据拒答" if row["failure_stage"] else "学生标记不准确", "created_at": row["created_at"]} for row in rag]
+        return sorted(items, key=lambda item: (-item["priority"], item["created_at"]), reverse=False)[:limit]
+
 
 class QuestionStore:
     """题库（持久化，替代旧版内存 question_db）。
@@ -326,6 +359,100 @@ class QuestionStore:
     def count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(text("SELECT COUNT(*) FROM questions")).scalar_one())
+
+    def existing_hashes(self, hashes: list[str]) -> set[str]:
+        """分批查询已存在题干指纹，供批量导入幂等去重。"""
+        found: set[str] = set()
+        with self.engine.connect() as conn:
+            for start in range(0, len(hashes), 500):
+                chunk = hashes[start:start + 500]
+                if not chunk:
+                    continue
+                binds = ",".join(f":h{i}" for i in range(len(chunk)))
+                params = {f"h{i}": value for i, value in enumerate(chunk)}
+                rows = conn.execute(text(
+                    f"SELECT text_hash FROM questions WHERE text_hash IN ({binds})"
+                ), params).all()
+                found.update(str(row[0]) for row in rows)
+        return found
+
+    def bulk_insert(self, rows: list[dict], *, created_by: int,
+                    source: str = "excel_import") -> tuple[list[int], int]:
+        """在一个事务中批量写题；数据库已有指纹自动跳过。"""
+        if not rows:
+            return [], 0
+        hashes = [text_hash(str(row["content"])) for row in rows]
+        existing = self.existing_hashes(hashes)
+        inserted_ids: list[int] = []
+        skipped = 0
+        statement = text("""
+            INSERT INTO questions (
+                content, subject, question_type, knowledge_point, source, options_json,
+                answer, analysis, difficulty, grade_band, grade, knowledge_node_id,
+                created_by, text_hash, status
+            ) VALUES (
+                :content, :subject, :question_type, :knowledge_point, :source, :options_json,
+                :answer, :analysis, :difficulty, :grade_band, :grade, NULL,
+                :created_by, :text_hash, :status
+            )
+        """)
+        with self.engine.begin() as conn:
+            for row, fingerprint in zip(rows, hashes, strict=True):
+                if fingerprint in existing:
+                    skipped += 1
+                    continue
+                result = conn.execute(statement, {
+                    "content": row["content"], "subject": row["subject"],
+                    "question_type": row["question_type"],
+                    "knowledge_point": row.get("knowledge_point", ""), "source": source,
+                    "options_json": json.dumps(row.get("options"), ensure_ascii=False)
+                    if row.get("options") else None,
+                    "answer": row.get("answer"), "analysis": row.get("analysis"),
+                    "difficulty": row.get("difficulty"), "grade_band": row.get("grade_band"),
+                    "grade": row.get("grade"), "created_by": created_by,
+                    "text_hash": fingerprint, "status": row.get("status", "published"),
+                })
+                inserted_ids.append(int(result.lastrowid))
+                existing.add(fingerprint)
+        return inserted_ids, skipped
+
+    def export_rows(self, *, subject: str = "", question_type: str = "", keyword: str = "",
+                    grade_band: str = "", difficulty: int | None = None,
+                    status: str = "", knowledge: str = "") -> list[dict]:
+        """按题库页面筛选条件导出完整字段，不受分页上限影响。"""
+        conditions, params = [], {}
+        mapping = {
+            "subject": (subject, "subject = :subject"),
+            "question_type": (question_type, "question_type = :question_type"),
+            "grade_band": (grade_band, "grade_band = :grade_band"),
+            "status": (status, "status = :status"),
+        }
+        for key, (value, condition) in mapping.items():
+            if value:
+                conditions.append(condition)
+                params[key] = value
+        if difficulty is not None:
+            conditions.append("difficulty = :difficulty")
+            params["difficulty"] = int(difficulty)
+        if knowledge:
+            conditions.append("knowledge_point LIKE :knowledge")
+            params["knowledge"] = f"%{knowledge}%"
+        if keyword:
+            conditions.append("(content LIKE :keyword OR knowledge_point LIKE :keyword)")
+            params["keyword"] = f"%{keyword}%"
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        with self.engine.connect() as conn:
+            records = conn.execute(text(f"""
+                SELECT id, content, subject, question_type, knowledge_point, options_json,
+                       answer, analysis, difficulty, grade_band, grade, status, source, created_at
+                FROM questions {where} ORDER BY id ASC
+            """), params).mappings().all()
+        output = []
+        for record in records:
+            item = dict(record)
+            item["options"] = json.loads(item.pop("options_json")) if item.get("options_json") else None
+            output.append(item)
+        return output
 
     def question_type_counts(self, subject: str = "", grade_band: str = "",
                              status: str = "published", knowledge: str = "",
@@ -814,6 +941,20 @@ class AssignmentStore:
             """), {"student": int(student_id)}).mappings().all()
         return [self._serialize_assignment(r) for r in rows]
 
+    def pending_question_ids_for_student(self, student_id: int) -> set[int]:
+        """学生尚未提交的作业题目不得通过题库问答泄露答案。"""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT DISTINCT pq.question_id
+                FROM users u
+                JOIN assignments a ON a.class_id = u.class_id
+                JOIN paper_questions pq ON pq.paper_id = a.paper_id
+                LEFT JOIN submissions s ON s.assignment_id = a.id AND s.student_id = u.id
+                WHERE u.id = :student AND u.role = 'student'
+                  AND (s.id IS NULL OR s.status NOT IN ('submitted', 'checked'))
+            """), {"student": int(student_id)}).mappings().all()
+        return {int(row["question_id"]) for row in rows}
+
     def get_detail(self, assignment_id: int, student_id: int | None = None) -> dict | None:
         assignment = self.get(assignment_id)
         if not assignment:
@@ -1016,6 +1157,774 @@ class AuditStore:
         return out
 
 
+class LearningStore:
+    """R3.1 错题本与自主练习；所有练习结果统一写入 answer_records。"""
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    def list_wrong(self, student_id: int, *, subject: str = "", knowledge_point: str = "",
+                   include_resolved: bool = False) -> list[dict]:
+        conditions = ["ar.student_id=:student", "ar.is_correct=0"]
+        params: dict[str, object] = {"student": int(student_id)}
+        if not include_resolved:
+            conditions.append("wm.resolved_at IS NULL")
+        if subject:
+            conditions.append("q.subject=:subject")
+            params["subject"] = subject
+        if knowledge_point:
+            conditions.append("q.knowledge_point=:knowledge")
+            params["knowledge"] = knowledge_point
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(f"""
+                SELECT q.id AS question_id,q.content,q.subject,q.question_type,q.knowledge_point,q.options_json,
+                       q.answer,q.analysis,q.difficulty,COUNT(ar.id) AS wrong_count,
+                       MAX(ar.created_at) AS last_wrong_at,wm.resolved_at,wm.note
+                FROM answer_records ar JOIN questions q ON q.id=ar.question_id
+                LEFT JOIN wrong_book_marks wm ON wm.student_id=ar.student_id AND wm.question_id=ar.question_id
+                WHERE {' AND '.join(conditions)}
+                GROUP BY q.id,q.content,q.subject,q.question_type,q.knowledge_point,q.options_json,q.answer,q.analysis,
+                         q.difficulty,wm.resolved_at,wm.note
+                ORDER BY last_wrong_at DESC,wrong_count DESC
+            """), params).mappings().all()
+        result = []
+        for row in rows:
+            item = dict(row)
+            item["options"] = json.loads(item.pop("options_json")) if item.get("options_json") else []
+            item["wrong_count"] = int(item["wrong_count"])
+            item["resolved"] = item.get("resolved_at") is not None
+            result.append(item)
+        return result
+
+    def mark_resolved(self, student_id: int, question_id: int, *, resolved: bool, note: str | None = None) -> bool:
+        with self.engine.begin() as conn:
+            exists = conn.execute(text("""SELECT 1 FROM answer_records
+                WHERE student_id=:student AND question_id=:question AND is_correct=0 LIMIT 1"""),
+                {"student": int(student_id), "question": int(question_id)}).first()
+            if not exists:
+                return False
+            conn.execute(text("""INSERT INTO wrong_book_marks (student_id,question_id,resolved_at,note)
+                VALUES (:student,:question,:resolved,:note)
+                ON DUPLICATE KEY UPDATE resolved_at=VALUES(resolved_at),note=VALUES(note)"""), {
+                    "student": int(student_id), "question": int(question_id),
+                    "resolved": datetime.now() if resolved else None, "note": note,
+                })
+        return True
+
+    def practice_questions(self, *, subject: str = "", knowledge_point: str = "", grade_band: str = "",
+                           limit: int = 10) -> list[dict]:
+        conditions, params = ["status='published'"], {"limit": int(limit)}
+        for field, value in (("subject", subject), ("knowledge_point", knowledge_point), ("grade_band", grade_band)):
+            if value:
+                conditions.append(f"{field}=:{field}")
+                params[field] = value
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(f"""SELECT id,content,subject,question_type,knowledge_point,options_json,difficulty
+                FROM questions WHERE {' AND '.join(conditions)} ORDER BY RAND() LIMIT :limit"""), params).mappings().all()
+        items = []
+        for row in rows:
+            item = dict(row)
+            item["options"] = json.loads(item.pop("options_json")) if item.get("options_json") else []
+            items.append(item)
+        return items
+
+    def questions_for_practice(self, ids: list[int]) -> list[dict]:
+        if not ids:
+            return []
+        binds = ", ".join(f":id_{index}" for index in range(len(ids)))
+        params = {f"id_{index}": int(value) for index, value in enumerate(ids)}
+        with self.engine.connect() as conn:
+            rows=conn.execute(text(f"""SELECT id,content,subject,question_type,knowledge_point,answer,options_json,difficulty
+                FROM questions WHERE status='published' AND id IN ({binds})"""),params).mappings().all()
+        by_id = {int(row["id"]): dict(row) for row in rows}
+        return [by_id[question_id] for question_id in ids if question_id in by_id]
+
+    def review_question_ids(self, student_id: int, *, grade_band: str, limit: int) -> list[int]:
+        """返回至少间隔七天的历史题目；只作为每日练习的复习候选。"""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""SELECT ar.question_id
+                FROM answer_records ar JOIN questions q ON q.id=ar.question_id
+                WHERE ar.student_id=:student AND q.status='published'
+                  AND (:grade='' OR q.grade_band=:grade OR q.grade_band IS NULL OR q.grade_band='')
+                  AND ar.created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)
+                GROUP BY ar.question_id ORDER BY MAX(ar.created_at) ASC LIMIT :limit"""),
+                {"student": int(student_id), "grade": grade_band, "limit": int(limit)}).scalars().all()
+        return [int(row) for row in rows]
+
+    def class_learning_stats(self, class_id: int) -> dict:
+        """班级级别聚合，不含跨班学生；仅返回教学分析所需字段。"""
+        params = {"class_id": int(class_id)}
+        with self.engine.connect() as conn:
+            knowledge = conn.execute(text("""SELECT q.subject,q.knowledge_point,COUNT(ar.id) attempts,
+                AVG(CASE WHEN ar.is_correct IS NOT NULL THEN ar.is_correct END) correct_rate
+                FROM answer_records ar JOIN users u ON u.id=ar.student_id JOIN questions q ON q.id=ar.question_id
+                WHERE u.class_id=:class_id AND ar.is_correct IS NOT NULL AND NULLIF(TRIM(q.knowledge_point),'') IS NOT NULL
+                GROUP BY q.subject,q.knowledge_point"""), params).mappings().all()
+            questions = conn.execute(text("""SELECT q.id,q.content,q.subject,q.knowledge_point,COUNT(ar.id) attempts,
+                AVG(CASE WHEN ar.is_correct IS NOT NULL THEN ar.is_correct END) correct_rate
+                FROM answer_records ar JOIN users u ON u.id=ar.student_id JOIN questions q ON q.id=ar.question_id
+                WHERE u.class_id=:class_id AND ar.is_correct IS NOT NULL
+                GROUP BY q.id,q.content,q.subject,q.knowledge_point HAVING COUNT(ar.id) > 0
+                ORDER BY correct_rate ASC,attempts DESC LIMIT 10"""), params).mappings().all()
+            completion = conn.execute(text("""SELECT COUNT(DISTINCT a.id) assignments, COUNT(DISTINCT u.id) students,
+                COUNT(DISTINCT CASE WHEN s.status IN ('submitted','checked') THEN CONCAT(s.assignment_id,'-',s.student_id) END) submitted
+                FROM assignments a LEFT JOIN users u ON u.class_id=a.class_id AND u.role='student'
+                LEFT JOIN submissions s ON s.assignment_id=a.id AND s.student_id=u.id
+                WHERE a.class_id=:class_id"""), params).mappings().first()
+        data = dict(completion or {})
+        expected = int(data.get("assignments") or 0) * int(data.get("students") or 0)
+        data["expected"] = expected
+        data["completion_rate"] = round(int(data.get("submitted") or 0) / expected, 4) if expected else None
+        return {"knowledge": [dict(row) for row in knowledge], "questions": [dict(row) for row in questions],
+                "completion": data}
+
+    def save_consolidation_plan(self, student_id: int, plan_type: str, snapshot: dict,
+                                question_ids: list[int]) -> int:
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""INSERT INTO consolidation_plan_runs
+                (student_id,plan_type,input_snapshot_json,question_ids_json)
+                VALUES (:student,:plan_type,:snapshot,:question_ids)"""),
+                {"student": int(student_id), "plan_type": plan_type,
+                 "snapshot": json.dumps(snapshot, ensure_ascii=False, default=str),
+                 "question_ids": json.dumps(question_ids, ensure_ascii=False)})
+        return int(row.lastrowid)
+
+    def save_practice(self, student_id: int, records: list[dict], *, source: str) -> None:
+        with self.engine.begin() as conn:
+            for item in records:
+                conn.execute(text("""INSERT INTO answer_records
+                    (submission_id,student_id,question_id,answer,is_correct,source,created_at)
+                    VALUES (NULL,:student,:question,:answer,:correct,:source,:created)"""), {
+                        "student":int(student_id),"question":int(item["question_id"]),"answer":item.get("answer"),
+                        "correct":None if item.get("is_correct") is None else int(bool(item["is_correct"])),
+                        "source":source,"created":datetime.now(),
+                    })
+
+    def mastery_records(self, student_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""SELECT q.subject,q.knowledge_point,ar.is_correct,ar.source,ar.created_at
+                FROM answer_records ar JOIN questions q ON q.id=ar.question_id
+                WHERE ar.student_id=:student AND NULLIF(TRIM(q.knowledge_point),'') IS NOT NULL
+                ORDER BY ar.created_at,ar.id"""), {"student": int(student_id)}).mappings().all()
+        return [dict(row) for row in rows]
+
+    def save_mastery(self, student_id: int, profiles: list[dict]) -> None:
+        with self.engine.begin() as conn:
+            for item in profiles:
+                conn.execute(text("""INSERT INTO student_knowledge_mastery
+                    (student_id,subject,knowledge_point,attempt_count,correct_rate,recent_correct_rate,mastery_score,
+                     profile_confidence,consecutive_wrong,redo_success_rate,last_practiced_at,recommended_difficulty)
+                    VALUES (:student,:subject,:knowledge,:attempts,:correct,:recent,:score,:confidence,:streak,:redo,:last,:difficulty)
+                    ON DUPLICATE KEY UPDATE attempt_count=VALUES(attempt_count),correct_rate=VALUES(correct_rate),
+                    recent_correct_rate=VALUES(recent_correct_rate),mastery_score=VALUES(mastery_score),
+                    profile_confidence=VALUES(profile_confidence),consecutive_wrong=VALUES(consecutive_wrong),
+                    redo_success_rate=VALUES(redo_success_rate),last_practiced_at=VALUES(last_practiced_at),recommended_difficulty=VALUES(recommended_difficulty)"""),
+                    {"student":int(student_id),"subject":item["subject"],"knowledge":item["knowledge_point"],
+                     "attempts":item["attempt_count"],"correct":item["correct_rate"],"recent":item["recent_correct_rate"],
+                     "score":item["mastery_score"],"confidence":item["profile_confidence"],"streak":item["consecutive_wrong"],
+                     "redo":item["redo_success_rate"],"last":item["last_practiced_at"],"difficulty":item["recommended_difficulty"]})
+            conn.execute(text("INSERT INTO student_profile_snapshots (student_id,snapshot_json) VALUES (:student,:snapshot)"),
+                         {"student":int(student_id),"snapshot":json.dumps(profiles,ensure_ascii=False)})
+
+    def recommendation_data(self, student_id: int, *, grade_band: str = "") -> tuple[list[dict], list[dict], set[int]]:
+        with self.engine.connect() as conn:
+            profiles = conn.execute(text("SELECT * FROM student_knowledge_mastery WHERE student_id=:student ORDER BY mastery_score LIMIT 5"), {"student":int(student_id)}).mappings().all()
+            question_sql = "SELECT id,content,subject,question_type,knowledge_point,difficulty FROM questions WHERE status='published'"
+            params: dict[str, object] = {}
+            if grade_band:
+                question_sql += " AND (grade_band=:grade_band OR grade_band IS NULL OR grade_band='')"
+                params["grade_band"] = grade_band
+            questions = conn.execute(text(question_sql), params).mappings().all()
+            seen = conn.execute(text("SELECT DISTINCT question_id FROM answer_records WHERE student_id=:student AND created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)"), {"student":int(student_id)}).scalars().all()
+        return [dict(row) for row in profiles], [dict(row) for row in questions], {int(item) for item in seen}
+
+    def save_recommendation_run(self, student_id: int, profiles: list[dict], candidates: list[dict], selected: list[dict]) -> int:
+        with self.engine.begin() as conn:
+            row=conn.execute(text("""INSERT INTO recommendation_runs (student_id,strategy,input_snapshot_json,candidates_json,selected_json)
+                VALUES (:student,'weakness_rank_v1',:profiles,:candidates,:selected)"""), {"student":int(student_id),"profiles":json.dumps(profiles,ensure_ascii=False,default=str),"candidates":json.dumps(candidates,ensure_ascii=False,default=str),"selected":json.dumps(selected,ensure_ascii=False,default=str)})
+            return int(row.lastrowid)
+
+    def recommendation_metrics(self, student_id: int) -> dict:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""SELECT selected_json FROM recommendation_runs
+                WHERE student_id=:student ORDER BY id DESC LIMIT 20"""), {"student": int(student_id)}).scalars().all()
+        items = [item for row in rows for item in (json.loads(row) if isinstance(row, str) else row or [])]
+        if not items:
+            return {"runs": 0, "items": 0, "knowledge_match_rate": None, "within_run_repeat_rate": None}
+        exact = sum(item.get("knowledge_point") == item.get("profile") for item in items)
+        repeats = 0
+        for row in rows:
+            selected = json.loads(row) if isinstance(row, str) else row or []
+            ids = [item.get("id") for item in selected]
+            repeats += len(ids) - len(set(ids))
+        return {"runs": len(rows), "items": len(items), "knowledge_match_rate": round(exact / len(items), 4),
+                "within_run_repeat_rate": round(repeats / len(items), 4)}
+
+
+class RagKnowledgeBaseStore:
+    """R1 知识库事实源：版本、资料、分块与入库任务。
+
+    向量库不在此处作为事实源；所有激活与回滚先以 MySQL 状态为准。
+    """
+
+    def __init__(self, engine: Engine | None = None):
+        self.engine = engine or get_engine()
+
+    @staticmethod
+    def _serialize(row) -> dict | None:
+        if not row:
+            return None
+        data = dict(row)
+        for key, value in list(data.items()):
+            if isinstance(value, datetime):
+                data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+            elif key.endswith("_json"):
+                data[key[:-5]] = json.loads(value) if isinstance(value, str) and value else value
+                data.pop(key)
+        return data
+
+    def create_version(self, version: str, *, created_by: int,
+                       description: str = "") -> int:
+        version = str(version or "").strip()
+        if not version or len(version) > 64:
+            raise ValueError("知识库版本号不能为空且不能超过 64 个字符")
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""
+                INSERT INTO rag_kb_versions (version, description, created_by)
+                VALUES (:version, :description, :created_by)
+            """), {"version": version, "description": description.strip() or None,
+                   "created_by": int(created_by)})
+            return int(row.lastrowid)
+
+    def get_version(self, version_id: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("SELECT * FROM rag_kb_versions WHERE id = :id"),
+                               {"id": int(version_id)}).mappings().first()
+        return self._serialize(row)
+
+    def get_version_by_name(self, version: str) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("SELECT * FROM rag_kb_versions WHERE version = :version"),
+                               {"version": version}).mappings().first()
+        return self._serialize(row)
+
+    def list_versions(self, *, created_by: int | None = None) -> list[dict]:
+        clause, params = "", {}
+        if created_by is not None:
+            clause, params = "WHERE created_by = :created_by", {"created_by": int(created_by)}
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(
+                f"SELECT * FROM rag_kb_versions {clause} ORDER BY id DESC"), params).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def get_owned_version(self, version_id: int, created_by: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT * FROM rag_kb_versions WHERE id = :id AND created_by = :created_by
+            """), {"id": int(version_id), "created_by": int(created_by)}).mappings().first()
+        return self._serialize(row)
+
+    def set_quality_report(self, version_id: int, report: dict) -> bool:
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""
+                UPDATE rag_kb_versions SET quality_report_json = :report
+                WHERE id = :id AND status = 'STAGED'
+            """), {"id": int(version_id), "report": json.dumps(report, ensure_ascii=False)})
+            return row.rowcount > 0
+
+    def activate_version(self, version_id: int) -> dict:
+        """原子切换 ACTIVE 指针；仅质量通过的 STAGED/ARCHIVED 版本可激活。"""
+        with self.engine.begin() as conn:
+            target = conn.execute(text("""
+                SELECT id, status, quality_report_json FROM rag_kb_versions
+                WHERE id = :id FOR UPDATE
+            """), {"id": int(version_id)}).mappings().first()
+            if not target:
+                raise ValueError("知识库版本不存在")
+            if target["status"] not in ("STAGED", "ARCHIVED"):
+                raise ValueError("仅 STAGED 或 ARCHIVED 版本可激活")
+            report = json.loads(target["quality_report_json"] or "{}")
+            if report.get("passed") is not True:
+                raise ValueError("知识库版本未通过入库质量检查，不能激活")
+            conn.execute(text("""
+                UPDATE rag_kb_versions
+                SET status = 'ARCHIVED', archived_at = NOW()
+                WHERE status = 'ACTIVE'
+            """))
+            conn.execute(text("""
+                UPDATE rag_kb_versions
+                SET status = 'ACTIVE', activated_at = NOW(), archived_at = NULL
+                WHERE id = :id
+            """), {"id": int(version_id)})
+            conn.execute(text("""
+                INSERT INTO rag_active_kb_pointer (id, active_version_id)
+                VALUES (1, :id)
+                ON DUPLICATE KEY UPDATE active_version_id = VALUES(active_version_id)
+            """), {"id": int(version_id)})
+        return self.get_version(version_id) or {}
+
+    def get_active_version(self) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT v.* FROM rag_active_kb_pointer p
+                JOIN rag_kb_versions v ON v.id = p.active_version_id
+                WHERE p.id = 1 AND v.status = 'ACTIVE'
+            """)).mappings().first()
+        return self._serialize(row)
+
+    def create_document(self, *, kb_version_id: int, created_by: int,
+                        source_name: str, source_type: str, content_hash: str,
+                        storage_key: str | None = None, mime_type: str | None = None,
+                        file_size: int | None = None, subject: str | None = None,
+                        grade_band: str | None = None, grade: str | None = None,
+                        knowledge_node_id: int | None = None,
+                        allowed_roles: list[str] | None = None) -> int:
+        if not source_name.strip() or len(content_hash) != 64:
+            raise ValueError("资料名称不能为空，content_hash 必须为 SHA-256")
+        roles = allowed_roles or ["student", "teacher", "admin"]
+        with self.engine.begin() as conn:
+            version = conn.execute(text("""
+                SELECT id FROM rag_kb_versions WHERE id = :id FOR UPDATE
+            """), {"id": int(kb_version_id)}).mappings().first()
+            if not version:
+                raise ValueError("知识库版本不存在")
+            row = conn.execute(text("""
+                INSERT INTO rag_documents
+                    (kb_version_id, created_by, source_name, source_type, storage_key,
+                     mime_type, file_size, content_hash, subject, grade_band, grade,
+                     knowledge_node_id, allowed_roles_json)
+                VALUES (:version, :created_by, :source_name, :source_type, :storage_key,
+                        :mime_type, :file_size, :content_hash, :subject, :grade_band, :grade,
+                        :knowledge_node_id, :allowed_roles)
+            """), {
+                "version": int(kb_version_id), "created_by": int(created_by),
+                "source_name": source_name.strip(), "source_type": source_type.strip().lower(),
+                "storage_key": storage_key, "mime_type": mime_type, "file_size": file_size,
+                "content_hash": content_hash, "subject": subject, "grade_band": grade_band,
+                "grade": grade, "knowledge_node_id": knowledge_node_id,
+                "allowed_roles": json.dumps(roles, ensure_ascii=False),
+            })
+            return int(row.lastrowid)
+
+    def find_reusable_document(self, *, created_by: int, content_hash: str) -> dict | None:
+        """同一教师的相同文件可复用；不同教师不共享资料记录。"""
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT * FROM rag_documents
+                WHERE created_by = :created_by AND content_hash = :content_hash
+                  AND status IN ('PROCESSED', 'PUBLISHED')
+                ORDER BY id DESC LIMIT 1
+            """), {"created_by": int(created_by), "content_hash": content_hash}).mappings().first()
+        return self._serialize(row)
+
+    def get_document(self, document_id: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("SELECT * FROM rag_documents WHERE id = :id"),
+                               {"id": int(document_id)}).mappings().first()
+        return self._serialize(row)
+
+    def list_documents(self, *, created_by: int, kb_version_id: int | None = None) -> list[dict]:
+        clause, params = "WHERE created_by = :created_by", {"created_by": int(created_by)}
+        if kb_version_id is not None:
+            clause += " AND kb_version_id = :kb_version_id"
+            params["kb_version_id"] = int(kb_version_id)
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(
+                f"SELECT * FROM rag_documents {clause} ORDER BY id DESC"), params).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def get_owned_document(self, document_id: int, created_by: int) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""
+                SELECT * FROM rag_documents WHERE id = :id AND created_by = :created_by
+            """), {"id": int(document_id), "created_by": int(created_by)}).mappings().first()
+        return self._serialize(row)
+
+    def update_document_status(self, document_id: int, *, status: str,
+                               failure_reason: str | None = None) -> bool:
+        statuses = {"STAGED", "PROCESSING", "PROCESSED", "PUBLISHED", "UNPUBLISHED", "FAILED", "ARCHIVED"}
+        if status not in statuses:
+            raise ValueError("非法资料状态")
+        fields = ["status = :status", "failure_reason = :failure_reason"]
+        if status == "PUBLISHED":
+            fields.append("published_at = NOW()")
+        if status == "ARCHIVED":
+            fields.append("archived_at = NOW()")
+        with self.engine.begin() as conn:
+            row = conn.execute(text(
+                f"UPDATE rag_documents SET {', '.join(fields)} WHERE id = :id"),
+                {"id": int(document_id), "status": status, "failure_reason": failure_reason})
+            return row.rowcount > 0
+
+    def set_document_publication(self, document_id: int, *, created_by: int,
+                                 published: bool) -> dict:
+        """资料与切片发布状态同步；教师仅能操作自己的已处理资料。"""
+        with self.engine.begin() as conn:
+            document = conn.execute(text("""
+                SELECT id, kb_version_id, status FROM rag_documents
+                WHERE id = :id AND created_by = :created_by FOR UPDATE
+            """), {"id": int(document_id), "created_by": int(created_by)}).mappings().first()
+            if not document:
+                raise ValueError("资料不存在")
+            if published:
+                if document["status"] not in ("PROCESSED", "UNPUBLISHED"):
+                    raise ValueError("仅处理成功或已下架资料可发布")
+                new_status, chunk_status = "PUBLISHED", "PUBLISHED"
+                conn.execute(text("""
+                    UPDATE rag_documents SET status = :status, failure_reason = NULL,
+                        published_at = NOW() WHERE id = :id
+                """), {"id": int(document_id), "status": new_status})
+            else:
+                if document["status"] != "PUBLISHED":
+                    raise ValueError("仅已发布资料可下架")
+                new_status, chunk_status = "UNPUBLISHED", "STAGED"
+                conn.execute(text("UPDATE rag_documents SET status = :status WHERE id = :id"),
+                             {"id": int(document_id), "status": new_status})
+            conn.execute(text("""
+                UPDATE rag_document_chunks SET status = :chunk_status
+                WHERE document_id = :document_id AND kb_version_id = :kb_version_id
+            """), {"document_id": int(document_id), "kb_version_id": int(document["kb_version_id"]),
+                   "chunk_status": chunk_status})
+        return self.get_document(document_id) or {}
+
+    def archive_document(self, document_id: int, *, created_by: int) -> dict:
+        """逻辑删除资料：退出检索范围但保留版本、审计与回滚证据。"""
+        with self.engine.begin() as conn:
+            document = conn.execute(text("""
+                SELECT id, kb_version_id, status FROM rag_documents
+                WHERE id = :id AND created_by = :created_by FOR UPDATE
+            """), {"id": int(document_id), "created_by": int(created_by)}).mappings().first()
+            if not document:
+                raise ValueError("资料不存在")
+            if document["status"] == "ARCHIVED":
+                raise ValueError("资料已归档")
+            conn.execute(text("""
+                UPDATE rag_documents SET status = 'ARCHIVED', archived_at = NOW()
+                WHERE id = :id
+            """), {"id": int(document_id)})
+            conn.execute(text("""
+                UPDATE rag_document_chunks SET status = 'ARCHIVED', valid_to = NOW()
+                WHERE document_id = :document_id AND kb_version_id = :kb_version_id
+            """), {"document_id": int(document_id), "kb_version_id": int(document["kb_version_id"])})
+        return self.get_document(document_id) or {}
+
+    def delete_document(self, document_id: int, *, created_by: int) -> dict:
+        """永久删除教师自己的资料记录及其关系数据。
+
+        返回待清理的向量 ID 和本地源文件是否仍被其他资料记录引用；向量和文件的
+        实际清理由应用层执行，避免 Store 层依赖外部服务或文件系统。
+        """
+        with self.engine.begin() as conn:
+            document = conn.execute(text("""
+                SELECT id, storage_key FROM rag_documents
+                WHERE id = :id AND created_by = :created_by FOR UPDATE
+            """), {"id": int(document_id), "created_by": int(created_by)}).mappings().first()
+            if not document:
+                raise ValueError("资料不存在或无权删除")
+            chunk_ids = [int(row["id"]) for row in conn.execute(text("""
+                SELECT id FROM rag_document_chunks WHERE document_id = :document_id
+            """), {"document_id": int(document_id)}).mappings().all()]
+            conn.execute(text("DELETE FROM rag_ingestion_jobs WHERE document_id = :document_id"),
+                         {"document_id": int(document_id)})
+            conn.execute(text("DELETE FROM rag_document_chunks WHERE document_id = :document_id"),
+                         {"document_id": int(document_id)})
+            conn.execute(text("DELETE FROM rag_documents WHERE id = :id"), {"id": int(document_id)})
+            storage_key = document["storage_key"]
+            has_other_reference = bool(storage_key and conn.execute(text("""
+                SELECT COUNT(*) FROM rag_documents WHERE storage_key = :storage_key
+            """), {"storage_key": storage_key}).scalar_one())
+        return {"chunk_ids": chunk_ids, "storage_key": storage_key,
+                "delete_storage": bool(storage_key) and not has_other_reference}
+
+    def build_quality_report(self, version_id: int, *, created_by: int) -> dict:
+        """为激活提供最小质量门槛：至少一份已处理/发布资料、无失败资料、子块完整。"""
+        if not self.get_owned_version(version_id, created_by):
+            raise ValueError("知识库版本不存在")
+        with self.engine.connect() as conn:
+            counts = conn.execute(text("""
+                SELECT status, COUNT(*) AS total FROM rag_documents
+                WHERE kb_version_id = :version_id AND created_by = :created_by
+                GROUP BY status
+            """), {"version_id": int(version_id), "created_by": int(created_by)}).mappings().all()
+            child_count = conn.execute(text("""
+                SELECT COUNT(*) AS total FROM rag_document_chunks c
+                JOIN rag_documents d ON d.id = c.document_id
+                WHERE c.kb_version_id = :version_id AND c.chunk_kind = 'child'
+                  AND d.created_by = :created_by
+            """), {"version_id": int(version_id), "created_by": int(created_by)}).scalar_one()
+        by_status = {row["status"]: int(row["total"]) for row in counts}
+        usable = by_status.get("PROCESSED", 0) + by_status.get("PUBLISHED", 0) + by_status.get("UNPUBLISHED", 0)
+        report = {"document_count": sum(by_status.values()), "status_counts": by_status,
+                  "child_chunk_count": int(child_count), "passed": usable > 0 and int(child_count) > 0
+                  and by_status.get("FAILED", 0) == 0}
+        if not report["passed"]:
+            report["reason"] = "至少需要一份处理成功且存在子块的资料，并处理所有失败资料"
+        return report
+
+    def sync_published_questions(self) -> dict:
+        """将已发布题目镜像为本地知识源；全程仅 MySQL 读写，不调用任何模型。"""
+        with self.engine.begin() as conn:
+            rows = conn.execute(text("""
+                SELECT id, content, options_json, answer, analysis, subject, question_type,
+                       knowledge_point, grade_band, grade
+                FROM questions WHERE status = 'published' ORDER BY id
+            """)).mappings().all()
+            for row in rows:
+                payload = {
+                    "question_text": row["content"], "options_json": row["options_json"],
+                    "answer": row["answer"], "analysis": row["analysis"], "subject": row["subject"],
+                    "question_type": row["question_type"], "knowledge_point": row["knowledge_point"],
+                    "grade_band": row["grade_band"], "grade": row["grade"],
+                }
+                source_hash = text_hash(json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str))
+                conn.execute(text("""
+                    INSERT INTO rag_question_knowledge
+                        (question_id, question_text, options_json, answer, analysis, subject, question_type,
+                         knowledge_point, grade_band, grade, source_hash)
+                    VALUES (:question_id, :question_text, :options_json, :answer, :analysis, :subject,
+                            :question_type, :knowledge_point, :grade_band, :grade, :source_hash)
+                    ON DUPLICATE KEY UPDATE question_text = VALUES(question_text),
+                        options_json = VALUES(options_json), answer = VALUES(answer), analysis = VALUES(analysis),
+                        subject = VALUES(subject), question_type = VALUES(question_type),
+                        knowledge_point = VALUES(knowledge_point), grade_band = VALUES(grade_band),
+                        grade = VALUES(grade), source_hash = VALUES(source_hash)
+                """), {"question_id": int(row["id"]), **payload, "source_hash": source_hash})
+            removed = conn.execute(text("""
+                DELETE k FROM rag_question_knowledge k
+                LEFT JOIN questions q ON q.id = k.question_id
+                WHERE q.id IS NULL OR q.status <> 'published'
+            """)).rowcount
+        return {"synced": len(rows), "removed": int(removed or 0)}
+
+    def question_knowledge_status(self) -> dict:
+        with self.engine.connect() as conn:
+            total = conn.execute(text("SELECT COUNT(*) FROM rag_question_knowledge")).scalar_one()
+            latest = conn.execute(text("SELECT MAX(synced_at) FROM rag_question_knowledge")).scalar_one()
+        return {"total": int(total), "latest_synced_at": latest.strftime("%Y-%m-%d %H:%M:%S") if latest else None}
+
+    def list_local_question_knowledge(self, *, subject: str | None = None,
+                                      grade_band: str | None = None, grade: str | None = None) -> list[dict]:
+        conditions, params = ["1 = 1"], {}
+        if subject:
+            conditions.append("subject = :subject")
+            params["subject"] = subject
+        if grade_band:
+            conditions.append("(grade_band = :grade_band OR grade_band IS NULL OR grade_band = '')")
+            params["grade_band"] = grade_band
+        if grade:
+            conditions.append("(grade = :grade OR grade IS NULL OR grade = '')")
+            params["grade"] = grade
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(f"""
+                SELECT question_id, question_text, options_json, answer, analysis, subject, question_type,
+                       knowledge_point, grade_band, grade
+                FROM rag_question_knowledge WHERE {' AND '.join(conditions)}
+                ORDER BY question_id DESC LIMIT 2000
+            """), params).mappings().all()
+        return [self._serialize(row) or {} for row in rows]
+
+    def list_document_chunks(self, document_id: int, *, chunk_kind: str | None = None) -> list[dict]:
+        clause, params = "WHERE document_id = :document_id", {"document_id": int(document_id)}
+        if chunk_kind is not None:
+            clause += " AND chunk_kind = :chunk_kind"
+            params["chunk_kind"] = chunk_kind
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(
+                f"SELECT * FROM rag_document_chunks {clause} ORDER BY chunk_kind, order_no"), params).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def get_retrieval_chunks(self, chunk_ids: list[int], *, kb_version_id: int,
+                             role: str, subject: str | None = None,
+                             grade_band: str | None = None, grade: str | None = None,
+                             knowledge_node_id: int | None = None) -> list[dict]:
+        """MySQL 侧二次硬过滤，向量库命中绝不能直接作为可见内容。"""
+        ids = [int(chunk_id) for chunk_id in dict.fromkeys(chunk_ids)]
+        if not ids:
+            return []
+        placeholders = ", ".join(f":id_{index}" for index in range(len(ids)))
+        conditions = [f"c.id IN ({placeholders})", "c.kb_version_id = :kb_version_id",
+                      "c.chunk_kind = 'child'", "c.status = 'PUBLISHED'", "d.status = 'PUBLISHED'",
+                      "JSON_CONTAINS(d.allowed_roles_json, JSON_QUOTE(:role))"]
+        params: dict[str, object] = {f"id_{index}": chunk_id for index, chunk_id in enumerate(ids)}
+        params.update({"kb_version_id": int(kb_version_id), "role": role})
+        for field, value in (("subject", subject), ("grade_band", grade_band), ("grade", grade),
+                             ("knowledge_node_id", knowledge_node_id)):
+            if value is not None:
+                conditions.append(f"d.{field} = :{field}")
+                params[field] = value
+        with self.engine.connect() as conn:
+            rows = conn.execute(text(f"""
+                SELECT c.*, d.source_name, d.subject, d.grade_band, d.grade, d.knowledge_node_id,
+                       d.allowed_roles_json, v.version AS kb_version
+                FROM rag_document_chunks c
+                JOIN rag_documents d ON d.id = c.document_id
+                JOIN rag_kb_versions v ON v.id = c.kb_version_id
+                WHERE {' AND '.join(conditions)}
+            """), params).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def create_session(self, user_id: int, role: str, title: str | None = None) -> int:
+        with self.engine.begin() as conn:
+            return int(conn.execute(text("INSERT INTO rag_sessions (user_id, role, title) VALUES (:u,:r,:t)"),
+                {"u": int(user_id), "r": role, "t": title}).lastrowid)
+
+    def list_sessions(self, user_id: int, role: str) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("SELECT * FROM rag_sessions WHERE user_id=:u AND role=:r ORDER BY updated_at DESC"),
+                {"u": int(user_id), "r": role}).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def add_message(self, session_id: int, role: str, content: str, *, citations: list | None = None,
+                    refused: bool = False) -> int:
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""INSERT INTO rag_messages (session_id,role,content,citations_json,refused)
+                VALUES (:s,:r,:c,:j,:x)"""), {"s":int(session_id),"r":role,"c":content,
+                "j":json.dumps(citations, ensure_ascii=False) if citations else None,"x":int(refused)})
+            conn.execute(text("UPDATE rag_sessions SET updated_at=NOW() WHERE id=:s"), {"s":int(session_id)})
+            return int(row.lastrowid)
+
+    def get_owned_session(self, session_id: int, user_id: int, role: str) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""SELECT * FROM rag_sessions
+                WHERE id=:s AND user_id=:u AND role=:r"""),
+                {"s": int(session_id), "u": int(user_id), "r": role}).mappings().first()
+        return self._serialize(row) if row else None
+
+    def messages(self, session_id: int, user_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""SELECT m.* FROM rag_messages m JOIN rag_sessions s ON s.id=m.session_id
+                WHERE m.session_id=:s AND s.user_id=:u ORDER BY m.id"""), {"s":int(session_id),"u":int(user_id)}).mappings().all()
+        return [self._serialize(row) for row in rows]
+
+    def owns_message(self, message_id: int, user_id: int) -> bool:
+        with self.engine.connect() as conn:
+            row = conn.execute(text("""SELECT m.id FROM rag_messages m
+                JOIN rag_sessions s ON s.id=m.session_id
+                WHERE m.id=:m AND s.user_id=:u AND m.role='assistant'"""),
+                {"m": int(message_id), "u": int(user_id)}).first()
+        return row is not None
+
+    def clear_session(self, session_id: int, user_id: int) -> bool:
+        with self.engine.begin() as conn:
+            owned = conn.execute(text("SELECT id FROM rag_sessions WHERE id=:s AND user_id=:u FOR UPDATE"), {"s":int(session_id),"u":int(user_id)}).first()
+            if not owned:
+                return False
+            conn.execute(text("DELETE FROM rag_messages WHERE session_id=:s"), {"s":int(session_id)})
+            return True
+
+    def feedback(self, message_id: int, user_id: int, rating: int, correction: str | None = None) -> None:
+        if rating not in (-1, 1):
+            raise ValueError("rating 仅支持 1 或 -1")
+        with self.engine.begin() as conn:
+            conn.execute(text("""INSERT INTO rag_feedback (message_id,user_id,rating,correction) VALUES (:m,:u,:r,:c)
+                ON DUPLICATE KEY UPDATE rating=VALUES(rating), correction=VALUES(correction)"""),
+                {"m":int(message_id),"u":int(user_id),"r":rating,"c":correction})
+
+    def add_query_trace(self, *, session_id: int | None, user_id: int, kb_version: str | None,
+                        query_text: str, candidates: list[dict] | None, latency_ms: int,
+                        failure_stage: str | None = None) -> int:
+        """记录可审计的检索摘要；不写入用户画像或模型提示词。"""
+        with self.engine.begin() as conn:
+            row = conn.execute(text("""INSERT INTO rag_query_traces
+                (session_id,user_id,kb_version,query_text,candidates_json,latency_ms,failure_stage)
+                VALUES (:s,:u,:v,:q,:c,:l,:f)"""), {
+                    "s": session_id, "u": int(user_id), "v": kb_version, "q": query_text,
+                    "c": json.dumps(candidates or [], ensure_ascii=False), "l": int(latency_ms),
+                    "f": failure_stage,
+                })
+            return int(row.lastrowid)
+
+    def create_job(self, *, document_id: int, kb_version_id: int,
+                   requested_by: int) -> int:
+        with self.engine.begin() as conn:
+            document = conn.execute(text("""
+                SELECT id FROM rag_documents
+                WHERE id = :document_id AND kb_version_id = :kb_version_id
+                FOR UPDATE
+            """), {"document_id": int(document_id), "kb_version_id": int(kb_version_id)}).mappings().first()
+            if not document:
+                raise ValueError("资料不存在或不属于指定知识库版本")
+            row = conn.execute(text("""
+                INSERT INTO rag_ingestion_jobs (document_id, kb_version_id, requested_by)
+                VALUES (:document_id, :kb_version_id, :requested_by)
+            """), {"document_id": int(document_id), "kb_version_id": int(kb_version_id),
+                   "requested_by": int(requested_by)})
+            return int(row.lastrowid)
+
+    def update_job(self, job_id: int, *, status: str, attempt_no: int | None = None,
+                   error_code: str | None = None, error_message: str | None = None,
+                   metrics: dict | None = None) -> bool:
+        statuses = {"QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "CANCELED"}
+        if status not in statuses:
+            raise ValueError("非法入库任务状态")
+        fields = ["status = :status", "error_code = :error_code", "error_message = :error_message",
+                  "metrics_json = :metrics"]
+        params = {"id": int(job_id), "status": status, "error_code": error_code,
+                  "error_message": error_message,
+                  "metrics": json.dumps(metrics, ensure_ascii=False) if metrics else None}
+        if attempt_no is not None:
+            fields.append("attempt_no = :attempt_no")
+            params["attempt_no"] = int(attempt_no)
+        if status == "RUNNING":
+            fields.append("started_at = NOW()")
+        if status in {"SUCCEEDED", "FAILED", "CANCELED"}:
+            fields.append("finished_at = NOW()")
+        with self.engine.begin() as conn:
+            row = conn.execute(text(
+                f"UPDATE rag_ingestion_jobs SET {', '.join(fields)} WHERE id = :id"), params)
+            return row.rowcount > 0
+
+    def replace_chunks(self, document_id: int, kb_version_id: int,
+                       chunks: list[dict]) -> list[int]:
+        """R1.4 使用：仅替换尚未发布文档的分块，避免改写历史版本。"""
+        with self.engine.begin() as conn:
+            document = conn.execute(text("""
+                SELECT kb_version_id, status FROM rag_documents WHERE id = :id FOR UPDATE
+            """), {"id": int(document_id)}).mappings().first()
+            if not document:
+                raise ValueError("资料不存在")
+            if int(document["kb_version_id"]) != int(kb_version_id):
+                raise ValueError("资料不属于指定知识库版本")
+            if document["status"] in ("PUBLISHED", "ARCHIVED"):
+                raise ValueError("已发布或已归档资料不能覆盖分块")
+            conn.execute(text("""
+                DELETE FROM rag_document_chunks
+                WHERE document_id = :document_id AND kb_version_id = :kb_version_id
+            """), {"document_id": int(document_id), "kb_version_id": int(kb_version_id)})
+            chunk_ids: list[int] = []
+            parent_ids: dict[int, int] = {}
+            for item in chunks:
+                parent_chunk_id = item.get("parent_chunk_id")
+                parent_order_no = item.get("parent_order_no")
+                if parent_chunk_id is None and parent_order_no is not None:
+                    parent_chunk_id = parent_ids.get(int(parent_order_no))
+                    if parent_chunk_id is None:
+                        raise ValueError("子块必须位于其父块之后写入")
+                row = conn.execute(text("""
+                    INSERT INTO rag_document_chunks
+                        (document_id, kb_version_id, parent_chunk_id, chunk_kind, order_no,
+                         content, content_hash, chapter, page_number, char_start, char_end,
+                         metadata_json, status)
+                    VALUES (:document_id, :kb_version_id, :parent_chunk_id, :chunk_kind, :order_no,
+                            :content, :content_hash, :chapter, :page_number, :char_start, :char_end,
+                            :metadata_json, :status)
+                """), {
+                    "document_id": int(document_id), "kb_version_id": int(kb_version_id),
+                    "parent_chunk_id": parent_chunk_id,
+                    "chunk_kind": item["chunk_kind"], "order_no": int(item["order_no"]),
+                    "content": item["content"], "content_hash": item["content_hash"],
+                    "chapter": item.get("chapter"), "page_number": item.get("page_number"),
+                    "char_start": item.get("char_start"), "char_end": item.get("char_end"),
+                    "metadata_json": json.dumps(item.get("metadata", {}), ensure_ascii=False),
+                    "status": item.get("status", "STAGED"),
+                })
+                chunk_id = int(row.lastrowid)
+                chunk_ids.append(chunk_id)
+                if item["chunk_kind"] == "parent":
+                    parent_ids[int(item["order_no"])] = chunk_id
+        return chunk_ids
+
+
 class StoreBundle:
     """全部 Store 的聚合容器，service 层一次注入。"""
 
@@ -1032,3 +1941,5 @@ class StoreBundle:
         self.knowledge_nodes = KnowledgeNodeStore(self.engine)
         self.papers = PaperStore(self.engine)
         self.assignments = AssignmentStore(self.engine)
+        self.learning = LearningStore(self.engine)
+        self.rag = RagKnowledgeBaseStore(self.engine)

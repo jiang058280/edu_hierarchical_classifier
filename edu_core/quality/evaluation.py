@@ -41,6 +41,21 @@ def load_golden_set(settings: Settings) -> list[dict]:
     return data["cases"]
 
 
+def load_evaluation_set(settings: Settings, dataset: str = "golden_test_set") -> list[dict]:
+    """加载受支持的冻结评测集，不允许任意路径绕过项目目录。"""
+    if dataset not in {"golden_test_set", "bench_clean"}:
+        raise ValueError("评测集仅支持 golden_test_set 或 bench_clean")
+    if dataset == "golden_test_set":
+        return load_golden_set(settings)
+    path = settings.abs_path(settings.eval_sets_dir) / "bench_clean.json"
+    if not path.is_file():
+        raise FileNotFoundError(f"干净基准不存在：{path}，请先运行 scripts/build_clean_bench.py")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("dataset") != "bench_clean" or not data.get("cases"):
+        raise ValueError(f"干净基准格式无效：{path}")
+    return data["cases"]
+
+
 def evaluate_predictor(predict_fn: Callable[[str], dict], cases: list[dict],
                        version: str, dataset_name: str = "golden_test_set") -> dict:
     """对预测函数跑完 golden set 并计算指标。

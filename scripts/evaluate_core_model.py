@@ -20,16 +20,17 @@ from edu_core.config.logging_config import get_logger
 from edu_core.config.settings import get_settings
 from edu_core.governance.model_versions import version_dir
 from edu_core.inference.predictor import HierarchicalPredictor
-from edu_core.quality.evaluation import evaluate_predictor, load_golden_set, save_report
+from edu_core.quality.evaluation import evaluate_predictor, load_evaluation_set, save_report
 
 logger = get_logger(__name__)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="golden set 回归评估")
+    parser = argparse.ArgumentParser(description="冻结评测集回归评估")
     parser.add_argument("--version", required=True, help="模型版本号（models/versions/<version>）")
     parser.add_argument("--limit", type=int, default=None, help="只评估前 N 条（冒烟用）")
     parser.add_argument("--output", default=None, help="报告输出路径（默认 reports/evaluation/<version>_evaluation.json）")
+    parser.add_argument("--dataset", choices=("golden_test_set", "bench_clean"), default="golden_test_set")
     args = parser.parse_args()
 
     settings = get_settings()
@@ -37,23 +38,28 @@ def main() -> None:
     if not vdir.is_dir():
         raise SystemExit(f"版本目录不存在：{vdir}")
 
-    cases = load_golden_set(settings)
+    cases = load_evaluation_set(settings, args.dataset)
     if args.limit:
         cases = cases[: args.limit]
 
     logger.info("加载模型版本 %s（%s 条用例）", args.version, len(cases))
     predictor = HierarchicalPredictor(vdir, settings=settings, verbose=True)
-    report = evaluate_predictor(predictor.predict, cases, version=args.version)
+    report = evaluate_predictor(predictor.predict, cases, version=args.version,
+                                dataset_name=args.dataset)
 
     m = report["metrics"]
     print("=" * 60)
-    print(f"版本 {args.version} | golden set {m['n_samples']} 条")
+    print(f"版本 {args.version} | {args.dataset} {m['n_samples']} 条")
     print(f"学科 acc {m['subject_acc']:.4f} | 题型 F1 {m['type_f1']:.4f} (acc {m['type_acc']:.4f})")
     print(f"知识点 F1 {m['knowledge_f1']:.4f} (acc {m['knowledge_acc']:.4f})")
     print(f"级联 acc {m['cascade_acc']:.4f} | 平均延迟 {m['avg_latency_ms']:.1f} ms")
     print("=" * 60)
 
-    out = save_report(report, settings, name=args.output)
+    output_name = args.output or (
+        f"{args.version}_bench_clean_evaluation.json"
+        if args.dataset == "bench_clean" else None
+    )
+    out = save_report(report, settings, name=output_name)
     print(f"报告已写入：{out}")
 
 

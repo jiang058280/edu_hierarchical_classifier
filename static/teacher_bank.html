@@ -20,11 +20,16 @@
       <input class="input" type="text" id="fKw" placeholder="关键词" style="width:170px">
       <button class="btn" onclick="loadList(0)">查询</button>
       <span style="flex:1"></span>
+      <button class="btn plain" onclick="downloadTemplate()">下载模板</button>
+      <button class="btn plain" onclick="$('importFile').click()">Excel 导入</button>
+      <button class="btn plain" onclick="exportQuestions()">导出当前结果</button>
+      <input id="importFile" type="file" accept=".xlsx" hidden onchange="startImport(this)">
       <button class="btn" onclick="openEdit(null)">＋ 新增题目</button>
     </div>
+    <div id="importStatus" style="display:none;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-size:13px"></div>
     <table class="table">
       <thead><tr>
-        <th>ID</th><th style="width:36%">题干</th><th>学科</th><th>题型</th><th>知识点</th>
+        <th>序号</th><th style="width:36%">题干</th><th>学科</th><th>题型</th><th>知识点</th>
         <th>学段</th><th>难度</th><th>状态</th><th style="width:120px">操作</th>
       </tr></thead>
       <tbody id="rows"></tbody>
@@ -33,6 +38,7 @@
       <span id="totalInfo"></span>
       <span style="flex:1"></span>
       <button class="btn plain sm" id="prevBtn" onclick="loadList(Math.max(0, offset - 50))">上一页</button>
+      <span id="pageButtons" class="row" style="gap:4px"></span>
       <button class="btn plain sm" id="nextBtn" onclick="loadList(offset + 50)">下一页</button>
     </div>
   </div>
@@ -108,9 +114,20 @@ async function initTaxonomy() {
 }
 
 function updatePager() {
-  $('totalInfo').textContent = `共 ${total} 题 · 第 ${offset / 50 + 1} 页`;
+  const pageSize = 50, pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Math.floor(offset / pageSize) + 1;
+  $('totalInfo').textContent = `共 ${total} 题 · 第 ${currentPage} / ${pageCount} 页`;
   $('prevBtn').disabled = offset === 0;
   $('nextBtn').disabled = offset + 50 >= total;
+  const visible = new Set([1, pageCount]);
+  for (let page = Math.max(1, currentPage - 2); page <= Math.min(pageCount, currentPage + 2); page++) visible.add(page);
+  const pages = [...visible].sort((a, b) => a - b);
+  let previous = 0;
+  $('pageButtons').innerHTML = pages.map(page => {
+    const gap = page - previous > 1 ? '<span class="muted" style="padding:0 2px">…</span>' : '';
+    previous = page;
+    return `${gap}<button class="btn ${page === currentPage ? '' : 'plain'} sm" ${page === currentPage ? 'disabled' : ''} onclick="loadList(${(page - 1) * pageSize})">${page}</button>`;
+  }).join('');
 }
 let total = 0;
 
@@ -126,9 +143,9 @@ async function loadList(newOffset) {
     data.items = data.items || []; data.total = data.total || 0;
     total = data.total;
     updatePager();
-    $('rows').innerHTML = data.items.length ? data.items.map(q => `
+    $('rows').innerHTML = data.items.length ? data.items.map((q, index) => `
       <tr>
-        <td class="num">${q.id}</td>
+        <td class="num">${offset + index + 1}</td>
         <td title="${T.escapeHtml(T.cleanText(q.content))}">${T.escapeHtml(T.cleanText(q.content).slice(0, 64))}${T.cleanText(q.content).length > 64 ? '…' : ''}</td>
         <td>${T.escapeHtml(q.subject)}</td><td>${T.escapeHtml(q.question_type)}</td>
         <td>${T.escapeHtml((q.knowledge_point || '—').slice(0, 22))}</td>
@@ -144,8 +161,74 @@ async function loadList(newOffset) {
   } catch (e) { T.toast(e.message, 'err'); }
 }
 
+function currentFilters() {
+  return new URLSearchParams({
+    subject: $('fSubject').value, question_type: $('fType').value,
+    grade_band: $('fBand').value, status: $('fStatus').value,
+    keyword: $('fKw').value.trim()
+  });
+}
+
+async function downloadTemplate() {
+  try { await T.downloadFile('/api/v1/teacher/questions/template', '题库导入模板.xlsx'); }
+  catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function exportQuestions() {
+  try {
+    await T.downloadFile('/api/v1/teacher/questions/export?' + currentFilters(), '题库导出.xlsx');
+    T.toast('导出文件已生成', 'ok');
+  } catch (e) { T.toast(e.message, 'err'); }
+}
+
+async function startImport(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const panel = $('importStatus');
+  panel.style.display = 'block';
+  panel.textContent = `正在上传 ${file.name}…`;
+  const form = new FormData(); form.append('file', file);
+  try {
+    const data = await T.api('/api/v1/teacher/questions/import', { method: 'POST', body: form });
+    panel.textContent = '文件已接收，正在校验并导入…';
+    pollImport(data.job_id);
+  } catch (e) {
+    panel.textContent = '导入失败：' + e.message;
+    T.toast(e.message, 'err');
+  }
+}
+
+async function pollImport(jobId) {
+  const panel = $('importStatus');
+  try {
+    const job = await T.api('/api/v1/teacher/questions/import/' + jobId);
+    if (job.status === 'QUEUED' || job.status === 'RUNNING') {
+      panel.textContent = job.status === 'QUEUED' ? '任务等待处理…' : '正在校验并写入题库…';
+      setTimeout(() => pollImport(jobId), 700);
+      return;
+    }
+    if (job.status === 'FAILED') {
+      const message = (job.errors && job.errors[0] && job.errors[0].message) || '文件处理失败';
+      panel.innerHTML = `导入失败：${T.escapeHtml(message)} ` +
+        `<button class="btn plain sm" onclick="downloadImportErrors('${jobId}')">下载错误报告</button>`;
+      return;
+    }
+    panel.innerHTML = `处理 ${job.total} 行，成功导入 <b>${job.inserted}</b> 题，` +
+      `跳过重复 ${job.skipped} 题，错误 ${job.failed} 行，耗时 ${job.elapsed_ms} ms` +
+      (job.failed ? ` <button class="btn plain sm" onclick="downloadImportErrors('${jobId}')">下载错误报告</button>` : '');
+    T.toast(job.failed ? '导入完成，部分行需要修正' : '题目导入完成', job.failed ? 'info' : 'ok');
+    loadList(0);
+  } catch (e) { panel.textContent = '无法读取导入进度：' + e.message; }
+}
+
+async function downloadImportErrors(jobId) {
+  try { await T.downloadFile('/api/v1/teacher/questions/import/' + jobId + '/errors', '题库导入错误.xlsx'); }
+  catch (e) { T.toast(e.message, 'err'); }
+}
+
 async function removeQuestion(id) {
-  if (!await T.confirm('确定删除题目 #' + id + '？删除后不可恢复。')) return;
+  if (!await T.confirm('确定删除这道题目？删除后不可恢复。')) return;
   try {
     await T.api('/api/v1/teacher/questions/' + id, { method: 'DELETE' });
     T.toast('题目已删除', 'ok');
@@ -156,7 +239,7 @@ async function removeQuestion(id) {
 function openEdit(id) {
   editingId = id;
   $('editErr').textContent = '';
-  $('modalTitle').textContent = id ? '编辑题目 #' + id : '新增题目';
+  $('modalTitle').textContent = id ? '编辑题目' : '新增题目';
   ['eText','eOptA','eOptB','eOptC','eOptD','eAnswer','eAnalysis','eGrade','eKp'].forEach(i => $(i).value = '');
   $('eSubject').value = ''; updateTypeSelect('eType', ''); $('eBand').value = '';
   $('eDiff').value = ''; $('eStatus').value = 'published';

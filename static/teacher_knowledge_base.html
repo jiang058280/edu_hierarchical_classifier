@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识库管理 · 教师门户</title>
+<link rel="stylesheet" href="/static/edu.css">
+</head>
+<body>
+<div id="shell"></div>
+<main class="content">
+  <div class="page-head"><h2>知识库管理</h2><p>将经过审核的教学资料整理为可追溯知识库；学生端仅会使用已激活版本中的已发布资料。</p></div>
+
+  <section class="card" style="border-top:3px solid #3157D5">
+    <div class="card-head"><div><h3>知识库版本</h3><p class="muted" style="margin-top:4px">每次发布前会检查资料处理与切片完整性。</p></div><button class="btn plain sm" onclick="loadAll()">刷新</button></div>
+    <div class="row" style="align-items:end;flex-wrap:wrap">
+      <label style="width:210px">版本名称<input id="versionName" class="input" placeholder="如 2026秋季-初三数学-v1"></label>
+      <label style="flex:1;min-width:220px">说明（可选）<input id="versionDesc" class="input" placeholder="覆盖范围、资料来源或本次更新说明"></label>
+      <button class="btn" onclick="createVersion()">新建版本</button>
+    </div>
+    <div id="versionList" class="row" style="margin-top:16px;align-items:stretch;flex-wrap:wrap"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h3>题库知识源</h3><p class="muted" style="margin-top:4px">将已发布题目的题干、答案、解析与知识点同步到本地知识源；不调用百炼，不消耗 Token，也无需创建知识库版本。</p></div><button class="btn ghost" id="syncQuestionKnowledgeBtn" onclick="syncQuestionKnowledge()">同步已发布题目</button></div>
+    <div id="questionKnowledgeStatus" class="muted">正在读取题库知识源状态…</div>
+    <div class="row" style="margin-top:14px;align-items:end"><label style="min-width:280px;flex:1">本地检索验证<input id="questionKnowledgeQuery" class="input" placeholder="如：已知函数 f(x)=x+1，求 f(2) 的值"></label><button class="btn plain" onclick="searchQuestionKnowledge()">本地检索</button></div>
+    <div id="questionKnowledgeResult" class="muted" style="margin-top:10px"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h3>上传教学资料</h3><p class="muted" style="margin-top:4px">支持 PDF、DOCX、Markdown、TXT；扫描型 PDF 请先完成 OCR。</p></div><span id="activeHint" class="badge b-info">请选择版本</span></div>
+    <form id="uploadForm" class="row" style="align-items:end;flex-wrap:wrap">
+      <label style="min-width:240px;flex:1">资料文件<input id="sourceFile" class="input" type="file" accept=".pdf,.docx,.md,.markdown,.txt" required></label>
+      <label style="width:120px">学科<input id="subject" class="input" placeholder="如 数学"></label>
+      <label style="width:100px">学段<select id="gradeBand" class="input"><option value="">未指定</option><option>初中</option><option>高中</option></select></label>
+      <label style="width:110px">年级<input id="grade" class="input" placeholder="如 初三"></label>
+      <button class="btn" id="uploadBtn" type="submit">上传并入库</button>
+    </form>
+    <p id="uploadTip" class="muted" style="margin-top:12px">资料会在本机保存、解析并分块；未配置 RAG 模型时上传会被安全拒绝。</p>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h3>资料处理记录</h3><p class="muted" style="margin-top:4px">发布资料后，还需激活对应知识库版本才会进入学生问答范围。</p></div></div>
+    <div id="documentList"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h3>检索调试</h3><p class="muted" style="margin-top:4px">仅检查检索证据与过滤条件，不会调用大模型生成回答。</p></div></div>
+    <div class="row" style="align-items:end;flex-wrap:wrap"><label style="min-width:260px;flex:1">问题<input id="debugQuery" class="input" placeholder="如：一次函数的图像有什么特点？"></label><label style="width:120px">学科<input id="debugSubject" class="input" placeholder="如 数学"></label><label style="width:100px">学段<select id="debugBand" class="input"><option value="">全部</option><option>初中</option><option>高中</option></select></label><label style="width:100px">年级<input id="debugGrade" class="input" placeholder="初三"></label><button class="btn" onclick="runRetrievalDebug()">开始检索</button><button class="btn ghost" onclick="generateAnswerPreview()">生成带引用回答</button></div>
+    <div id="debugResult" class="muted" style="margin-top:14px">启用 RAG 并激活含已发布资料的版本后，可在此验证召回结果。</div>
+  </section>
+</main>
+<script src="/static/teacher_common.js?v=20260910-r1"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+T.renderShell('knowledge', '知识库管理');
+let versions = [], documents = [], selectedVersionId = null, questionKnowledge = null;
+
+function statusBadge(status) {
+  const labels = {STAGED:['待处理','b-info'], PROCESSING:['处理中','b-warn'], PROCESSED:['处理完成','b-ok'], PUBLISHED:['已发布','b-ok'], UNPUBLISHED:['已下架','b-warn'], FAILED:['处理失败','b-bad'], ACTIVE:['已激活','b-ok'], ARCHIVED:['已归档','b-warn']};
+  const item = labels[status] || [status || '—','b-info']; return `<span class="badge ${item[1]}">${item[0]}</span>`;
+}
+function renderVersions(active) {
+  if (!versions.length) { $('versionList').innerHTML = '<span class="muted">还没有知识库版本，先新建一个版本。</span>'; return; }
+  if (!selectedVersionId) selectedVersionId = active?.id || versions[0].id;
+  $('versionList').innerHTML = versions.map(v => `<article onclick="selectVersion(${v.id})" style="width:230px;padding:13px 14px;border:1px solid ${v.id === selectedVersionId ? '#3157D5' : 'var(--border)'};border-radius:10px;cursor:pointer;background:${v.id === selectedVersionId ? '#F4F6FF' : '#fff'}">
+      <div class="row"><b style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${T.escapeHtml(v.version)}</b>${statusBadge(v.status)}</div>
+      <div class="muted" style="font-size:12px;margin-top:7px;min-height:17px">${T.escapeHtml(v.description || '未填写说明')}</div>
+      <div class="row" style="margin-top:10px;gap:7px"><button class="btn ghost sm" onclick="event.stopPropagation(); activateVersion(${v.id})" ${v.status === 'ACTIVE' ? 'disabled' : ''}>${v.status === 'ACTIVE' ? '当前版本' : '检查并激活'}</button></div>
+    </article>`).join('');
+  $('activeHint').innerHTML = `当前操作版本：<b>${T.escapeHtml((versions.find(v => v.id === selectedVersionId) || {}).version || '—')}</b>`;
+}
+function renderDocuments() {
+  const items = documents.filter(d => !selectedVersionId || d.kb_version_id === selectedVersionId);
+  if (!items.length) { $('documentList').innerHTML = '<div class="empty">当前版本还没有资料</div>'; return; }
+  $('documentList').innerHTML = `<table class="table"><thead><tr><th>资料</th><th>范围</th><th>状态</th><th>处理信息</th><th>操作</th></tr></thead><tbody>${items.map(d => `<tr>
+    <td><b>${T.escapeHtml(d.source_name)}</b><div class="muted" style="font-size:12px;margin-top:3px">${T.escapeHtml(d.source_type || '')} · ${d.file_size ? Math.ceil(d.file_size / 1024) + ' KB' : '—'}</div></td>
+    <td>${T.escapeHtml([d.subject, d.grade_band, d.grade].filter(Boolean).join(' · ') || '未指定')}</td><td>${statusBadge(d.status)}</td>
+    <td class="muted" style="max-width:220px">${T.escapeHtml(d.failure_reason || d.created_at || '—')}</td>
+    <td><div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn plain sm" onclick="previewDocument(${d.id})">预览</button>${['PROCESSED','UNPUBLISHED'].includes(d.status) ? `<button class="btn ghost sm" onclick="setPublication(${d.id}, true)">发布</button>` : ''}${d.status === 'PUBLISHED' ? `<button class="btn plain sm" onclick="setPublication(${d.id}, false)">下架</button>` : ''}${d.status !== 'ARCHIVED' ? `<button class="btn danger sm" onclick="archiveDocument(${d.id})">归档</button>` : ''}<button class="btn plain sm" onclick="rebuildDocument(${d.id})">重建</button><button class="btn danger sm" onclick="deleteDocument(${d.id})">删除</button></div></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+async function loadAll() {
+  try { const [v, d, q] = await Promise.all([T.api('/api/v1/teacher/rag/versions'), T.api('/api/v1/teacher/rag/documents'), T.api('/api/v1/teacher/rag/question-knowledge')]); versions = v.items || []; documents = d.items || []; questionKnowledge = q; renderVersions(v.active); renderDocuments(); renderQuestionKnowledge(); }
+  catch (e) { T.toast(e.message, 'err'); }
+}
+function renderQuestionKnowledge() { const total = questionKnowledge?.total || 0, latest = questionKnowledge?.latest_synced_at; $('questionKnowledgeStatus').innerHTML = total ? `已同步 <b>${total}</b> 道已发布题${latest ? ` · 最近同步：${T.escapeHtml(latest)}` : ''}。学生问答命中题目时会直接引用题库答案与解析。` : '尚未同步题库。同步后可在学生问答中直接使用题目、答案与解析。'; }
+async function syncQuestionKnowledge() { const btn = $('syncQuestionKnowledgeBtn'); btn.disabled = true; btn.textContent = '正在本地同步…'; try { const result = await T.api('/api/v1/teacher/rag/question-knowledge/sync', {method:'POST'}); T.toast(`本地同步完成：${result.synced} 题，未调用大模型`, 'ok'); await loadAll(); } catch (e) { T.toast(e.message, 'err'); } finally { btn.disabled = false; btn.textContent = '同步已发布题目'; } }
+async function searchQuestionKnowledge() { const query = $('questionKnowledgeQuery').value.trim(), target = $('questionKnowledgeResult'); if (!query) { T.toast('请输入要检索的问题', 'err'); return; } target.textContent = '正在本地检索…'; try { const r = await T.api('/api/v1/teacher/rag/question-knowledge/search?'+new URLSearchParams({query})); const items = r.items || []; if (!items.length) { target.innerHTML = '<div class="muted">本地题库未找到可靠匹配；此操作不会自动调用大模型。</div>'; return; } const cards = items.map(item => { const answer = item.answer ? `<div class="muted" style="margin-top:6px"><b>答案：</b>${T.escapeHtml(item.answer)}</div>` : ''; const analysis = item.analysis ? `<div class="muted" style="margin-top:4px"><b>解析：</b>${T.escapeHtml(item.analysis)}</div>` : ''; return `<article style="margin-top:9px;padding:11px 12px;border:1px solid var(--border);border-radius:8px"><div class="row"><b>第 ${item.question_id} 题 · ${T.escapeHtml(item.subject || '未分类')}</b><span class="badge b-info">匹配 ${Math.round(item.score * 100)}%</span></div><div style="margin-top:5px;line-height:1.65">${T.escapeHtml(item.question_text)}</div>${answer}${analysis}</article>`; }).join(''); target.innerHTML = `<div class="muted">命中 ${items.length} 条 · <b>未调用大模型</b></div>${cards}`; } catch (e) { target.textContent = e.message; T.toast(e.message, 'err'); } }
+function selectVersion(id) { selectedVersionId = id; renderVersions(); renderDocuments(); }
+async function createVersion() {
+  const version = $('versionName').value.trim(); if (!version) { T.toast('请填写版本名称', 'err'); return; }
+  try { const result = await T.api('/api/v1/teacher/rag/versions', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({version, description:$('versionDesc').value.trim()})}); selectedVersionId = result.id; $('versionName').value = ''; $('versionDesc').value = ''; T.toast('知识库版本已创建', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); }
+}
+$('uploadForm').addEventListener('submit', async (event) => {
+  event.preventDefault(); if (!selectedVersionId) { T.toast('请先选择知识库版本', 'err'); return; }
+  const form = new FormData(); form.append('file', $('sourceFile').files[0]); form.append('kb_version_id', selectedVersionId); form.append('subject', $('subject').value.trim()); form.append('grade_band', $('gradeBand').value); form.append('grade', $('grade').value.trim());
+  $('uploadBtn').disabled = true; $('uploadBtn').textContent = '正在处理…';
+  try { const r = await T.api('/api/v1/teacher/rag/documents/upload', {method:'POST', body:form}); T.toast(r.reused ? '检测到已处理的相同资料，已复用' : `已完成入库，共 ${r.chunk_count} 个检索块`, 'ok'); $('uploadForm').reset(); loadAll(); }
+  catch (e) { T.toast(e.message, 'err'); } finally { $('uploadBtn').disabled = false; $('uploadBtn').textContent = '上传并入库'; }
+});
+async function setPublication(id, published) { if (!(await T.confirm(published ? '发布后资料可随已激活版本参与问答，确定继续？' : '下架后该资料将立即退出问答范围，确定继续？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}/publication`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({published})}); T.toast(published ? '资料已发布' : '资料已下架', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
+async function archiveDocument(id) { if (!(await T.confirm('归档后资料会立即退出检索范围，但会保留历史版本记录以便追溯。确定归档？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}/archive`, {method:'POST'}); T.toast('资料已归档', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
+async function deleteDocument(id) { if (!(await T.confirm('将永久删除这条资料处理记录、切片与向量索引，无法恢复。若原文件被其他重建记录共用，会自动保留该文件。确定删除？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}`, {method:'DELETE'}); T.toast('资料记录已删除', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
+async function activateVersion(id) { if (!(await T.confirm('将检查资料完整性并切换学生端可用知识库，确定激活？'))) return; try { const r = await T.api(`/api/v1/teacher/rag/versions/${id}/activate`, {method:'POST'}); T.toast(`版本已激活，共 ${r.quality_report.child_chunk_count} 个检索块`, 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
+async function previewDocument(id) { try { const r = await T.api(`/api/v1/teacher/rag/documents/${id}`); const sample = (r.chunk_summary.sample || []).map(x => `<p style="line-height:1.7">${T.escapeHtml(x)}</p>`).join('') || '<p class="muted">暂无可预览的子块</p>'; const modal = document.createElement('div'); modal.className = 'modal show'; modal.innerHTML = `<div class="box" style="width:min(680px,92vw)"><div class="card-head"><h3>${T.escapeHtml(r.document.source_name)}</h3><button class="btn plain sm">关闭</button></div><p class="muted">父块 ${r.chunk_summary.parent_count} 个 · 子块 ${r.chunk_summary.child_count} 个</p><div style="max-height:420px;overflow:auto;margin-top:14px">${sample}</div></div>`; document.body.appendChild(modal); modal.querySelector('button').onclick = () => modal.remove(); } catch (e) { T.toast(e.message, 'err'); } }
+async function rebuildDocument(id) { if (!(await T.confirm('会从本机保存的原始资料创建一条新的处理记录，确定重建？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}/rebuild`, {method:'POST'}); T.toast('已创建重建任务', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
+async function runRetrievalDebug() { const query = $('debugQuery').value.trim(); if (!query) { T.toast('请输入要检索的问题', 'err'); return; } const target = $('debugResult'); target.textContent = '正在检索证据…'; try { const r = await T.api('/api/v1/teacher/rag/retrieval/debug', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, subject:$('debugSubject').value.trim(), grade_band:$('debugBand').value, grade:$('debugGrade').value.trim()})}); const items = r.candidates || []; target.innerHTML = `<div class="muted">意图：${T.escapeHtml(r.intent)} · 版本：${T.escapeHtml(r.active_version || '—')} · 查询变体：${r.variants.map(T.escapeHtml).join(' / ')}</div>${items.length ? items.map(x => `<article style="margin-top:10px;padding:11px 12px;border:1px solid var(--border);border-radius:8px"><div class="row"><b>${T.escapeHtml(x.metadata.source_name)}</b><span class="badge b-info">相似度 ${Math.round(x.score * 100)}%</span></div><div class="muted" style="font-size:12px;margin:5px 0">${T.escapeHtml([x.metadata.subject,x.metadata.grade_band,x.metadata.grade,x.metadata.chapter].filter(Boolean).join(' · '))}</div><div>${T.escapeHtml(x.content)}</div></article>`).join('') : `<div class="empty" style="padding:18px">${T.escapeHtml(r.reason || '没有检索到可用证据')}</div>`}`; } catch (e) { target.textContent = e.message; T.toast(e.message, 'err'); } }
+async function generateAnswerPreview() { const query = $('debugQuery').value.trim(); if (!query) { T.toast('请输入要回答的问题', 'err'); return; } const target = $('debugResult'); target.textContent = '正在生成带引用回答…'; try { const r = await T.api('/api/v1/teacher/rag/answer/preview', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, subject:$('debugSubject').value.trim(), grade_band:$('debugBand').value, grade:$('debugGrade').value.trim()})}); const refs = (r.citations || []).map(x => `${x.number}. ${T.escapeHtml(x.source_name)}${x.chapter ? ' · ' + T.escapeHtml(x.chapter) : ''}${x.page_number ? ' · 第 ' + x.page_number + ' 页' : ''}`).join('<br>'); target.innerHTML = `<article style="margin-top:8px;padding:14px;border:1px solid var(--border);border-radius:8px"><div>${T.escapeHtml(r.answer)}</div>${r.refused ? `<div class="muted" style="margin-top:8px">${T.escapeHtml(r.reason || '信息不足')}</div>` : `<div class="muted" style="margin-top:10px"><b>引用资料</b><br>${refs}</div>`}</article>`; } catch (e) { target.textContent = e.message; T.toast(e.message, 'err'); } }
+if (T.token()) loadAll(); else location.href = '/login?portal=teacher&next=%2Fteacher%2Fknowledge-base';
+</script>
+</body>
+</html>
