@@ -15,6 +15,11 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
+from edu_core.application.entry_annotation import (
+    extract_embedded_metadata,
+    normalize_knowledge_point,
+    suggest_difficulty,
+)
 from edu_core.security.auth import require_teacher
 from edu_core.storage.stores import StoreBundle
 
@@ -49,6 +54,41 @@ def create_rag_version(payload: dict, request: Request,
                            resource=f"rag/versions/{version_id}", detail={"version": version},
                            client_ip=request.client.host if request.client else None)
     return {"status": "ok", "id": version_id}
+
+
+@router.delete("/teacher/rag/versions/{version_id}")
+def delete_rag_version(version_id: int, request: Request,
+                       user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """删除教师自己的非激活版本及关联资料；当前激活版本受保护。"""
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.indexing.milvus_index import MilvusRagDocumentIndex
+
+    stores, settings = _stores(), get_settings()
+    version = stores.rag.get_owned_version(version_id, int(user["id"]))
+    if not version:
+        raise HTTPException(status_code=404, detail="知识库版本不存在")
+    documents = stores.rag.list_documents(created_by=int(user["id"]), kb_version_id=version_id)
+    chunk_ids = [int(chunk["id"]) for document in documents
+                 for chunk in stores.rag.list_document_chunks(int(document["id"]))]
+    MilvusRagDocumentIndex(settings).delete_chunks(chunk_ids)
+    try:
+        cleanup = stores.rag.delete_version(version_id, created_by=int(user["id"]))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    upload_root = settings.abs_path(settings.rag_upload_dir).resolve()
+    for storage_key in cleanup["storage_keys"]:
+        source_path = settings.abs_path(str(storage_key)).resolve()
+        if upload_root in source_path.parents:
+            try:
+                source_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+    stores.audit.insert(action="delete_rag_version", user_id=int(user["id"]), username=user.get("username"),
+                        resource=f"rag/versions/{version_id}",
+                        detail={"version": version["version"], "documents": cleanup["document_count"], "permanent": True},
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "deleted_version_id": version_id,
+            "deleted_documents": cleanup["document_count"]}
 
 
 @router.get("/teacher/rag/documents")
@@ -95,7 +135,9 @@ def preview_rag_document(document_id: int, user: dict[str, Any] = Depends(requir
     if not document:
         raise HTTPException(status_code=404, detail="资料不存在")
     chunks = _stores().rag.list_document_chunks(document_id)
-    return {"document": document, "chunk_summary": {
+    return {"document": document,
+            "ocr_review": _stores().rag.get_ocr_review(document_id, created_by=int(user["id"])),
+            "chunk_summary": {
         "parent_count": sum(chunk["chunk_kind"] == "parent" for chunk in chunks),
         "child_count": sum(chunk["chunk_kind"] == "child" for chunk in chunks),
         "sample": [chunk["content"][:240] for chunk in chunks if chunk["chunk_kind"] == "child"][:3],
@@ -168,6 +210,81 @@ def rebuild_rag_document(document_id: int, request: Request,
                         client_ip=request.client.host if request.client else None)
     return {"status": "ok", "document_id": result.document_id, "job_id": result.job_id,
             "chunk_count": result.chunk_count}
+
+
+@router.get("/teacher/rag/documents/{document_id}/source")
+def download_rag_source(document_id: int, user: dict[str, Any] = Depends(require_teacher)):
+    from fastapi.responses import FileResponse
+    from edu_core.config.settings import get_settings
+    settings = get_settings()
+    doc = _stores().rag.get_owned_document(document_id, int(user["id"]))
+    if not doc or not doc.get("storage_key"):
+        raise HTTPException(status_code=404, detail="原件不存在")
+    path = settings.abs_path(doc["storage_key"]).resolve()
+    if settings.abs_path(settings.rag_upload_dir).resolve() not in path.parents or not path.is_file():
+        raise HTTPException(status_code=404, detail="原件不存在")
+    return FileResponse(path, filename=doc["source_name"], media_type="application/octet-stream")
+
+
+@router.post("/teacher/rag/documents/{document_id}/correction")
+def correct_rag_document(document_id: int, payload: dict, request: Request,
+                         user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """Create a reviewed-text draft with fresh embeddings; preserve the source record."""
+    from pathlib import Path
+    from edu_core.config.settings import get_settings
+    from edu_core.rag.ingestion import RagIngestionService
+
+    stores, settings = _stores(), get_settings()
+    owner = int(user["id"])
+    original = stores.rag.get_owned_document(document_id, owner)
+    if not original:
+        raise HTTPException(status_code=404, detail="资料不存在")
+    corrected, note = payload.get("text"), payload.get("note")
+    if not isinstance(corrected, str) or not corrected.strip() or len(corrected.encode("utf-8")) > min(settings.rag_max_upload_bytes, 500000):
+        raise HTTPException(status_code=400, detail="校对文本不能为空且不得超过 500KB")
+    if not isinstance(note, str) or not note.strip() or len(note) > 2000:
+        raise HTTPException(status_code=400, detail="请填写 1–2000 字的校对说明")
+    if original["status"] not in ("PROCESSED", "UNPUBLISHED", "PUBLISHED"):
+        raise HTTPException(status_code=400, detail="仅已处理资料可以创建校对版")
+    state = stores.rag.get_ocr_review(document_id, created_by=owner)
+    if not state.get("token") or payload.get("token") != state["token"]:
+        raise HTTPException(status_code=409, detail="资料内容已变化或尚未就绪，请重新预览")
+    provenance = {"source_document_id": document_id, "source_content_hash": original["content_hash"],
+                  "source_snapshot": state["token"], "corrected_by": owner, "note": note.strip()}
+    try:
+        result = RagIngestionService(stores.rag, settings).ingest(
+            kb_version_id=int(original["kb_version_id"]), created_by=owner,
+            source_name=Path(original["source_name"]).stem[:160] + "_在线校对.txt",
+            content=corrected.strip().encode("utf-8"), subject=original.get("subject"),
+            grade_band=original.get("grade_band"), grade=original.get("grade"),
+            knowledge_node_id=original.get("knowledge_node_id"), allowed_roles=original.get("allowed_roles"),
+            allow_reuse=False, correction_provenance=provenance)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="校对版入库失败，请查看处理记录后重试") from exc
+    stores.audit.insert(action="correct_rag_document", user_id=owner, username=user.get("username"),
+                        resource=f"rag/documents/{result.document_id}", detail=provenance,
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "document_id": result.document_id, "job_id": result.job_id,
+            "chunk_count": result.chunk_count, "requires_review": True}
+
+
+@router.post("/teacher/rag/documents/{document_id}/ocr-review")
+def review_rag_ocr(document_id: int, payload: dict,
+                   user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """Persist an explicit human decision; never infer approval from OCR success."""
+    if type(payload.get("approved")) is not bool:
+        raise HTTPException(status_code=400, detail="approved 必须为布尔值")
+    if payload["approved"] and payload.get("checked_source_title_table_math") is not True:
+        raise HTTPException(status_code=400, detail="请确认已对照原件核对标题、表格及数学符号")
+    try:
+        result = _stores().rag.review_ocr_document(
+            document_id, created_by=int(user["id"]), token=payload.get("token"),
+            approved=payload["approved"], note=payload.get("note"))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"status": "ok", "ocr_review": result}
 
 
 @router.post("/teacher/rag/documents/{document_id}/publication")
@@ -504,16 +621,8 @@ async def import_questions_docx(file: UploadFile = File(...),
     oversized = [index + 1 for index, value in enumerate(questions) if len(value) > max_chars]
     if oversized:
         raise HTTPException(status_code=400, detail=f"第 {oversized[0]} 题超过 {max_chars} 字符")
-    predictor = _stores_service().predictor
-    predictions = predictor.predict_batch(questions)
-    items = [{
-        "text": question,
-        "subject": prediction["subject"],
-        "question_type": prediction["question_type"],
-        "knowledge_point": prediction["knowledge_point"],
-        "grade_band": prediction.get("grade_band"),
-        "confidences": prediction["confidence"],
-    } for question, prediction in zip(questions, predictions, strict=True)]
+    service = _stores_service()
+    items = [_preannotate(question, service) for question in questions]
     return {"items": items, "total": len(items), "filename": filename}
 
 
@@ -564,6 +673,9 @@ def _full_fields(payload: dict, *, require_content: bool = True) -> dict:
         if key in payload:
             value = payload.get(key)
             fields[key] = (value or "").strip() if isinstance(value, str) else value
+    if "knowledge_point" in fields:
+        fields["knowledge_point"] = normalize_knowledge_point(
+            fields["knowledge_point"], fields.get("subject", ""))
     if payload.get("difficulty") is not None:
         difficulty = int(payload["difficulty"])
         if not 1 <= difficulty <= 5:
@@ -617,6 +729,38 @@ def create_question(payload: dict, request: Request,
     return {"status": "ok", "id": question_id}
 
 
+@router.post("/teacher/questions/batch")
+def create_questions_batch(payload: dict, request: Request,
+                           user: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """批量确认入库；先完整校验，再逐题保存并返回每题 ID。"""
+    items = payload.get("items") or []
+    if not items or len(items) > 50:
+        raise HTTPException(status_code=400, detail="items 需为 1~50 条")
+    fields_list = [_full_fields(item) for item in items]
+    for fields in fields_list:
+        _validate_question_classification(fields)
+
+    stores = _stores()
+    created: list[dict[str, int]] = []
+    try:
+        for index, fields in enumerate(fields_list):
+            question_id = stores.questions.insert(
+                fields["content"], fields.get("subject", ""),
+                question_type=fields.get("question_type", ""),
+                knowledge_point=fields.get("knowledge_point", ""), source="teacher",
+                options=fields.get("options"), answer=fields.get("answer"), analysis=fields.get("analysis"),
+                difficulty=fields.get("difficulty"), grade_band=fields.get("grade_band"),
+                grade=fields.get("grade"), knowledge_node_id=fields.get("knowledge_node_id"),
+                created_by=int(user["id"]), status=fields.get("status", "published"))
+            created.append({"index": index, "id": question_id})
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"批量入库在第 {len(created) + 1} 题失败；已保存 {len(created)} 题：{str(exc)[:120]}") from exc
+    stores.audit.insert(action="create_questions_batch", user_id=int(user["id"]), username=user.get("username"),
+                        resource="teacher/questions/batch", detail={"count": len(created)},
+                        client_ip=request.client.host if request.client else None)
+    return {"status": "ok", "created": created, "total": len(created)}
+
+
 @router.put("/teacher/questions/{question_id}")
 def update_question(question_id: int, payload: dict, request: Request,
                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
@@ -639,14 +783,27 @@ def update_question(question_id: int, payload: dict, request: Request,
 # ---------------------------------------------------------------------------
 
 def _preannotate(text: str, service) -> dict:
-    raw = service.predictor.predict(text)
+    # 原文中的人工标注优先，不调用外部模型；分类模型只负责没有明确标注的字段。
+    embedded = extract_embedded_metadata(text)
+    clean_text = embedded["text"]
+    raw = service.predictor.predict(clean_text)
+    resolved = extract_embedded_metadata(text, subject=raw["subject"])
+    metadata = resolved["metadata"]
+    knowledge = normalize_knowledge_point(metadata.get("knowledge_point") or raw["knowledge_point"], raw["subject"])
+    confidence = dict(raw["confidence"])
+    if metadata.get("knowledge_point"):
+        confidence["knowledge_point"] = 1.0
     return {
-        "text": text,
+        "text": clean_text,
         "subject": raw["subject"],
         "question_type": raw["question_type"],
-        "knowledge_point": raw["knowledge_point"],
-        "grade_band": raw.get("grade_band"),
-        "confidences": raw["confidence"],
+        "knowledge_point": knowledge,
+        "grade_band": metadata.get("grade_band") or raw.get("grade_band"),
+        "answer": metadata.get("answer", ""),
+        "analysis": metadata.get("analysis", ""),
+        "difficulty": metadata.get("difficulty") or suggest_difficulty(clean_text, raw["question_type"]),
+        "metadata_sources": resolved["sources"],
+        "confidences": confidence,
     }
 
 

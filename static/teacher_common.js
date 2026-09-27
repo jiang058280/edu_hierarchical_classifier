@@ -14,6 +14,34 @@ const T = {
     return String(s ?? '').replace(/\r\n?/g, '\n').replace(/[ \t]*\n[ \t]*/g, ' ').replace(/[ \t]{2,}/g, ' ').trim();
   },
 
+  installHorizontalTextEntry() {
+    if (window.__eduHorizontalTextEntryInstalled) return;
+    window.__eduHorizontalTextEntryInstalled = true;
+    const eligible = (target) => !target?.hasAttribute?.('data-preserve-lines') && (target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLInputElement && ['text', 'search', 'tel', 'url'].includes(target.type)));
+    const insertCleanText = (field, text) => {
+      const start = field.selectionStart ?? field.value.length;
+      const end = field.selectionEnd ?? field.value.length;
+      const clean = T.cleanText(text);
+      field.setRangeText(clean, start, end, 'end');
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    document.addEventListener('paste', (event) => {
+      const field = event.target;
+      const text = event.clipboardData?.getData('text/plain');
+      if (!eligible(field) || !text || !/[\r\n]/.test(text)) return;
+      event.preventDefault();
+      insertCleanText(field, text);
+    });
+    document.addEventListener('input', (event) => {
+      const field = event.target;
+      if (!eligible(field) || !/[\r\n]/.test(field.value)) return;
+      const caret = field.selectionStart ?? field.value.length;
+      field.value = T.cleanText(field.value);
+      field.selectionStart = field.selectionEnd = Math.min(caret, field.value.length);
+    });
+  },
+
   async api(path, options) {
     const headers = Object.assign({}, (options && options.headers) || {});
     if (this.token()) headers['Authorization'] = 'Bearer ' + this.token();
@@ -89,6 +117,8 @@ const T = {
 
   /* 渲染侧边导航 + 顶栏；active 为当前导航 key */
   renderShell(active, crumbTitle) {
+    document.body.classList.add('teacher-theme');
+    this.installHorizontalTextEntry();
     const logo = `
       <div class="logo">
         <div class="mark">
@@ -117,10 +147,13 @@ const T = {
       </div>`;
     const foot = `<div class="foot"><span id="shellModel">—</span></div>`;
     const sidebar = `<div class="sidebar">${logo}${nav}${foot}</div>`;
+    const today = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date());
     const topbar = `
       <div class="topbar">
-        <div class="crumb">教师工作台 / <b>${this.escapeHtml(crumbTitle)}</b></div>
+        <div class="crumb">教师工作台 / <b>${this.escapeHtml(crumbTitle)}</b><span class="teacher-top-date">${today}</span></div>
         <div class="right">
+          <label class="teacher-search" aria-label="站内检索"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.1-4.1"/></svg><input type="search" placeholder="搜索题库、班级或资料…"></label>
+          <span class="teacher-bell" title="通知"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
           <span id="shellUser" style="display:flex;align-items:center;gap:8px"></span>
         </div>
       </div>`;

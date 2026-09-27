@@ -1,47 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智慧教研平台 · 门户选择</title>
-<style>
-  :root { --primary:#2563EB; --teal:#0D9488; --bg:#F1F5F9; --card:#fff; --text:#0F172A; --muted:#64748B; --border:#E2E8F0; }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; }
-  .wrap { text-align:center; }
-  h1 { font-size:28px; margin-bottom:8px; }
-  .sub { color:var(--muted); font-size:14px; margin-bottom:40px; }
-  .cards { display:flex; gap:24px; }
-  a.portal { display:block; width:280px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:36px 24px; text-decoration:none; color:var(--text); transition:transform .15s, box-shadow .15s; }
-  a.portal:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(15,23,42,.12); }
-  .icon { font-size:44px; margin-bottom:14px; }
-  a.portal h2 { font-size:19px; margin-bottom:8px; }
-  a.portal p { font-size:13px; color:var(--muted); line-height:1.7; }
-  a.portal.teacher { border-top:4px solid var(--primary); }
-  a.portal.student { border-top:4px solid var(--teal); }
-  .links { margin-top:36px; font-size:13px; }
-  .links a { color:var(--primary); text-decoration:none; margin:0 10px; }
-</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧教研平台 · 选择入口</title><link rel="stylesheet" href="/static/edu.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>智慧教研平台</h1>
-  <div class="sub">题库自动化建设 · 分层分类 · 作业与学情闭环</div>
-  <div class="cards">
-    <a class="portal teacher" href="/teacher">
-      <div class="icon">👩‍🏫</div>
-      <h2>教师门户</h2>
-      <p>AI 智能录题 · 题库建设<br>智能组卷 · 班级与作业管理</p>
-    </a>
-    <a class="portal student" href="/student">
-      <div class="icon">🎒</div>
-      <h2>学生门户</h2>
-      <p>加入班级 · 在线作答<br>错题本 · 我的学情</p>
-    </a>
-  </div>
-  <div class="links">
-    <a href="/classify">题目分类工具</a> · <a href="/admin">治理工作台</a> · <a href="/api/docs">API 文档</a>
-  </div>
-</div>
+<main class="portal-page">
+  <section class="portal-brand">
+    <div class="portal-logo"><span class="portal-logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></span><span><b>智慧教研平台</b><small>TEACHING PLATFORM</small></span></div>
+    <div class="portal-copy"><div class="eyebrow">从题目到学情的完整闭环</div><h1>让教学判断有依据，<br>让每次练习有方向。</h1><p>融合题库建设、智能组卷、班级作业与知识检索，为教师保留判断权，也让学生清楚下一步该练什么。</p></div>
+    <div class="portal-foot">私有化部署 · 教学数据留在校内</div>
+  </section>
+  <section class="portal-main">
+    <div class="portal-main-head"><h2>选择你的工作空间</h2><p>不同身份使用独立的数据范围与操作权限。</p></div>
+    <div class="portal-options">
+      <a class="portal-option teacher" href="/teacher"><span class="portal-option-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><h3>教师工作台</h3><p>管理题库与知识资料，完成智能录入、组卷、作业发布和班级学情分析。</p><span class="portal-enter">进入教师端 <span>→</span></span></a>
+      <a class="portal-option student" href="/student"><span class="portal-option-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></span><h3>学生学习空间</h3><p>查看班级作业、在线作答、整理错题，并根据个人学情开展巩固练习。</p><span class="portal-enter">进入学生端 <span>→</span></span></a>
+    </div>
+    <nav class="portal-links"><a href="/classify">题目分类工具</a><a href="/admin">治理工作台</a><a href="/api/docs">接口文档</a></nav>
+  </section>
+</main>
 </body>
 </html>

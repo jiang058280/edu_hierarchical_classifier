@@ -1,1 +1,25 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>复核工作台 · 教师门户</title><link rel="stylesheet" href="/static/edu.css"></head><body><div id="shell"></div><main class="content"><div class="page-head"><h2>复核工作台</h2><p>汇总低置信分类、异常错题和 RAG 证据/反馈异常；原始记录不会在此页被修改。</p></div><section class="card"><div class="card-head"><h3>待复核队列</h3><button class="btn plain sm" onclick="loadQueue()">刷新</button></div><div id="queue" class="muted">正在加载…</div></section></main><script src="/static/teacher_common.js?v=20260912-e1"></script><script>const $=id=>document.getElementById(id),esc=T.escapeHtml;T.renderShell('review','复核工作台');async function loadQueue(){try{const d=await T.api('/api/v1/teacher/review-queue');$('queue').innerHTML=d.items.length?d.items.map(x=>`<article style="padding:15px 0;border-bottom:1px solid var(--border)"><div class="row"><b>${esc(x.title)}</b><span class="badge ${x.kind==='low_confidence'?'b-warn':x.kind==='question_anomaly'?'b-bad':'b-info'}">${esc(x.kind)}</span></div><div style="line-height:1.65;margin-top:8px">${esc(x.content).slice(0,300)}</div><div class="muted" style="margin-top:7px">${esc(x.evidence)} · ${esc(x.created_at||'')}</div>${x.question_id?`<a class="btn ghost sm" style="margin-top:9px" href="/teacher/bank">查看题库并修正</a>`:''}</article>`).join(''):'<div class="empty">当前没有需要复核的记录。</div>'}catch(e){$('queue').textContent=e.message}}loadQueue();</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>复核工作台 · 教师门户</title><link rel="stylesheet" href="/static/edu.css"></head>
+<body><div id="shell"></div>
+<main class="content insight-page">
+  <div class="page-head"><h2>复核工作台</h2><p>集中检查低置信标注、异常题目和问答反馈；这里只提供证据，不自动改写原始记录。</p></div>
+  <section class="review-summary" id="reviewSummary">
+    <div class="review-summary-item"><span>全部待复核</span><b>—</b></div><div class="review-summary-item"><span>低置信标注</span><b>—</b></div><div class="review-summary-item"><span>数据与问答异常</span><b>—</b></div>
+  </section>
+  <section class="card">
+    <div class="insight-section-head"><div><h3>待复核队列</h3><p>按系统发现顺序展示，建议优先处理带题目编号的记录。</p></div><button class="btn plain sm" id="refreshReview" onclick="loadQueue()">刷新队列</button></div>
+    <div id="queue" class="muted">正在读取待复核记录…</div>
+  </section>
+</main>
+<script src="/static/teacher_common.js?v=20260914-horizontal"></script>
+<script>
+const $=id=>document.getElementById(id),esc=T.escapeHtml;
+T.renderShell('review','复核工作台');
+const kindMeta={low_confidence:{label:'低置信标注',badge:'b-warn'},question_anomaly:{label:'题目数据异常',badge:'b-bad'},rag_anomaly:{label:'知识问答异常',badge:'b-info'},rag_feedback:{label:'问答反馈',badge:'b-info'}};
+function icon(){return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.7L2.6 17a2 2 0 001.7 3h15.4a2 2 0 001.7-3L13.7 3.7a2 2 0 00-3.4 0z"/></svg>'}
+function renderSummary(items){const low=items.filter(item=>item.kind==='low_confidence').length,other=items.length-low;$('reviewSummary').innerHTML=`<div class="review-summary-item"><span>全部待复核</span><b>${items.length}</b></div><div class="review-summary-item"><span>低置信标注</span><b>${low}</b></div><div class="review-summary-item"><span>数据与问答异常</span><b>${other}</b></div>`}
+function renderQueue(items){renderSummary(items);$('queue').innerHTML=items.length?`<div class="review-list">${items.map(item=>{const meta=kindMeta[item.kind]||{label:item.kind||'待复核',badge:'b-info'};return `<article class="review-item"><span class="review-kind-icon">${icon()}</span><div><div class="row" style="gap:8px"><h4>${esc(item.title)}</h4><span class="badge ${meta.badge}">${esc(meta.label)}</span></div><div class="review-content">${esc(item.content).slice(0,360)}</div><div class="review-evidence">${esc(item.evidence||'暂无补充证据')}${item.created_at?' · '+esc(item.created_at):''}</div></div>${item.question_id?'<a class="btn ghost sm" href="/teacher/bank">前往题库</a>':'<span></span>'}</article>`}).join('')}</div>`:'<div class="empty"><div class="ico">✓</div>当前没有需要复核的记录<div class="hint">系统发现新的低置信或异常记录后会显示在这里。</div></div>'}
+async function loadQueue(){const button=$('refreshReview');button.disabled=true;button.textContent='读取中…';try{const data=await T.api('/api/v1/teacher/review-queue');renderQueue(data.items||[])}catch(error){$('queue').innerHTML=`<div class="empty">${esc(error.message)}</div>`}finally{button.disabled=false;button.textContent='刷新队列'}}
+if(T.token())loadQueue();else location.href='/login?portal=teacher&next=%2Fteacher%2Freview';
+</script></body></html>

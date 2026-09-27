@@ -29,7 +29,7 @@
   </section>
 
   <section class="card">
-    <div class="card-head"><div><h3>上传教学资料</h3><p class="muted" style="margin-top:4px">支持 PDF、DOCX、Markdown、TXT；扫描型 PDF 请先完成 OCR。</p></div><span id="activeHint" class="badge b-info">请选择版本</span></div>
+    <div class="card-head"><div><h3>上传教学资料</h3><p class="muted" style="margin-top:4px">支持 PDF、DOCX、Markdown、TXT；扫描型 PDF 需服务端开启 OCR，识别后还须人工复核才能发布。</p></div><span id="activeHint" class="badge b-info">请选择版本</span></div>
     <form id="uploadForm" class="row" style="align-items:end;flex-wrap:wrap">
       <label style="min-width:240px;flex:1">资料文件<input id="sourceFile" class="input" type="file" accept=".pdf,.docx,.md,.markdown,.txt" required></label>
       <label style="width:120px">学科<input id="subject" class="input" placeholder="如 数学"></label>
@@ -51,7 +51,7 @@
     <div id="debugResult" class="muted" style="margin-top:14px">启用 RAG 并激活含已发布资料的版本后，可在此验证召回结果。</div>
   </section>
 </main>
-<script src="/static/teacher_common.js?v=20260910-r1"></script>
+<script src="/static/teacher_common.js?v=20260914-horizontal"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 T.renderShell('knowledge', '知识库管理');
@@ -63,11 +63,11 @@ function statusBadge(status) {
 }
 function renderVersions(active) {
   if (!versions.length) { $('versionList').innerHTML = '<span class="muted">还没有知识库版本，先新建一个版本。</span>'; return; }
-  if (!selectedVersionId) selectedVersionId = active?.id || versions[0].id;
+  if (!versions.some(v => v.id === selectedVersionId)) selectedVersionId = versions.find(v => v.id === active?.id)?.id || versions[0].id;
   $('versionList').innerHTML = versions.map(v => `<article onclick="selectVersion(${v.id})" style="width:230px;padding:13px 14px;border:1px solid ${v.id === selectedVersionId ? '#3157D5' : 'var(--border)'};border-radius:10px;cursor:pointer;background:${v.id === selectedVersionId ? '#F4F6FF' : '#fff'}">
       <div class="row"><b style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${T.escapeHtml(v.version)}</b>${statusBadge(v.status)}</div>
       <div class="muted" style="font-size:12px;margin-top:7px;min-height:17px">${T.escapeHtml(v.description || '未填写说明')}</div>
-      <div class="row" style="margin-top:10px;gap:7px"><button class="btn ghost sm" onclick="event.stopPropagation(); activateVersion(${v.id})" ${v.status === 'ACTIVE' ? 'disabled' : ''}>${v.status === 'ACTIVE' ? '当前版本' : '检查并激活'}</button></div>
+      <div class="row" style="margin-top:10px;gap:7px"><button class="btn ghost sm" onclick="event.stopPropagation(); activateVersion(${v.id})" ${v.status === 'ACTIVE' ? 'disabled' : ''}>${v.status === 'ACTIVE' ? '当前版本' : '检查并激活'}</button><button class="btn danger sm" onclick="event.stopPropagation(); deleteVersion(${v.id})" ${v.status === 'ACTIVE' ? 'disabled title="当前激活版本不能删除"' : ''}>删除版本</button></div>
     </article>`).join('');
   $('activeHint').innerHTML = `当前操作版本：<b>${T.escapeHtml((versions.find(v => v.id === selectedVersionId) || {}).version || '—')}</b>`;
 }
@@ -93,6 +93,7 @@ async function createVersion() {
   const version = $('versionName').value.trim(); if (!version) { T.toast('请填写版本名称', 'err'); return; }
   try { const result = await T.api('/api/v1/teacher/rag/versions', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({version, description:$('versionDesc').value.trim()})}); selectedVersionId = result.id; $('versionName').value = ''; $('versionDesc').value = ''; T.toast('知识库版本已创建', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); }
 }
+async function deleteVersion(id) { const version = versions.find(item => item.id === id); if (!version) return; const related = documents.filter(item => item.kb_version_id === id).length; const message = related ? `将永久删除知识库“${version.version}”及其 ${related} 条资料记录、切片和向量索引，无法恢复。确定继续？` : `将永久删除空知识库“${version.version}”，无法恢复。确定继续？`; if (!(await T.confirm(message))) return; try { const result = await T.api(`/api/v1/teacher/rag/versions/${id}`, {method:'DELETE'}); if (selectedVersionId === id) selectedVersionId = null; T.toast(`知识库版本已删除${result.deleted_documents ? `，同时移除 ${result.deleted_documents} 条资料` : ''}`, 'ok'); await loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
 $('uploadForm').addEventListener('submit', async (event) => {
   event.preventDefault(); if (!selectedVersionId) { T.toast('请先选择知识库版本', 'err'); return; }
   const form = new FormData(); form.append('file', $('sourceFile').files[0]); form.append('kb_version_id', selectedVersionId); form.append('subject', $('subject').value.trim()); form.append('grade_band', $('gradeBand').value); form.append('grade', $('grade').value.trim());
@@ -104,7 +105,59 @@ async function setPublication(id, published) { if (!(await T.confirm(published ?
 async function archiveDocument(id) { if (!(await T.confirm('归档后资料会立即退出检索范围，但会保留历史版本记录以便追溯。确定归档？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}/archive`, {method:'POST'}); T.toast('资料已归档', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
 async function deleteDocument(id) { if (!(await T.confirm('将永久删除这条资料处理记录、切片与向量索引，无法恢复。若原文件被其他重建记录共用，会自动保留该文件。确定删除？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}`, {method:'DELETE'}); T.toast('资料记录已删除', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
 async function activateVersion(id) { if (!(await T.confirm('将检查资料完整性并切换学生端可用知识库，确定激活？'))) return; try { const r = await T.api(`/api/v1/teacher/rag/versions/${id}/activate`, {method:'POST'}); T.toast(`版本已激活，共 ${r.quality_report.child_chunk_count} 个检索块`, 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
-async function previewDocument(id) { try { const r = await T.api(`/api/v1/teacher/rag/documents/${id}`); const sample = (r.chunk_summary.sample || []).map(x => `<p style="line-height:1.7">${T.escapeHtml(x)}</p>`).join('') || '<p class="muted">暂无可预览的子块</p>'; const modal = document.createElement('div'); modal.className = 'modal show'; modal.innerHTML = `<div class="box" style="width:min(680px,92vw)"><div class="card-head"><h3>${T.escapeHtml(r.document.source_name)}</h3><button class="btn plain sm">关闭</button></div><p class="muted">父块 ${r.chunk_summary.parent_count} 个 · 子块 ${r.chunk_summary.child_count} 个</p><div style="max-height:420px;overflow:auto;margin-top:14px">${sample}</div></div>`; document.body.appendChild(modal); modal.querySelector('button').onclick = () => modal.remove(); } catch (e) { T.toast(e.message, 'err'); } }
+async function previewDocument(id) {
+  try {
+    const r = await T.api(`/api/v1/teacher/rag/documents/${id}`), review = r.ocr_review || {};
+    const labels = {PENDING:'OCR 待人工复核', APPROVED:'OCR 人工复核通过', REJECTED:'OCR 复核不通过', BLOCKED:'任务未就绪或缺少处理记录', NOT_REQUIRED:'无需 OCR 专项复核'};
+    const texts = review.parent_texts || r.chunk_summary.sample || [];
+    const sample = texts.map(x => `<pre style="white-space:pre-wrap;line-height:1.7">${T.escapeHtml(x)}</pre>`).join('') || '<p class="muted">暂无可预览内容</p>';
+    const canReview = review.token && ['PROCESSED','UNPUBLISHED'].includes(r.document.status);
+    const canCorrect = review.token && ['PROCESSED','UNPUBLISHED','PUBLISHED'].includes(r.document.status);
+    const modal = document.createElement('div'); modal.className = 'modal show';
+    modal.innerHTML = `<div class="box" style="width:min(780px,92vw);max-height:95vh;overflow:auto"><div class="card-head"><h3>${T.escapeHtml(r.document.source_name)}</h3><button class="btn plain sm" data-close>关闭</button></div>
+      <p>${T.escapeHtml(labels[review.status] || '复核状态未知')}</p><p class="muted">父块 ${r.chunk_summary.parent_count} 个 · 子块 ${r.chunk_summary.child_count} 个。${review.parent_texts ? '以下为全部父块识别文本；请自行打开上传原件逐项对照。' : '以下仅为子块摘要。'}</p>
+      ${(review.automatic_corrections || []).length ? `<details><summary>自动符号修正 ${review.automatic_corrections.length} 处（请复核）</summary>${review.automatic_corrections.map(c => `<p>第 ${c.page} 页：${T.escapeHtml(c.before)} → ${T.escapeHtml(c.after)}</p>`).join('')}</details>` : ''}
+      <div style="max-height:360px;overflow:auto;margin-top:14px">${sample}</div>
+      ${review.review ? `<p>上次结论：${T.escapeHtml(review.review.note)}</p>` : ''}
+      <button class="btn plain sm" data-source>下载当前原件</button>
+      ${canCorrect ? `<details style="margin-top:12px"><summary>在线校对并创建新版本</summary><p class="muted">修改下方文本并保存，将重新入库生成待复核资料。原记录保留，复核通过后可另行发布。</p><textarea data-correction data-preserve-lines class="input" style="height:260px;white-space:pre-wrap" aria-label="校对全文"></textarea><textarea data-correction-note class="input" maxlength="2000" placeholder="校对说明（必填）"></textarea><button data-save-correction class="btn">保存校对版</button></details>` : ''}
+      ${canReview ? `<p class="muted">处理成功不代表识别准确。仍有误字或公式歧义时请选择不通过或先在线校对。</p><label><input type="checkbox" data-checked> 已对照原件核对全部标题、表格单元格、数学符号及正文</label><textarea class="input" data-note maxlength="2000" placeholder="填写核对结果或具体错误（必填）"></textarea><div class="row"><button class="btn" data-approve>复核通过（不会自动发布）</button><button class="btn danger" data-reject>复核不通过</button></div>` : ''}</div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('[data-close]').onclick = () => modal.remove();
+    modal.querySelector('[data-source]').onclick = async () => {
+      try { await T.downloadFile(`/api/v1/teacher/rag/documents/${id}/source`, r.document.source_name); }
+      catch (e) { T.toast(e.message, 'err'); }
+    };
+    if (canCorrect) {
+      modal.querySelector('[data-correction]').value = texts.join('\n\n');
+      modal.querySelector('[data-save-correction]').onclick = async event => {
+        const button = event.currentTarget;
+        const text = modal.querySelector('[data-correction]').value;
+        const note = modal.querySelector('[data-correction-note]').value.trim();
+        if (!text.trim() || !note) { T.toast('请填写校对文本和说明', 'err'); return; }
+        button.disabled = true;
+        try {
+          const saved = await T.api(`/api/v1/teacher/rag/documents/${id}/correction`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text, note, token:review.token})});
+          modal.remove(); await loadAll(); T.toast('校对版已入库，请复核后发布', 'ok'); await previewDocument(saved.document_id);
+        } catch (e) { T.toast(e.message, 'err'); button.disabled = false; }
+      };
+    }
+    if (canReview) {
+      const submit = async approved => {
+        const checked = modal.querySelector('[data-checked]').checked;
+        const note = modal.querySelector('[data-note]').value.trim();
+        if (!note || (approved && !checked)) { T.toast('请填写说明；通过前须勾选原件核对确认', 'err'); return; }
+        const buttons = modal.querySelectorAll('[data-approve], [data-reject]'); buttons.forEach(b => b.disabled = true);
+        try {
+          await T.api(`/api/v1/teacher/rag/documents/${id}/ocr-review`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:review.token, approved, note, checked_source_title_table_math:checked})});
+          T.toast(approved ? '复核已记录，资料尚未发布' : '已记录不通过，发布将被阻止', 'ok'); modal.remove(); await loadAll();
+        } catch (e) { T.toast(e.message, 'err'); buttons.forEach(b => b.disabled = false); }
+      };
+      modal.querySelector('[data-approve]').onclick = () => submit(true);
+      modal.querySelector('[data-reject]').onclick = () => submit(false);
+    }
+  } catch (e) { T.toast(e.message, 'err'); }
+}
 async function rebuildDocument(id) { if (!(await T.confirm('会从本机保存的原始资料创建一条新的处理记录，确定重建？'))) return; try { await T.api(`/api/v1/teacher/rag/documents/${id}/rebuild`, {method:'POST'}); T.toast('已创建重建任务', 'ok'); loadAll(); } catch (e) { T.toast(e.message, 'err'); } }
 async function runRetrievalDebug() { const query = $('debugQuery').value.trim(); if (!query) { T.toast('请输入要检索的问题', 'err'); return; } const target = $('debugResult'); target.textContent = '正在检索证据…'; try { const r = await T.api('/api/v1/teacher/rag/retrieval/debug', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, subject:$('debugSubject').value.trim(), grade_band:$('debugBand').value, grade:$('debugGrade').value.trim()})}); const items = r.candidates || []; target.innerHTML = `<div class="muted">意图：${T.escapeHtml(r.intent)} · 版本：${T.escapeHtml(r.active_version || '—')} · 查询变体：${r.variants.map(T.escapeHtml).join(' / ')}</div>${items.length ? items.map(x => `<article style="margin-top:10px;padding:11px 12px;border:1px solid var(--border);border-radius:8px"><div class="row"><b>${T.escapeHtml(x.metadata.source_name)}</b><span class="badge b-info">相似度 ${Math.round(x.score * 100)}%</span></div><div class="muted" style="font-size:12px;margin:5px 0">${T.escapeHtml([x.metadata.subject,x.metadata.grade_band,x.metadata.grade,x.metadata.chapter].filter(Boolean).join(' · '))}</div><div>${T.escapeHtml(x.content)}</div></article>`).join('') : `<div class="empty" style="padding:18px">${T.escapeHtml(r.reason || '没有检索到可用证据')}</div>`}`; } catch (e) { target.textContent = e.message; T.toast(e.message, 'err'); } }
 async function generateAnswerPreview() { const query = $('debugQuery').value.trim(); if (!query) { T.toast('请输入要回答的问题', 'err'); return; } const target = $('debugResult'); target.textContent = '正在生成带引用回答…'; try { const r = await T.api('/api/v1/teacher/rag/answer/preview', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query, subject:$('debugSubject').value.trim(), grade_band:$('debugBand').value, grade:$('debugGrade').value.trim()})}); const refs = (r.citations || []).map(x => `${x.number}. ${T.escapeHtml(x.source_name)}${x.chapter ? ' · ' + T.escapeHtml(x.chapter) : ''}${x.page_number ? ' · 第 ' + x.page_number + ' 页' : ''}`).join('<br>'); target.innerHTML = `<article style="margin-top:8px;padding:14px;border:1px solid var(--border);border-radius:8px"><div>${T.escapeHtml(r.answer)}</div>${r.refused ? `<div class="muted" style="margin-top:8px">${T.escapeHtml(r.reason || '信息不足')}</div>` : `<div class="muted" style="margin-top:10px"><b>引用资料</b><br>${refs}</div>`}</article>`; } catch (e) { target.textContent = e.message; T.toast(e.message, 'err'); } }

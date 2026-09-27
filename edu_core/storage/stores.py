@@ -26,6 +26,16 @@ def text_hash(content: str) -> str:
     return hashlib.sha256(" ".join(content.split()).encode("utf-8")).hexdigest()
 
 
+def is_unreadable_text(content: str | None) -> bool:
+    """识别已经以问号/替换符写入数据库、无法人工复核的历史乱码。"""
+    compact = "".join(str(content or "").split())
+    if len(compact) < 8:
+        return False
+    replacement_count = compact.count("?") + compact.count("？") + compact.count("�")
+    has_cjk = any("\u3400" <= char <= "\u9fff" for char in compact)
+    return not has_cjk and replacement_count / len(compact) >= 0.35
+
+
 def sqlalchemy_error_to_message(exc: Exception) -> str | None:
     """把 SQLAlchemy/PyMySQL 异常转成用户可读信息；非数据库异常返回 None。"""
     from sqlalchemy.exc import OperationalError, ProgrammingError, SQLAlchemyError
@@ -199,9 +209,12 @@ class ClassificationStore:
     def review_queue(self, limit: int = 100) -> list[dict]:
         """E1 只读复核队列：低置信分类、异常错题与 RAG 失败/差评。"""
         with self.engine.connect() as conn:
-            low = conn.execute(text("""SELECT id,text_preview,subject_pred,type_pred,knowledge_pred,avg_confidence,created_at
+            low_rows = conn.execute(text("""SELECT id,text_preview,subject_pred,type_pred,knowledge_pred,avg_confidence,created_at
                 FROM classifications WHERE confidence_band='low' ORDER BY avg_confidence ASC,id DESC LIMIT :limit"""),
-                {"limit": int(limit)}).mappings().all()
+                {"limit": int(limit) * 2}).mappings().all()
+            # 早期终端编码错误可能已把中文永久写成“????”。原文无法恢复，
+            # 继续展示只会污染复核队列；保留底层审计记录，但不作为可处理任务。
+            low = [row for row in low_rows if not is_unreadable_text(row["text_preview"])][:limit]
             anomalous = conn.execute(text("""SELECT q.id,q.content,q.subject,q.question_type,q.knowledge_point,COUNT(ar.id) attempts,
                 AVG(ar.is_correct) correct_rate,MAX(ar.created_at) created_at
                 FROM answer_records ar JOIN questions q ON q.id=ar.question_id WHERE ar.is_correct IS NOT NULL
@@ -1424,6 +1437,43 @@ class RagKnowledgeBaseStore:
             """), {"id": int(version_id), "created_by": int(created_by)}).mappings().first()
         return self._serialize(row)
 
+    def delete_version(self, version_id: int, *, created_by: int) -> dict:
+        """永久删除非激活知识库版本及其资料关系数据。
+
+        ACTIVE 版本和当前指针指向的版本始终拒绝删除。审计记录及历史问答
+        仍保留版本名称，不随版本删除。
+        """
+        with self.engine.begin() as conn:
+            version = conn.execute(text("""
+                SELECT id, status FROM rag_kb_versions
+                WHERE id = :id AND created_by = :created_by FOR UPDATE
+            """), {"id": int(version_id), "created_by": int(created_by)}).mappings().first()
+            if not version:
+                raise ValueError("知识库版本不存在或无权删除")
+            pointed = conn.execute(text("""
+                SELECT COUNT(*) FROM rag_active_kb_pointer
+                WHERE active_version_id = :id
+            """), {"id": int(version_id)}).scalar_one()
+            if version["status"] == "ACTIVE" or pointed:
+                raise ValueError("当前激活的知识库版本不能删除，请先激活其他版本")
+
+            documents = conn.execute(text("""
+                SELECT id, storage_key FROM rag_documents WHERE kb_version_id = :id
+            """), {"id": int(version_id)}).mappings().all()
+            chunk_ids = [int(row["id"]) for row in conn.execute(text("""
+                SELECT id FROM rag_document_chunks WHERE kb_version_id = :id
+            """), {"id": int(version_id)}).mappings().all()]
+            storage_keys = {row["storage_key"] for row in documents if row["storage_key"]}
+            conn.execute(text("DELETE FROM rag_ingestion_jobs WHERE kb_version_id = :id"), {"id": int(version_id)})
+            conn.execute(text("DELETE FROM rag_document_chunks WHERE kb_version_id = :id"), {"id": int(version_id)})
+            conn.execute(text("DELETE FROM rag_documents WHERE kb_version_id = :id"), {"id": int(version_id)})
+            conn.execute(text("DELETE FROM rag_kb_versions WHERE id = :id"), {"id": int(version_id)})
+            deletable_storage = [key for key in storage_keys if not conn.execute(text("""
+                SELECT COUNT(*) FROM rag_documents WHERE storage_key = :key
+            """), {"key": key}).scalar_one()]
+        return {"chunk_ids": chunk_ids, "storage_keys": deletable_storage,
+                "document_count": len(documents)}
+
     def set_quality_report(self, version_id: int, report: dict) -> bool:
         with self.engine.begin() as conn:
             row = conn.execute(text("""
@@ -1556,12 +1606,87 @@ class RagKnowledgeBaseStore:
                 {"id": int(document_id), "status": status, "failure_reason": failure_reason})
             return row.rowcount > 0
 
+    def _ocr_review_state(self, conn, document: dict) -> dict:
+        """Bind human review to the latest job and exact stored chunks, not a UI flag."""
+        job = conn.execute(text("""
+            SELECT id, status, metrics_json FROM rag_ingestion_jobs
+            WHERE document_id = :id ORDER BY id DESC LIMIT 1 FOR UPDATE
+        """), {"id": int(document["id"])}).mappings().first()
+        if not job:
+            return {"status": "BLOCKED" if document["source_type"] == "pdf" else "NOT_REQUIRED"}
+        try:
+            metrics = json.loads(job["metrics_json"] or "{}")
+            if not isinstance(metrics, dict):
+                raise ValueError("invalid metrics")
+        except (ValueError, TypeError):
+            return {"status": "BLOCKED"}
+        if job["status"] != "SUCCEEDED":
+            return {"status": "BLOCKED"}
+        if "ocr_pages" in metrics and (
+            not isinstance(metrics["ocr_pages"], list)
+            or any(type(page) is not int or page < 1 for page in metrics["ocr_pages"])
+        ):
+            return {"status": "BLOCKED"}
+        # Old PDF jobs lacking OCR provenance require conservative manual review.
+        if not metrics.get("requires_review") and not metrics.get("ocr_pages") and not (
+            document["source_type"] == "pdf" and "ocr_pages" not in metrics
+        ):
+            return {"status": "NOT_REQUIRED"}
+        chunks = conn.execute(text("""
+            SELECT id, content, chunk_kind, order_no, parent_chunk_id
+            FROM rag_document_chunks WHERE document_id = :id ORDER BY id
+        """), {"id": int(document["id"])}).mappings().all()
+        snapshot = [document["content_hash"], int(job["id"]), [dict(row) for row in chunks]]
+        token = hashlib.sha256(json.dumps(snapshot, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+        review = metrics.get("ocr_review") or {}
+        valid = isinstance(review, dict) and review.get("token") == token
+        return {"status": review.get("status", "PENDING") if valid else "PENDING",
+                "token": token, "job_id": int(job["id"]), "ocr_pages": metrics.get("ocr_pages", []),
+                "parent_texts": [row["content"] for row in chunks if row["chunk_kind"] == "parent"],
+                "correction_provenance": metrics.get("correction_provenance"),
+                "automatic_corrections": metrics.get("ocr_corrections", []),
+                "review": review if valid else None}
+
+    def get_ocr_review(self, document_id: int, *, created_by: int) -> dict:
+        with self.engine.begin() as conn:
+            doc = conn.execute(text("""
+                SELECT * FROM rag_documents WHERE id = :id AND created_by = :owner FOR UPDATE
+            """), {"id": int(document_id), "owner": int(created_by)}).mappings().first()
+            if not doc:
+                raise ValueError("资料不存在")
+            return self._ocr_review_state(conn, doc)
+
+    def review_ocr_document(self, document_id: int, *, created_by: int,
+                            token: str, approved: bool, note: str) -> dict:
+        if type(approved) is not bool or not isinstance(note, str) or not note.strip() or len(note) > 2000:
+            raise ValueError("请填写复核结论及说明（1–2000 字）")
+        with self.engine.begin() as conn:
+            doc = conn.execute(text("""
+                SELECT * FROM rag_documents WHERE id = :id AND created_by = :owner FOR UPDATE
+            """), {"id": int(document_id), "owner": int(created_by)}).mappings().first()
+            if not doc:
+                raise ValueError("资料不存在")
+            if doc["status"] not in ("PROCESSED", "UNPUBLISHED"):
+                raise ValueError("仅处理完成或已下架资料可复核")
+            state = self._ocr_review_state(conn, doc)
+            if state["status"] in ("BLOCKED", "NOT_REQUIRED") or token != state.get("token"):
+                raise ValueError("资料未就绪或复核内容已变化，请重新预览")
+            review = {"status": "APPROVED" if approved else "REJECTED", "token": token,
+                      "reviewed_by": int(created_by), "reviewed_at": datetime.now().isoformat(),
+                      "note": note.strip()}
+            conn.execute(text("""
+                UPDATE rag_ingestion_jobs SET metrics_json = JSON_SET(
+                    COALESCE(metrics_json, JSON_OBJECT()), '$.ocr_review', CAST(:review AS JSON))
+                WHERE id = :id
+            """), {"id": state["job_id"], "review": json.dumps(review, ensure_ascii=False)})
+            return {**state, "status": review["status"], "review": review}
+
     def set_document_publication(self, document_id: int, *, created_by: int,
                                  published: bool) -> dict:
         """资料与切片发布状态同步；教师仅能操作自己的已处理资料。"""
         with self.engine.begin() as conn:
             document = conn.execute(text("""
-                SELECT id, kb_version_id, status FROM rag_documents
+                SELECT id, kb_version_id, status, source_type, content_hash FROM rag_documents
                 WHERE id = :id AND created_by = :created_by FOR UPDATE
             """), {"id": int(document_id), "created_by": int(created_by)}).mappings().first()
             if not document:
@@ -1569,6 +1694,9 @@ class RagKnowledgeBaseStore:
             if published:
                 if document["status"] not in ("PROCESSED", "UNPUBLISHED"):
                     raise ValueError("仅处理成功或已下架资料可发布")
+                review = self._ocr_review_state(conn, document)
+                if review["status"] not in ("NOT_REQUIRED", "APPROVED"):
+                    raise ValueError("OCR 资料尚未通过人工复核，或入库任务未完成；请先预览复核")
                 new_status, chunk_status = "PUBLISHED", "PUBLISHED"
                 conn.execute(text("""
                     UPDATE rag_documents SET status = :status, failure_reason = NULL,
@@ -1733,20 +1861,29 @@ class RagKnowledgeBaseStore:
                 f"SELECT * FROM rag_document_chunks {clause} ORDER BY chunk_kind, order_no"), params).mappings().all()
         return [self._serialize(row) for row in rows]
 
-    def get_retrieval_chunks(self, chunk_ids: list[int], *, kb_version_id: int,
+    def get_retrieval_chunks(self, chunk_ids: list[int] | None, *, kb_version_id: int,
                              role: str, subject: str | None = None,
                              grade_band: str | None = None, grade: str | None = None,
-                             knowledge_node_id: int | None = None) -> list[dict]:
+                             knowledge_node_id: int | None = None,
+                             corpus_limit: int = 5000) -> list[dict]:
         """MySQL 侧二次硬过滤，向量库命中绝不能直接作为可见内容。"""
-        ids = [int(chunk_id) for chunk_id in dict.fromkeys(chunk_ids)]
-        if not ids:
+        ids = [int(chunk_id) for chunk_id in dict.fromkeys(chunk_ids or [])]
+        if chunk_ids is not None and not ids:
             return []
+        if corpus_limit < 1:
+            raise ValueError("语料上限必须为正数")
         placeholders = ", ".join(f":id_{index}" for index in range(len(ids)))
-        conditions = [f"c.id IN ({placeholders})", "c.kb_version_id = :kb_version_id",
+        conditions = ["c.kb_version_id = :kb_version_id",
                       "c.chunk_kind = 'child'", "c.status = 'PUBLISHED'", "d.status = 'PUBLISHED'",
                       "JSON_CONTAINS(d.allowed_roles_json, JSON_QUOTE(:role))"]
+        if chunk_ids is not None:
+            conditions.append(f"c.id IN ({placeholders})")
         params: dict[str, object] = {f"id_{index}": chunk_id for index, chunk_id in enumerate(ids)}
         params.update({"kb_version_id": int(kb_version_id), "role": role})
+        suffix = ""
+        if chunk_ids is None:
+            suffix = "ORDER BY c.id LIMIT :corpus_limit"
+            params["corpus_limit"] = corpus_limit + 1
         for field, value in (("subject", subject), ("grade_band", grade_band), ("grade", grade),
                              ("knowledge_node_id", knowledge_node_id)):
             if value is not None:
@@ -1759,8 +1896,10 @@ class RagKnowledgeBaseStore:
                 FROM rag_document_chunks c
                 JOIN rag_documents d ON d.id = c.document_id
                 JOIN rag_kb_versions v ON v.id = c.kb_version_id
-                WHERE {' AND '.join(conditions)}
+                WHERE {' AND '.join(conditions)} {suffix}
             """), params).mappings().all()
+        if chunk_ids is None and len(rows) > corpus_limit:
+            raise ValueError("授权语料超出本地 BM25 容量上限，请使用独立关键词索引")
         return [self._serialize(row) for row in rows]
 
     def create_session(self, user_id: int, role: str, title: str | None = None) -> int:
@@ -1796,6 +1935,16 @@ class RagKnowledgeBaseStore:
                 WHERE m.session_id=:s AND s.user_id=:u ORDER BY m.id"""), {"s":int(session_id),"u":int(user_id)}).mappings().all()
         return [self._serialize(row) for row in rows]
 
+    def recent_student_messages(self, session_id: int, user_id: int) -> list[dict]:
+        """仅取本人学生会话末尾 8 条，正文限长；供追问主题补全使用。"""
+        with self.engine.connect() as conn:
+            rows = conn.execute(text("""SELECT m.id,m.role,LEFT(m.content,400) AS content,m.refused
+                FROM rag_messages m JOIN rag_sessions s ON s.id=m.session_id
+                WHERE m.session_id=:s AND s.user_id=:u AND s.role='student'
+                ORDER BY m.id DESC LIMIT 8"""),
+                {"s": int(session_id), "u": int(user_id)}).mappings().all()
+        return [dict(row) for row in reversed(rows)]
+
     def owns_message(self, message_id: int, user_id: int) -> bool:
         with self.engine.connect() as conn:
             row = conn.execute(text("""SELECT m.id FROM rag_messages m
@@ -1810,6 +1959,21 @@ class RagKnowledgeBaseStore:
             if not owned:
                 return False
             conn.execute(text("DELETE FROM rag_messages WHERE session_id=:s"), {"s":int(session_id)})
+            return True
+
+    def delete_session(self, session_id: int, user_id: int, role: str) -> bool:
+        """删除用户自己的完整会话，以及其消息、反馈和检索轨迹。"""
+        params = {"s": int(session_id), "u": int(user_id), "r": role}
+        with self.engine.begin() as conn:
+            owned = conn.execute(text("""SELECT id FROM rag_sessions
+                WHERE id=:s AND user_id=:u AND role=:r FOR UPDATE"""), params).first()
+            if not owned:
+                return False
+            conn.execute(text("""DELETE f FROM rag_feedback f
+                JOIN rag_messages m ON m.id=f.message_id WHERE m.session_id=:s"""), params)
+            conn.execute(text("DELETE FROM rag_query_traces WHERE session_id=:s"), params)
+            conn.execute(text("DELETE FROM rag_messages WHERE session_id=:s"), params)
+            conn.execute(text("DELETE FROM rag_sessions WHERE id=:s"), params)
             return True
 
     def feedback(self, message_id: int, user_id: int, rating: int, correction: str | None = None) -> None:

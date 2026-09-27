@@ -236,7 +236,8 @@ function formatQuestionText(raw) {
   // 题干/选项分行：非词首位置的 A./B./C./D.（含 、．点号）前换行，选项各自成行
   text = text.replace(/(?<![a-zA-Z0-9])([A-D])\s*[.．、]\s*/g, '\n$1. ')
              .replace(/^\n+/, '');
-  return text;
+  // 输入区统一横向排版：选项与原始硬换行均合并为一个空格。
+  return text.replace(/[ \t]*\n[ \t]*/g, ' ').replace(/[ \t]{2,}/g, ' ').trim();
 }
 /* ================= 格式化结束 ================= */
 

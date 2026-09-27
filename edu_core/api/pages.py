@@ -85,6 +85,12 @@ def student_portal() -> FileResponse:
     return _page("student.html")
 
 
+@router.get("/student/assignments")
+def student_assignments() -> FileResponse:
+    """学生作业列表。"""
+    return _page("student_assignments.html")
+
+
 @router.get("/student/assignments/{assignment_id}")
 def student_assignment(assignment_id: int) -> FileResponse:
     """学生作答及提交后结果页（assignment_id 由页面脚本读取）。"""

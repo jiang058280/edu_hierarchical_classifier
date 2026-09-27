@@ -127,15 +127,121 @@ def test_publication_and_quality_report_lifecycle(rag_store):
         conn.execute(text("UPDATE rag_documents SET subject = '数学', allowed_roles_json = JSON_ARRAY('student') WHERE id = :id"), {"id": document_id})
     assert len(rag_store.get_retrieval_chunks([child_id], kb_version_id=version_id, role="student", subject="数学")) == 1
     assert rag_store.get_retrieval_chunks([child_id], kb_version_id=version_id, role="teacher", subject="数学") == []
+    assert len(rag_store.get_retrieval_chunks(None, kb_version_id=version_id,
+                                             role="student", subject="数学", corpus_limit=1)) == 1
+    assert rag_store.get_retrieval_chunks(None, kb_version_id=version_id, role="teacher") == []
+    assert rag_store.get_retrieval_chunks(None, kb_version_id=version_id, role="student", grade_band="高中") == []
     report = rag_store.build_quality_report(version_id, created_by=104)
     assert report["passed"] is True and report["child_chunk_count"] == 1
     unpublished = rag_store.set_document_publication(document_id, created_by=104, published=False)
     assert unpublished["status"] == "UNPUBLISHED"
+    assert rag_store.get_retrieval_chunks(None, kb_version_id=version_id, role="student") == []
     with pytest.raises(ValueError, match="仅已发布"):
         rag_store.set_document_publication(document_id, created_by=104, published=False)
     archived = rag_store.archive_document(document_id, created_by=104)
     assert archived["status"] == "ARCHIVED"
     assert rag_store.list_document_chunks(document_id, chunk_kind="child")[0]["status"] == "ARCHIVED"
+
+
+def test_ocr_review_blocks_publication_until_explicit_approval(rag_store):
+    version = rag_store.create_version("ocr-review", created_by=104)
+    doc = rag_store.create_document(kb_version_id=version, created_by=104,
+                                    source_name="scan.pdf", source_type="pdf", content_hash="a" * 64)
+    job = rag_store.create_job(document_id=doc, kb_version_id=version, requested_by=104)
+    rag_store.replace_chunks(doc, version, [
+        {"chunk_kind": "parent", "order_no": 1, "content": "x < 0", "content_hash": "b" * 64},
+        {"chunk_kind": "child", "order_no": 1, "parent_order_no": 1,
+         "content": "x < 0", "content_hash": "b" * 64}])
+    rag_store.update_document_status(doc, status="PROCESSED")
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "BLOCKED"
+    rag_store.update_job(job, status="SUCCEEDED", metrics={"ocr_pages": [1]})
+    state = rag_store.get_ocr_review(doc, created_by=104)
+    assert state["status"] == "PENDING" and state["parent_texts"] == ["x < 0"]
+    with pytest.raises(ValueError, match="人工复核"):
+        rag_store.set_document_publication(doc, created_by=104, published=True)
+    with pytest.raises(ValueError, match="不存在"):
+        rag_store.review_ocr_document(doc, created_by=999, token=state["token"], approved=True, note="已核对")
+    with pytest.raises(ValueError, match="不存在"):
+        rag_store.get_ocr_review(doc, created_by=999)
+    with pytest.raises(ValueError, match="说明"):
+        rag_store.review_ocr_document(doc, created_by=104, token=state["token"], approved=True, note="")
+    rag_store.review_ocr_document(doc, created_by=104, token=state["token"], approved=False, note="符号待核对")
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "REJECTED"
+    with pytest.raises(ValueError, match="人工复核"):
+        rag_store.set_document_publication(doc, created_by=104, published=True)
+    rag_store.review_ocr_document(doc, created_by=104, token=state["token"], approved=True, note="全部核对通过")
+    assert rag_store.get_document(doc)["status"] == "PROCESSED"
+    rag_store.set_document_publication(doc, created_by=104, published=True)
+    assert all(c["status"] == "PUBLISHED" for c in rag_store.list_document_chunks(doc))
+    with pytest.raises(ValueError, match="仅处理完成"):
+        rag_store.review_ocr_document(doc, created_by=104, token=state["token"], approved=False, note="需下架")
+    rag_store.set_document_publication(doc, created_by=104, published=False)
+    # Even a content mutation retaining the old stored content_hash invalidates review.
+    with rag_store.engine.begin() as conn:
+        conn.execute(text("UPDATE rag_document_chunks SET content = 'changed' WHERE document_id = :id"), {"id": doc})
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "PENDING"
+    with pytest.raises(ValueError, match="已变化"):
+        rag_store.review_ocr_document(doc, created_by=104, token=state["token"], approved=True, note="旧页面")
+    with pytest.raises(ValueError, match="人工复核"):
+        rag_store.set_document_publication(doc, created_by=104, published=True)
+    current = rag_store.get_ocr_review(doc, created_by=104)
+    rag_store.review_ocr_document(doc, created_by=104, token=current["token"], approved=True, note="重新核对")
+    new_job = rag_store.create_job(document_id=doc, kb_version_id=version, requested_by=104)
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "BLOCKED"
+    rag_store.update_job(new_job, status="SUCCEEDED", metrics={"ocr_pages": [1]})
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "PENDING"
+
+
+@pytest.mark.parametrize("metrics,expected", [({"ocr_pages": []}, "NOT_REQUIRED"),
+                                              ({"page_count": 1}, "PENDING")])
+def test_pdf_ocr_provenance_and_legacy_jobs(rag_store, metrics, expected):
+    version = rag_store.create_version("ocr-provenance", created_by=104)
+    doc = rag_store.create_document(kb_version_id=version, created_by=104,
+                                    source_name="text.pdf", source_type="pdf", content_hash="c" * 64)
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == "BLOCKED"
+    job = rag_store.create_job(document_id=doc, kb_version_id=version, requested_by=104)
+    rag_store.update_job(job, status="SUCCEEDED", metrics=metrics)
+    rag_store.update_document_status(doc, status="PROCESSED")
+    assert rag_store.get_ocr_review(doc, created_by=104)["status"] == expected
+    if expected == "NOT_REQUIRED":
+        assert rag_store.set_document_publication(doc, created_by=104, published=True)["status"] == "PUBLISHED"
+
+
+def test_ocr_review_http_requires_checklist_and_owner(rag_store, monkeypatch):
+    from types import SimpleNamespace
+
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from edu_core.api import teacher
+
+    version = rag_store.create_version("ocr-http", created_by=104)
+    doc = rag_store.create_document(kb_version_id=version, created_by=104,
+                                    source_name="scan.pdf", source_type="pdf", content_hash="d" * 64)
+    job = rag_store.create_job(document_id=doc, kb_version_id=version, requested_by=104)
+    rag_store.update_job(job, status="SUCCEEDED", metrics={"ocr_pages": [1]})
+    rag_store.update_document_status(doc, status="PROCESSED")
+    monkeypatch.setattr(teacher, "_stores", lambda: SimpleNamespace(
+        rag=rag_store, audit=SimpleNamespace(insert=lambda **kwargs: None)))
+    app = FastAPI()
+    app.include_router(teacher.router)
+    app.dependency_overrides[teacher.require_teacher] = lambda: {"id": 104}
+    with TestClient(app) as client:
+        url = f"/teacher/rag/documents/{doc}"
+        preview = client.get(url)
+        assert preview.status_code == 200
+        token = preview.json()["ocr_review"]["token"]
+        assert client.post(url + "/publication", json={"published": True}).status_code == 400
+        data = {"token": token, "approved": True, "note": "已核对"}
+        assert client.post(url + "/ocr-review", json=data).status_code == 400
+        data["checked_source_title_table_math"] = True
+        assert client.post(url + "/ocr-review", json={**data, "approved": "false"}).status_code == 400
+        app.dependency_overrides[teacher.require_teacher] = lambda: {"id": 999}
+        assert client.get(url).status_code == 404
+        assert client.post(url + "/ocr-review", json=data).status_code == 400
+        app.dependency_overrides[teacher.require_teacher] = lambda: {"id": 104}
+        assert client.post(url + "/ocr-review", json=data).status_code == 200
+        assert client.post(url + "/publication", json={"published": True}).status_code == 200
 
 
 def test_active_version_can_roll_back_to_prior_archived_version(rag_store):
@@ -171,6 +277,36 @@ def test_delete_document_removes_related_records_and_preserves_shared_storage(ra
         assert conn.execute(text("SELECT COUNT(*) FROM rag_ingestion_jobs WHERE document_id = :id"), {"id": first}).scalar_one() == 0
 
 
+def test_delete_version_removes_its_documents_jobs_and_chunks(rag_store):
+    version_id = rag_store.create_version("kb-r1-delete-version", created_by=107)
+    document_id = rag_store.create_document(
+        kb_version_id=version_id, created_by=107, source_name="待删除资料.txt", source_type="txt",
+        content_hash="6" * 64, storage_key="data/rag_uploads/107/version.txt")
+    rag_store.create_job(document_id=document_id, kb_version_id=version_id, requested_by=107)
+    chunk_ids = rag_store.replace_chunks(document_id, version_id, [{
+        "chunk_kind": "parent", "order_no": 1, "content": "相似三角形", "content_hash": "5" * 64,
+    }])
+
+    cleanup = rag_store.delete_version(version_id, created_by=107)
+
+    assert cleanup["chunk_ids"] == chunk_ids
+    assert cleanup["document_count"] == 1
+    assert cleanup["storage_keys"] == ["data/rag_uploads/107/version.txt"]
+    assert rag_store.get_version(version_id) is None
+    assert rag_store.get_document(document_id) is None
+    with rag_store.engine.connect() as conn:
+        assert conn.execute(text("SELECT COUNT(*) FROM rag_ingestion_jobs WHERE kb_version_id = :id"), {"id": version_id}).scalar_one() == 0
+
+
+def test_delete_version_rejects_active_version(rag_store):
+    version_id = rag_store.create_version("kb-r1-active-delete-guard", created_by=108)
+    rag_store.set_quality_report(version_id, {"passed": True})
+    rag_store.activate_version(version_id)
+    with pytest.raises(ValueError, match="当前激活"):
+        rag_store.delete_version(version_id, created_by=108)
+    assert rag_store.get_version(version_id)["status"] == "ACTIVE"
+
+
 def test_sync_published_questions_creates_local_token_free_knowledge_source(rag_store):
     with rag_store.engine.begin() as conn:
         conn.execute(text("""
@@ -185,3 +321,34 @@ def test_sync_published_questions_creates_local_token_free_knowledge_source(rag_
     assert result["synced"] == 1
     rows = rag_store.list_local_question_knowledge(subject="数学")
     assert len(rows) == 1 and rows[0]["answer"] == "3" and rows[0]["analysis"] == "代入计算"
+
+
+def test_recent_memory_is_bounded_owner_scoped_and_clearable(rag_store):
+    session_id = rag_store.create_session(201, "student", "记忆测试")
+    for number in range(10):
+        rag_store.add_message(session_id, "user" if number % 2 == 0 else "assistant", str(number) + "x" * 500)
+    rows = rag_store.recent_student_messages(session_id, 201)
+    assert len(rows) == 8 and rows[0]["content"].startswith("2")
+    assert all(len(row["content"]) == 400 for row in rows)
+    assert rag_store.recent_student_messages(session_id, 999) == []
+    teacher_session = rag_store.create_session(201, "teacher", "非学生会话")
+    rag_store.add_message(teacher_session, "user", "问题")
+    assert rag_store.recent_student_messages(teacher_session, 201) == []
+    assert rag_store.clear_session(session_id, 201)
+    assert rag_store.recent_student_messages(session_id, 201) == []
+
+
+def test_delete_session_is_owner_scoped_and_removes_related_data(rag_store):
+    session_id = rag_store.create_session(201, "student", "待删除对话")
+    message_id = rag_store.add_message(session_id, "assistant", "回答")
+    rag_store.feedback(message_id, 201, 1)
+    rag_store.add_query_trace(session_id=session_id, user_id=201, kb_version=None,
+                              query_text="问题", candidates=[], latency_ms=1)
+    assert rag_store.delete_session(session_id, 999, "student") is False
+    assert rag_store.get_owned_session(session_id, 201, "student") is not None
+    assert rag_store.delete_session(session_id, 201, "student") is True
+    assert rag_store.get_owned_session(session_id, 201, "student") is None
+    with rag_store.engine.connect() as conn:
+        assert conn.execute(text("SELECT COUNT(*) FROM rag_messages WHERE session_id=:s"), {"s": session_id}).scalar_one() == 0
+        assert conn.execute(text("SELECT COUNT(*) FROM rag_feedback WHERE message_id=:m"), {"m": message_id}).scalar_one() == 0
+        assert conn.execute(text("SELECT COUNT(*) FROM rag_query_traces WHERE session_id=:s"), {"s": session_id}).scalar_one() == 0

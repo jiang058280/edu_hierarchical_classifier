@@ -1,118 +1,80 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>工作台 · 教师门户</title>
-<link rel="stylesheet" href="/static/edu.css">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>教学工作台 · 教师门户</title><link rel="stylesheet" href="/static/edu.css"></head>
 <body>
 <div id="shell"></div>
-<div class="content">
-  <div class="page-head"><h2>工作台</h2><p>题库、试卷与班级的整体概览</p></div>
-
-  <div class="stat-grid">
-    <div class="stat"><div class="k">题库总数</div><div class="v" id="stBank">—<small> 题</small></div></div>
-    <div class="stat"><div class="k">试卷总数</div><div class="v" id="stPapers">—<small> 份</small></div></div>
-    <div class="stat"><div class="k">我的班级</div><div class="v" id="stClasses">—<small> 个</small></div></div>
-    <div class="stat"><div class="k">知识点树</div><div class="v" id="stNodes">—<small> 个</small></div></div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head"><h3>快捷操作</h3></div>
-    <div class="row">
-      <a class="btn" href="/teacher/entry">AI 智能录入</a>
-      <a class="btn ghost" href="/teacher/papers">去组卷</a>
-      <a class="btn ghost" href="/teacher/assignments">发布作业</a>
-      <a class="btn ghost" href="/teacher/bank">管理题库</a>
+<main class="content teacher-workspace">
+  <section class="teacher-welcome">
+    <div><div class="eyebrow">教学工作台</div><h1 id="welcomeTitle">早上好，老师</h1><p>从关注学生的学习进展开始今天的教学工作。</p></div>
+    <aside class="teacher-quote">“教育不是注满一桶水，而是点燃一把火。”<br><strong>— 以数据辅助每一次教学判断</strong></aside>
+  </section>
+  <section class="teacher-metrics" aria-label="教学数据概览">
+    <article class="card metric-card"><div class="metric-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="metric-label">我的班级</div><div class="metric-value" id="stClasses">—<span class="metric-unit">个</span></div></div></article>
+    <article class="card metric-card"><div class="metric-icon mint"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div><div class="metric-label">题库题目</div><div class="metric-value" id="stBank">—<span class="metric-unit">题</span></div></div></article>
+    <article class="card metric-card"><div class="metric-icon amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg></div><div><div class="metric-label">已生成试卷</div><div class="metric-value" id="stPapers">—<span class="metric-unit">份</span></div></div></article>
+    <article class="card metric-card"><div class="metric-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 8h7M9 12h7"/></svg></div><div><div class="metric-label">知识点节点</div><div class="metric-value" id="stNodes">—<span class="metric-unit">个</span></div></div></article>
+  </section>
+  <section class="teacher-dashboard-grid">
+    <div>
+      <section class="card">
+        <div class="work-card-head"><div><h3>开始今天的教学工作</h3><p>常用功能已按备课、布置和分析流程整理。</p></div></div>
+        <div class="quick-actions">
+          <a class="quick-action" href="/teacher/entry"><span class="q-icon">✦</span><span><b>AI 智能录入</b><span>批量识别题目并完成标注</span></span></a>
+          <a class="quick-action" href="/teacher/papers"><span class="q-icon">▤</span><span><b>智能组卷</b><span>按知识点与难度生成试卷</span></span></a>
+          <a class="quick-action" href="/teacher/assignments"><span class="q-icon">✓</span><span><b>发布与批改作业</b><span>跟踪学生完成和提交情况</span></span></a>
+          <a class="quick-action" href="/teacher/bank"><span class="q-icon">⌕</span><span><b>管理题库</b><span>检索、导入和维护教学题目</span></span></a>
+        </div>
+        <div class="class-create"><h4>新建班级</h4><div class="row"><input class="input cls-name" type="text" id="clsName" placeholder="班级名，如 初三（2）班"><select class="input cls-band" id="clsBand"><option>初中</option><option>高中</option></select><input class="input cls-grade" type="text" id="clsGrade" placeholder="年级"><button class="btn" onclick="createClass()">创建班级</button></div></div>
+      </section>
+      <section class="card" style="margin-top:18px"><div class="work-card-head"><div><h3>我的班级</h3><p>创建班级后，可将邀请码发给学生加入。</p></div></div><div class="class-table-wrap"><table class="table"><thead><tr><th>班级</th><th>学段 / 年级</th><th>入班邀请码</th><th>学生数</th><th>操作</th></tr></thead><tbody id="classRows"></tbody></table></div></section>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <h3>我的班级</h3>
-      <div class="row">
-        <input class="input" type="text" id="clsName" placeholder="班级名，如 初三(2)班" style="width:170px">
-        <select class="input" id="clsBand" style="width:90px"><option>初中</option><option>高中</option></select>
-        <input class="input" type="text" id="clsGrade" placeholder="年级" style="width:90px">
-        <button class="btn" onclick="createClass()">创建班级</button>
-      </div>
-    </div>
-    <table class="table">
-      <thead><tr><th>班级</th><th>学段 / 年级</th><th>入班邀请码</th><th>学生数</th><th>操作</th></tr></thead>
-      <tbody id="classRows"></tbody>
-    </table>
-  </div>
-
-  <div class="card" id="studentCard" style="display:none">
-    <div class="card-head"><h3>学生名册 · <span id="studentClassName"></span></h3>
-      <button class="btn plain sm" onclick="this.closest('.card').style.display='none'">收起</button></div>
-    <table class="table">
-      <thead><tr><th>姓名</th><th>用户名</th><th>学号</th><th>状态</th></tr></thead>
-      <tbody id="studentRows"></tbody>
-    </table>
-  </div>
-</div>
-<script src="/static/teacher_common.js?v=20260909-h"></script>
+    <aside class="card rag-assistant">
+      <div class="work-card-head"><div><h3>AI 教学助手</h3><p>基于本地题库和已发布教学资料检索。</p></div><a href="/teacher/knowledge-base">知识库 ›</a></div>
+      <div class="rag-prompt" id="ragPrompt">如何针对薄弱知识点安排巩固练习？</div>
+      <div class="rag-reply" id="ragReply">先在“班级学情”中确认错误率高且样本量充足的知识点，再从题库按同一知识点、由易到难筛选题目。建议每次巩固覆盖基础理解、变式练习与错因回顾三个层级。</div>
+      <div class="rag-cites" id="ragCites"><span class="rag-cite">题库知识 · 本地检索</span><span class="rag-cite">学情分析 · 班级画像</span></div>
+      <div class="rag-launch"><input class="input" id="ragQuestion" placeholder="输入教学问题，例如：如何讲解一元二次方程？" maxlength="300" onkeydown="if(event.key==='Enter')askTeacherAssistant()"><button class="btn" id="ragAskBtn" onclick="askTeacherAssistant()">提问</button></div>
+    </aside>
+  </section>
+  <section class="card" id="studentCard" style="display:none;margin-top:18px"><div class="card-head"><h3>学生名册 · <span id="studentClassName"></span></h3><button class="btn plain sm" onclick="this.closest('.card').style.display='none'">收起</button></div><div class="class-table-wrap"><table class="table"><thead><tr><th>姓名</th><th>用户名</th><th>学号</th><th>状态</th></tr></thead><tbody id="studentRows"></tbody></table></div></section>
+</main>
+<script src="/static/teacher_common.js?v=20260914-horizontal"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-T.renderShell('home', '工作台');
-
+T.renderShell('home', '教学工作台');
 async function loadStats() {
-  const [bank, papers, classes, nodes] = await Promise.all([
-    T.api('/api/v1/teacher/questions?limit=1'),
-    T.api('/api/v1/teacher/papers?limit=1'),
-    T.api('/api/v1/teacher/classes'),
-    T.api('/api/v1/teacher/knowledge-nodes'),
-  ]);
-  $('stBank').innerHTML = (bank.total || 0) + '<small> 题</small>';
-  $('stPapers').innerHTML = (papers.total || 0) + '<small> 份</small>';
-  $('stClasses').innerHTML = (classes.classes || []).length + '<small> 个</small>';
-  $('stNodes').innerHTML = (nodes.total || 0) + '<small> 个</small>';
+  const [bank, papers, classes, nodes] = await Promise.all([T.api('/api/v1/teacher/questions?limit=1'), T.api('/api/v1/teacher/papers?limit=1'), T.api('/api/v1/teacher/classes'), T.api('/api/v1/teacher/knowledge-nodes')]);
+  $('stBank').innerHTML = (bank.total || 0) + '<span class="metric-unit">题</span>'; $('stPapers').innerHTML = (papers.total || 0) + '<span class="metric-unit">份</span>'; $('stClasses').innerHTML = (classes.classes || []).length + '<span class="metric-unit">个</span>'; $('stNodes').innerHTML = (nodes.total || 0) + '<span class="metric-unit">个</span>';
 }
-
 async function createClass() {
-  const name = $('clsName').value.trim(), grade = $('clsGrade').value.trim();
-  if (!name || !grade) { T.toast('请填写班级名和年级', 'err'); return; }
-  try {
-    const r = await T.api('/api/v1/teacher/classes', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name, grade_band: $('clsBand').value, grade})
-    });
-    $('clsName').value = ''; $('clsGrade').value = '';
-    T.toast('班级已创建，邀请码 ' + r.invite_code, 'ok');
-    loadClasses();
-  } catch (e) { T.toast(e.message, 'err'); }
+  const name = $('clsName').value.trim(), grade = $('clsGrade').value.trim(); if (!name || !grade) { T.toast('请填写班级名和年级', 'err'); return; }
+  try { const r = await T.api('/api/v1/teacher/classes', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name, grade_band:$('clsBand').value, grade}) }); $('clsName').value = ''; $('clsGrade').value = ''; T.toast('班级已创建，邀请码 ' + r.invite_code, 'ok'); loadClasses(); loadStats(); } catch (e) { T.toast(e.message, 'err'); }
 }
-
 async function loadClasses() {
-  try {
-    const data = await T.api('/api/v1/teacher/classes');
-    $('classRows').innerHTML = data.classes.length ? data.classes.map(c => `
-      <tr>
-        <td><b>${T.escapeHtml(c.name)}</b></td>
-        <td>${c.grade_band} / ${T.escapeHtml(c.grade)}</td>
-        <td class="num" style="font-weight:700;color:var(--primary);letter-spacing:1px">${c.invite_code}</td>
-        <td class="num">${c.student_count}</td>
-        <td><button class="btn ghost sm" onclick="viewStudents(${c.id}, '${T.escapeHtml(c.name)}')">名册</button></td>
-      </tr>`).join('')
-      : '<tr><td colspan="5"><div class="empty"><div class="ico">🏫</div>还没有班级<div class="hint">创建班级后把邀请码发给学生，学生在学生门户即可加入</div></div></td></tr>';
-  } catch (e) { T.toast(e.message, 'err'); }
+  try { const data = await T.api('/api/v1/teacher/classes'); $('classRows').innerHTML = data.classes.length ? data.classes.map(c => `<tr><td><b>${T.escapeHtml(c.name)}</b></td><td>${c.grade_band} / ${T.escapeHtml(c.grade)}</td><td class="num" style="font-weight:700;color:var(--primary);letter-spacing:1px">${c.invite_code}</td><td class="num">${c.student_count}</td><td><button class="btn ghost sm" onclick="viewStudents(${c.id}, '${T.escapeHtml(c.name)}')">名册</button></td></tr>`).join('') : '<tr><td colspan="5"><div class="empty"><div class="ico">🏫</div>还没有班级<div class="hint">创建班级后把邀请码发给学生，学生在学生门户即可加入</div></div></td></tr>'; } catch (e) { T.toast(e.message, 'err'); }
 }
-
 async function viewStudents(classId, name) {
-  try {
-    const data = await T.api(`/api/v1/teacher/classes/${classId}/students`);
-    $('studentCard').style.display = '';
-    $('studentClassName').textContent = name;
-    $('studentRows').innerHTML = data.students.length ? data.students.map(s => `
-      <tr><td>${T.escapeHtml(s.real_name || '—')}</td><td>${T.escapeHtml(s.username)}</td>
-      <td class="num">${T.escapeHtml(s.student_no || '—')}</td>
-      <td>${s.is_active ? '<span class="badge b-ok">在班</span>' : '<span class="badge b-gray">停用</span>'}</td></tr>`).join('')
-      : '<tr><td colspan="4" class="muted">暂无学生</td></tr>';
-  } catch (e) { T.toast(e.message, 'err'); }
+  try { const data = await T.api(`/api/v1/teacher/classes/${classId}/students`); $('studentCard').style.display = ''; $('studentClassName').textContent = name; $('studentRows').innerHTML = data.students.length ? data.students.map(s => `<tr><td>${T.escapeHtml(s.real_name || '—')}</td><td>${T.escapeHtml(s.username)}</td><td class="num">${T.escapeHtml(s.student_no || '—')}</td><td>${s.is_active ? '<span class="badge b-ok">在班</span>' : '<span class="badge b-gray">停用</span>'}</td></tr>`).join('') : '<tr><td colspan="4" class="muted">暂无学生</td></tr>'; } catch (e) { T.toast(e.message, 'err'); }
 }
-
+async function askTeacherAssistant() {
+  const input = $('ragQuestion'), question = input.value.trim(), button = $('ragAskBtn');
+  if (!question) { T.toast('请输入想咨询的教学问题', 'err'); input.focus(); return; }
+  button.disabled = true; button.textContent = '检索中…';
+  $('ragPrompt').textContent = question;
+  $('ragReply').textContent = '正在优先检索本地题库与已发布教学资料…';
+  $('ragCites').innerHTML = '';
+  try {
+    const result = await T.api('/api/v1/teacher/rag/answer/preview', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query:question}) });
+    $('ragReply').textContent = result.answer || result.reason || '未检索到足以支持回答的资料。';
+    const cites = result.citations || [];
+    $('ragCites').innerHTML = cites.length ? cites.map((cite, index) => `<span class="rag-cite" title="${T.escapeHtml(cite.source_name || '')}">${index + 1}. ${T.escapeHtml(cite.source_name || '知识库资料')}${cite.chapter ? ' · ' + T.escapeHtml(cite.chapter) : ''}</span>`).join('') : `<span class="rag-cite">${result.refused ? '资料不足，未生成推断性答案' : '未返回可展示的引用来源'}</span>`;
+    input.value = '';
+  } catch (e) {
+    $('ragReply').textContent = '本次问答暂不可用：' + e.message;
+    $('ragCites').innerHTML = '<span class="rag-cite">可前往知识库管理检查资料状态</span>';
+  } finally { button.disabled = false; button.textContent = '提问'; }
+}
+T.api('/api/v1/auth/me').then(me => { const h = new Date().getHours(); const period = h < 12 ? '早上' : h < 18 ? '下午' : '晚上'; $('welcomeTitle').textContent = `${period}好，${me.real_name || me.username}老师`; }).catch(() => {});
 loadStats(); loadClasses();
 </script>
 </body>

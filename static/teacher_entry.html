@@ -30,19 +30,27 @@ B．无氧呼吸不产生 ATP"></textarea>
   </div>
 
   <div id="cards"></div>
+  <div class="card" id="batchActions" style="display:none">
+    <div class="card-head"><div><h3>② 本批快速处理</h3><p class="muted" id="batchSummary">将学段应用至全部待入库题目，再一次性确认。</p></div><span class="badge b-info" id="batchCount">0 题待处理</span></div>
+    <div class="row" style="gap:10px;flex-wrap:wrap"><span class="muted">本批学段</span>
+      <select class="input" id="batchGrade" style="width:132px"><option value="">不修改</option><option value="初中">初中</option><option value="高中">高中</option></select>
+      <button class="btn plain sm" onclick="applyBatchGrade()">应用到本批</button><span style="flex:1"></span>
+      <button class="btn ghost sm" id="saveAllDraft" onclick="saveAll('draft')">全部存草稿</button><button class="btn sm" id="saveAllPublished" onclick="saveAll('published')">一键全部入库</button>
+    </div>
+  </div>
 
   <div class="card" id="emptyCard" style="display:none">
     <div class="empty"><div class="ico">✂️</div>暂无待确认题目<div class="hint">粘贴题目后点击「智能切分并预标注」，AI 会给出三级标签建议，确认后入库</div></div>
   </div>
 </div>
 
-<script src="/static/teacher_common.js?v=20260910-confidence"></script>
+<script src="/static/teacher_common.js?v=20260914-horizontal"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 T.renderShell('entry', 'AI 智能录入');
 let taxonomy = null;
-const NUM_START = /^\s*(\d{1,3})\s*[.．、)]\s*/;
-const BRACKET_START = /^\s*[（(]\s*\d{1,3}\s*[)）]\s*/;
+const NUM_START = /^\s*(\d{1,3})\s*(?:[.．、)]\s*|\|\s*)/;
+const BRACKET_START = /^\s*[（(]\s*(\d{1,3})\s*[)）]\s*/;
 let batchSeq = 0;
 
 function typeOptions(subject, selected) {
@@ -57,20 +65,37 @@ function updateCardTypes(seq) {
 }
 
 function splitQuestions(raw) {
-  const lines = raw.split(/\r?\n/);
-  const blocks = [];
-  let cur = [];
-  for (const ln of lines) {
-    const isStart = (NUM_START.test(ln) || BRACKET_START.test(ln));
-    if (isStart && cur.length) {
-      blocks.push(cur.join('\n').trim());
-      cur = [ln];
-    } else {
-      cur.push(ln);
-    }
+  const lineBlocks = [], lines = String(raw || '').split(/\r?\n/);
+  let current = [], expected = null;
+  for (const line of lines) {
+    const simple = line.match(NUM_START), bracket = line.match(BRACKET_START);
+    const number = Number(simple?.[1] || bracket?.[1] || 0);
+    // 仅连续题号可开启新题，避免 OCR 将公式中的 “2)” 当作题号。
+    const startsNew = number && (expected === null || number === expected);
+    if (startsNew && current.length) { lineBlocks.push(current.join(' ').trim()); current = [line]; expected = number + 1; }
+    else { current.push(line); if (startsNew && expected === null) expected = number + 1; }
   }
-  if (cur.join('').trim()) blocks.push(cur.join('\n').trim());
-  return blocks.filter(b => b.length >= 8);
+  if (current.join('').trim()) lineBlocks.push(current.join(' ').trim());
+  if (lineBlocks.length > 1) return lineBlocks.filter(block => block.length >= 8);
+
+  const compact = T.cleanText(raw);
+  const bySequentialLabels = (marker, numberAt) => {
+    const starts = []; let match, expectedNumber = null;
+    while ((match = marker.exec(compact)) !== null) {
+      const number = Number(numberAt(match));
+      if (!number || (expectedNumber !== null && number !== expectedNumber)) continue;
+      starts.push(match.index + (match[1] || '').length);
+      expectedNumber = number + 1;
+    }
+    return starts.length > 1 ? starts.map((start, index) => compact.slice(start, starts[index + 1] ?? compact.length).trim()).filter(block => block.length >= 8) : [];
+  };
+  // 高置信横向格式：1 | 题干 … | B 2 | 下一题。
+  const pipeBlocks = bySequentialLabels(/(^|\s)(\d{1,3})\s*\|\s*/g, match => match[2]);
+  if (pipeBlocks.length) return pipeBlocks;
+  // 兼容横向连续编号：1. / 1、/ 1) / （1）。
+  const inlineBlocks = bySequentialLabels(/(^|\s)(?:(\d{1,3})\s*[.．、)]|[（(]\s*(\d{1,3})\s*[)）])\s*/g, match => match[2] || match[3]);
+  if (inlineBlocks.length) return inlineBlocks;
+  return compact.length >= 8 ? [compact] : [];
 }
 
 function cardHtml(item) {
@@ -101,13 +126,14 @@ function cardHtml(item) {
       <div class="field"><label class="lbl">题型</label>
         <select class="input" id="ty_${item.seq}">${typeOptions(item.subject, item.question_type)}</select></div>
       <div class="field"><label class="lbl">知识点</label>
-        <input class="input" id="k_${item.seq}" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="学科::知识点"></div>
+        <input class="input" id="k_${item.seq}" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="例如：三角函数"></div>
       <div class="field"><label class="lbl">学段</label>
         <select class="input" id="g_${item.seq}"><option value="">—</option>${['初中','高中'].map(g => `<option ${g === item.grade_band ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
       <div class="field"><label class="lbl">参考答案（可空）</label>
-        <input class="input" id="a_${item.seq}"></div>
+        <input class="input" id="a_${item.seq}" value="${T.escapeHtml(item.answer || '')}" placeholder="原文答案会自动回填"></div>
       <div class="field"><label class="lbl">难度</label>
-        <select class="input" id="d_${item.seq}"><option value="">—</option>${[1,2,3,4,5].map(n => `<option>${n}</option>`).join('')}</select></div>
+        <select class="input" id="d_${item.seq}"><option value="">—</option>${[1,2,3,4,5].map(n => `<option ${n === item.difficulty ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="field" style="grid-column:1/-1"><label class="lbl">解析（可空）</label><textarea class="input" id="an_${item.seq}" rows="2" placeholder="原文解析会自动回填">${T.escapeHtml(item.analysis || '')}</textarea></div>
     </div>
     <div class="row" style="justify-content:flex-end">
       <button class="btn ghost sm" onclick="removeCard(${item.seq})">丢弃</button>
@@ -122,7 +148,7 @@ async function splitAndPredict() {
     try { taxonomy = await T.api('/api/v1/teacher/question-taxonomy'); }
     catch (e) { T.toast(e.message, 'err'); return; }
   }
-  const raw = $('rawInput').value;
+  const raw = $('rawInput').dataset.sourceText || $('rawInput').value;
   if (!raw.trim()) { T.toast('请先粘贴题目', 'err'); return; }
   const texts = splitQuestions(raw);
   $('splitInfo').textContent = `切分出 ${texts.length} 题`;
@@ -138,6 +164,7 @@ async function splitAndPredict() {
 }
 
 function renderPredictions(items) {
+  batchSeq = 0;
   $('cards').innerHTML = '';
   $('emptyCard').style.display = items.length ? 'none' : '';
   items.forEach(item => {
@@ -146,7 +173,9 @@ function renderPredictions(items) {
     div.innerHTML = cardHtml(item);
     $('cards').appendChild(div.firstElementChild);
   });
-  if (items.length) T.toast(`预标注完成，共 ${items.length} 题，请逐题确认`, 'ok');
+  $('batchActions').style.display = items.length ? '' : 'none';
+  $('batchCount').textContent = `${items.length} 题待处理`;
+  if (items.length) T.toast(`预标注完成，共 ${items.length} 题，可批量设置学段并一键入库`, 'ok');
 }
 
 async function importDocx(input) {
@@ -179,6 +208,7 @@ function collect(seq) {
     knowledge_point: $('k_' + seq).value.trim(),
     grade_band: $('g_' + seq).value,
     answer: $('a_' + seq).value.trim(),
+    analysis: $('an_' + seq).value.trim(),
     difficulty: $('d_' + seq).value ? parseInt($('d_' + seq).value) : null,
     status: 'published',
   };
@@ -193,11 +223,7 @@ async function saveCard(seq, status) {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload)
     });
-    const card = document.getElementById('qc_' + seq);
-    card.style.opacity = '.45';
-    card.querySelectorAll('button').forEach(b => b.disabled = true);
-    card.querySelector('.card-head h3').innerHTML =
-      `第 ${seq + 1} 题 <span class="badge b-ok">已入库</span>`;
+    markSavedCard(seq);
     T.toast('题目已入库', 'ok');
   } catch (e) { T.toast(e.message, 'err'); }
 }
@@ -205,13 +231,65 @@ async function saveCard(seq, status) {
 function removeCard(seq) {
   const card = document.getElementById('qc_' + seq);
   card.remove();
-  if (!$('cards').children.length) $('emptyCard').style.display = '';
+  if (!$('cards').children.length) { $('emptyCard').style.display = ''; $('batchActions').style.display = 'none'; }
 }
 
 function resetAll() {
   $('rawInput').value = ''; $('cards').innerHTML = '';
-  $('splitInfo').textContent = ''; $('emptyCard').style.display = 'none';
+  delete $('rawInput').dataset.sourceText;
+  $('splitInfo').textContent = ''; $('emptyCard').style.display = 'none'; $('batchActions').style.display = 'none';
 }
+
+function pendingCards() { return [...document.querySelectorAll('.qcard')].filter(card => !card.dataset.saved); }
+
+function applyBatchGrade() {
+  const gradeBand = $('batchGrade').value;
+  if (!gradeBand) { T.toast('请先选择初中或高中', 'err'); return; }
+  const cards = pendingCards();
+  cards.forEach(card => { $('g_' + card.id.replace('qc_', '')).value = gradeBand; });
+  T.toast(`已将 ${gradeBand} 应用到 ${cards.length} 题`, 'ok');
+}
+
+function markSavedCard(seq) {
+  const card = document.getElementById('qc_' + seq);
+  if (!card) return;
+  card.dataset.saved = 'true'; card.style.opacity = '.45';
+  card.querySelectorAll('button').forEach(button => button.disabled = true);
+  card.querySelector('.card-head h3').innerHTML = `第 ${Number(seq) + 1} 题 <span class="badge b-ok">已入库</span>`;
+}
+
+async function saveAll(status) {
+  const cards = pendingCards();
+  if (!cards.length) { T.toast('没有待入库题目', 'err'); return; }
+  const items = [];
+  for (const card of cards) {
+    const payload = collect(Number(card.id.replace('qc_', '')));
+    if (!payload) return;
+    payload.status = status; items.push(payload);
+  }
+  const buttons = [$('saveAllDraft'), $('saveAllPublished')];
+  buttons.forEach(button => button.disabled = true);
+  $('batchSummary').textContent = `正在保存 ${items.length} 题…`;
+  try {
+    const result = await T.api('/api/v1/teacher/questions/batch', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({items})});
+    result.created.forEach(item => markSavedCard(cards[item.index].id.replace('qc_', '')));
+    $('batchSummary').textContent = `已完成：成功保存 ${result.total} 题。`;
+    $('batchCount').textContent = '本批已处理';
+    T.toast(`已成功${status === 'draft' ? '保存草稿' : '入库'} ${result.total} 题`, 'ok');
+  } catch (e) {
+    $('batchSummary').textContent = '批量保存未完成，请根据提示检查后重试。'; T.toast(e.message, 'err');
+  } finally { buttons.forEach(button => button.disabled = false); }
+}
+
+// 显示保持横向；原始粘贴内容只用于按题号精确切分。
+$('rawInput').addEventListener('paste', (event) => {
+  const text = event.clipboardData?.getData('text/plain') || '';
+  if (!event.target.value && text) event.target.dataset.sourceText = text;
+}, true);
+$('rawInput').addEventListener('input', (event) => {
+  const source = event.target.dataset.sourceText;
+  if (source && T.cleanText(source) !== event.target.value) delete event.target.dataset.sourceText;
+});
 
 if (T.token()) {
   T.api('/api/v1/teacher/question-taxonomy').then(data => { taxonomy = data; })
