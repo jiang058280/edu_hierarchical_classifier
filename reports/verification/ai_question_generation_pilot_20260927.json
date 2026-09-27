@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-09-27",
+  "stats": {
+    "入库草稿": 17,
+    "批内重复": 7,
+    "二次解答不一致（D≠A）": 1
+  },
+  "draft_ids": [
+    1512,
+    1513,
+    1514,
+    1515,
+    1516,
+    1517,
+    1518,
+    1519,
+    1520,
+    1521,
+    1522,
+    1523,
+    1524,
+    1525,
+    1526,
+    1527,
+    1528
+  ],
+  "samples": [
+    {
+      "subject": "数学",
+      "knowledge_point": "相反数",
+      "question": "下列各数中，与 $-5$ 互为相反数的是（　　）\nA. 5\nB. $-5$\nC. $\\frac{1}{5}$\nD. 0",
+      "answer": "A",
+      "analysis": "根据相反数的定义：只有符号不同的两个数互为相反数，且它们的和为0。$-5 + 5 = 0$，故5是$-5$的相反数，A正确。B选项与原数相同，不是相反数；C选项是倒数，属于乘法逆元概念，混淆了相反数与倒数；D选项0的相反数是它本身，但0与$"
+    },
+    {
+      "subject": "数学",
+      "knowledge_point": "相反数",
+      "question": "下列各数中，与 $-\\frac{3}{4}$ 互为相反数的是（　　）\nA. $\\frac{3}{4}$\nB. $-\\frac{3}{4}$\nC. $\\frac{4}{3}$\nD. $-\\frac{4}{3}$",
+      "answer": "A",
+      "analysis": "相反数的定义是：只有符号不同的两个数互为相反数，且它们的和为0。$-\\frac{3}{4} + \\frac{3}{4} = 0$，故A正确。B是其本身，不是相反数；C和D既非符号相反，也非绝对值相等（$\\frac{4}{3} \\neq \\f"
+    },
+    {
+      "subject": "数学",
+      "knowledge_point": "相反数",
+      "question": "下列各数中，与 $-\\frac{3}{4}$ 互为相反数的是（　　）\nA. $\\frac{3}{4}$\nB. $-\\frac{4}{3}$\nC. $\\frac{4}{3}$\nD. $-\\frac{3}{4}$",
+      "answer": "A",
+      "analysis": "相反数的定义是：只有符号不同的两个数互为相反数，且它们的和为0。$-\\frac{3}{4} + \\frac{3}{4} = 0$，故A正确。B选项$-\\frac{4}{3}$是$\\frac{4}{3}$的相反数，且与$-\\frac{3}{4"
+    },
+    {
+      "subject": "英语",
+      "knowledge_point": "句法",
+      "question": "Which sentence has the correct subject-verb agreement?\nA. My brother likes apples.\nB. My brother like apples.\nC. My brothers likes apples.\nD. My brothers like apple.",
+      "answer": "A",
+      "analysis": "Option A is correct because 'my brother' (third-person singular subject) agrees with the singular verb 'likes'. Option B"
+    },
+    {
+      "subject": "英语",
+      "knowledge_point": "句法",
+      "question": "Which sentence correctly uses subject-verb agreement?\nA. The list of items is on the desk.\nB. The list of items are on the desk.\nC. The list of items was on the desk.\nD. The list of items were on the ",
+      "answer": "A",
+      "analysis": "Option A is correct because the grammatical subject is 'list' (singular), so it requires the singular verb 'is'. Althoug"
+    },
+    {
+      "subject": "英语",
+      "knowledge_point": "句法",
+      "question": "Which sentence correctly uses subject-verb agreement?\nA. The list of items is on the desk.\nB. The list of items are on the desk.\nC. The list of items am on the desk.\nD. The list of items be on the des",
+      "answer": "A",
+      "analysis": "Option A is correct because the subject 'The list' is singular, and the singular verb 'is' agrees with it; 'of items' is"
+    }
+  ]
+}
