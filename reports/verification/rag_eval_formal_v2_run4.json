@@ -1,0 +1,4265 @@
+{
+  "dataset": "eval_sets\\rag_eval_formal_v2.jsonl",
+  "total_cases": 149,
+  "ready_cases": 129,
+  "validation_errors": [],
+  "status": "ready",
+  "metrics": {
+    "case_count": 129,
+    "retrieval_evaluated_count": 41,
+    "local_question_count": 36,
+    "rag_count": 93,
+    "recall_at_k": 0.9675,
+    "mrr": 0.8801,
+    "ndcg": 0.887,
+    "citation_validity": 1.0,
+    "faithfulness_evidence_proxy": 1.0,
+    "refusal_accuracy": 0.9767,
+    "no_source_answer_rate": 0.0,
+    "p95_latency_ms": 12784.4
+  },
+  "acceptance": {
+    "thresholds": {
+      "recall_at_k": 0.85,
+      "citation_validity": 0.95,
+      "no_source_answer_rate": 0.0,
+      "refusal_accuracy": 0.9
+    },
+    "checks": {
+      "recall_at_k": true,
+      "citation_validity": true,
+      "no_source_answer_rate": true,
+      "refusal_accuracy": true
+    },
+    "passed": true
+  },
+  "runs": [
+    {
+      "id": "RAG-DRAFT-001",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        514,
+        515
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 189 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列变化中属于化学变化的是（　　）\n\n参考答案：C\n\n解析：化学变化的本质特征是有新物质生成。铁钉生锈生成了铁锈（主要成分为氧化铁），有新物质生成，属于化学变化，C 正确。石蜡熔化、玻璃破碎、水结冰都只是物质的状态或形状发生改变，没有新物质生成，属于物理变化，A、B、D 错误。故选 C。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 189 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 58
+    },
+    {
+      "id": "RAG-DRAFT-002",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        514,
+        515
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 189 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列变化中属于化学变化的是（　　）\n\n参考答案：C\n\n解析：化学变化的本质特征是有新物质生成。铁钉生锈生成了铁锈（主要成分为氧化铁），有新物质生成，属于化学变化，C 正确。石蜡熔化、玻璃破碎、水结冰都只是物质的状态或形状发生改变，没有新物质生成，属于物理变化，A、B、D 错误。故选 C。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 189 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10
+    },
+    {
+      "id": "RAG-DRAFT-004",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        502,
+        622,
+        623,
+        679,
+        580
+      ],
+      "candidate_sources": [
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 6998
+    },
+    {
+      "id": "RAG-DRAFT-005",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2134,
+        2067,
+        2209,
+        2171,
+        2172
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 975
+    },
+    {
+      "id": "RAG-DRAFT-006",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        698,
+        699
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 213 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：约公元前 2070 年，禹建立了中国历史上第一个王朝。这个王朝是（　　）\n\n参考答案：A\n\n解析：约公元前 2070 年，禹建立夏朝，这是中国历史上第一个王朝，标志着中国早期国家的产生，故选 A。商朝由商汤约在公元前 1600 年建立，西周由周武王在公元前 1046 年建立，秦朝建立于公元前 221 年，三者时间与\"第一个王朝\"均不符。易错点：把\"我国历史上第一个统一的多民族的封建国家（秦朝）\"与\"第一个王朝（夏朝）\"混淆。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 213 题",
+          "chapter": "夏商周的更替与西周分封制",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-007",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        698,
+        699
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 213 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：约公元前 2070 年，禹建立了中国历史上第一个王朝。这个王朝是（　　）\n\n参考答案：A\n\n解析：约公元前 2070 年，禹建立夏朝，这是中国历史上第一个王朝，标志着中国早期国家的产生，故选 A。商朝由商汤约在公元前 1600 年建立，西周由周武王在公元前 1046 年建立，秦朝建立于公元前 221 年，三者时间与\"第一个王朝\"均不符。易错点：把\"我国历史上第一个统一的多民族的封建国家（秦朝）\"与\"第一个王朝（夏朝）\"混淆。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 213 题",
+          "chapter": "夏商周的更替与西周分封制",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-009",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        845,
+        728,
+        686,
+        727,
+        706
+      ],
+      "candidate_sources": [
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 521
+    },
+    {
+      "id": "RAG-DRAFT-010",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2310,
+        2353,
+        2428,
+        2349,
+        2302
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 564
+    },
+    {
+      "id": "RAG-DRAFT-011",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        866,
+        867
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 285 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列能最直接证明地球是球体的事实是（　　）\n\n参考答案：B\n\n解析：麦哲伦船队从西班牙出发一路向西航行，最终回到原出发地，用事实证明了地球是一个球体，是最直接的证据，B 正确。A 是古代的错误认识；C 和 D 可用其他现象解释（如大气折射、地球自转），不如环球航行直接。故选 B。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 285 题",
+          "chapter": "地球的形状与大小及地球仪",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 13
+    },
+    {
+      "id": "RAG-DRAFT-012",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        866,
+        867
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 285 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列能最直接证明地球是球体的事实是（　　）\n\n参考答案：B\n\n解析：麦哲伦船队从西班牙出发一路向西航行，最终回到原出发地，用事实证明了地球是一个球体，是最直接的证据，B 正确。A 是古代的错误认识；C 和 D 可用其他现象解释（如大气折射、地球自转），不如环球航行直接。故选 B。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 285 题",
+          "chapter": "地球的形状与大小及地球仪",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 15
+    },
+    {
+      "id": "RAG-DRAFT-014",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        855,
+        1020,
+        936,
+        934,
+        926
+      ],
+      "candidate_sources": [
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 1428
+    },
+    {
+      "id": "RAG-DRAFT-015",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2485,
+        2536,
+        2509,
+        2516,
+        2510
+      ],
+      "candidate_sources": [
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 618
+    },
+    {
+      "id": "RAG-DRAFT-016",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1042,
+        1043,
+        1045
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 381 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：升入初中后，小华发现课程门类明显增多，学习内容更加系统深入。这反映了中学生活相比小学的一个显著特点是（　　）\n\n参考答案：B\n\n解析：中学生活相比小学，课程门类增多、学习内容更加系统深入，反映了学习环境和内容的新变化，故选 B。A 错误，中学阶段对自主性要求提高，学习任务并非完全由教师安排；C 错误，中学的人际交往范围扩大而非缩小；D 错误，中学阶段自主管理要求提高而非降低。易错点：把\"课程增多\"误读为\"学习负担加重\"而选其他选项，注意题干强调的是\"新变化\"这一特点。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 381 题",
+          "chapter": "中学生活的新起点与少年梦想",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 11
+    },
+    {
+      "id": "RAG-DRAFT-017",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1042,
+        1043,
+        1045
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 381 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：升入初中后，小华发现课程门类明显增多，学习内容更加系统深入。这反映了中学生活相比小学的一个显著特点是（　　）\n\n参考答案：B\n\n解析：中学生活相比小学，课程门类增多、学习内容更加系统深入，反映了学习环境和内容的新变化，故选 B。A 错误，中学阶段对自主性要求提高，学习任务并非完全由教师安排；C 错误，中学的人际交往范围扩大而非缩小；D 错误，中学阶段自主管理要求提高而非降低。易错点：把\"课程增多\"误读为\"学习负担加重\"而选其他选项，注意题干强调的是\"新变化\"这一特点。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 381 题",
+          "chapter": "中学生活的新起点与少年梦想",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-019",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1143,
+        1137,
+        1149,
+        1095,
+        1053
+      ],
+      "candidate_sources": [
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 477
+    },
+    {
+      "id": "RAG-DRAFT-020",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2653,
+        2712,
+        2665,
+        2687,
+        2816
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 590
+    },
+    {
+      "id": "RAG-DRAFT-021",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1216,
+        1217,
+        1219
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1216,
+        1217,
+        1239,
+        1228,
+        1211
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "根据【资料】中的解析，逐项判断：\n\n- **A. 直线 $AB$ 与直线 $BA$ 是不同的直线**  \n  ❌ 错误。资料明确说：“直线向两方无限延伸，端点字母顺序不影响直线本身”，所以 $AB$ 和 $BA$ 表示同一条直线。\n\n- **B. 射线 $AB$ 与射线 $BA$ 是同一条射线**  \n  ❌ 错误。资料指出：“射线 $AB$ 的端点是 $A$、沿 $AB$ 方向延伸，射线 $BA$ 的端点是 $B$、沿 $BA$ 方向延伸，两者方向相反，不是同一条射线”。\n\n- **C. 线段 $AB$ 与线段 $BA$ 是同一条线段**  \n  ✅ 正确。资料明确说：“线段 $AB$ 与 $BA$ 是同一条线段，与字母顺序无关”。\n\n- **D. 射线 $AB$ 的端点是 $B$**  \n  ❌ 错误。资料明确说：“射线 $AB$ 的端点是 $A$”。\n\n**答案：C**",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8421571254730225
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7102
+    },
+    {
+      "id": "RAG-DRAFT-022",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1216,
+        1217,
+        1219
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1216,
+        1217,
+        1239,
+        1228,
+        1211
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "我们只依据【资料】来分析这道题，关键看资料中给出的定义和解析。\n\n---\n\n### ✅ 正确答案是：**C**\n\n#### 关键依据（全部来自【资料】解析）：\n- **直线**：向两方无限延伸，**没有方向性**，所以“直线 $AB$”和“直线 $BA$”指的是同一条直线 → 所以 **A 错误**。  \n- **射线**：有**一个端点**，并向一个方向无限延伸。  \n  - 射线 $AB$ 的端点是 **$A$**，方向从 $A$ 指向 $B$；  \n  - 射线 $BA$ 的端点是 **$B$**，方向从 $B$ 指向 $A$；  \n  → 两者端点不同、方向相反，**不是同一条射线** → 所以 **B 错误**，**D 错误**（D 说射线 $AB$ 的端点是 $B$，但资料明确说“射线 $AB$ 的端点是 $A$”）。  \n- **线段**：有两个端点，连接 $A$ 和 $B$ 的有限部分；**不考虑方向**，所以线段 $AB$ 和线段 $BA$ 是同一段 → **C 正确**。\n\n---\n\n### ⚠️ 容易出错的地方（资料中已指出）：\n> **易错点：把直线的“无方向”性质误用于射线。**\n\n学生常犯的错误是：\n- 认为“$AB$ 和 $BA$ 只是顺序调换，应该一样”，从而误选 A、B 或 D；\n- 忽略**射线有方向性**（端点 + 延伸方向），而直线、线段没有方向性；\n- 特别注意：**射线命名中，第一个字母一定是端点**（资料明确说：“射线 $AB$ 的端点是 $A$”）→ 所以 D 明显错。\n\n---\n\n### ✅ 总结判断步骤（做题时可照着检查）：\n| 选项 | 判断依据（来自资料） | 是否正确 |\n|------|------------------------|----------|\n| A | 直线无方向，$AB$ 与 $BA$ 是同一条 → A 说“不同”，**错** | ❌ |\n| B | 射线 $AB$ 与 $BA$ 端点不同、方向相反 → 不是同一条 → B 说“是”，**错** | ❌ |\n| C | 线段 $AB$ 与 $BA$ 是同一段，与顺序无关 → C 说“是”，**对** | ✅ |\n| D | 射线 $AB$ 的端点是 $A$（资料原文），不是 $B$ → D 说“是 $B$”，**错** | ❌ |\n\n---\n\n如还有某一步不清楚，可以告诉我，我帮你再拆解。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8490923643112183
+        }
+      ],
+      "refused": false,
+      "latency_ms": 15786
+    },
+    {
+      "id": "RAG-DRAFT-024",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1205,
+        1252,
+        1365,
+        1274,
+        1363
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 548
+    },
+    {
+      "id": "RAG-DRAFT-025",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2866,
+        2865,
+        2844,
+        2895,
+        2927
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 542
+    },
+    {
+      "id": "RAG-DRAFT-026",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1380,
+        1381
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 572 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：关于电流的方向，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物理学规定**正电荷定向移动的方向**为电流方向，故 A、D 错误。在电源外部，电流从电源正极经用电器回到负极，B 正确；在电源内部，电流由负极流向正极，C 错误。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 572 题",
+          "chapter": "电流和电路（串并联）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-027",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1380,
+        1381
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 572 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：关于电流的方向，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物理学规定**正电荷定向移动的方向**为电流方向，故 A、D 错误。在电源外部，电流从电源正极经用电器回到负极，B 正确；在电源内部，电流由负极流向正极，C 错误。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 572 题",
+          "chapter": "电流和电路（串并联）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-029",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1397,
+        1369,
+        1509,
+        1513,
+        1515
+      ],
+      "candidate_sources": [
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 504
+    },
+    {
+      "id": "RAG-DRAFT-030",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3092,
+        3147,
+        3125,
+        3060,
+        3178
+      ],
+      "candidate_sources": [
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 791
+    },
+    {
+      "id": "RAG-DRAFT-031",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1551,
+        1552,
+        1607
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 620 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列对象中，不属于生物的是（　　）\n\n参考答案：C\n\n解析：蘑菇（真菌）、乳酸菌（细菌）具有细胞结构，能生长繁殖、进行新陈代谢，属于生物；病毒没有细胞结构，但能在寄主体内繁殖、具有遗传变异现象，属于生物；钟乳石虽然在漫长的过程中会\"长大\"，但它是碳酸钙沉积形成的自然物，不进行新陈代谢、不能繁殖，也不具备应激性，属于非生物，故选 C。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 620 题",
+          "chapter": "生物的基本特征与观察方法",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-032",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1551,
+        1552,
+        1607
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 620 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列对象中，不属于生物的是（　　）\n\n参考答案：C\n\n解析：蘑菇（真菌）、乳酸菌（细菌）具有细胞结构，能生长繁殖、进行新陈代谢，属于生物；病毒没有细胞结构，但能在寄主体内繁殖、具有遗传变异现象，属于生物；钟乳石虽然在漫长的过程中会\"长大\"，但它是碳酸钙沉积形成的自然物，不进行新陈代谢、不能繁殖，也不具备应激性，属于非生物，故选 C。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 620 题",
+          "chapter": "生物的基本特征与观察方法",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-034",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1539,
+        1580,
+        1606,
+        1679,
+        1677
+      ],
+      "candidate_sources": [
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 496
+    },
+    {
+      "id": "RAG-DRAFT-035",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3231,
+        3340,
+        3311,
+        3281,
+        3368
+      ],
+      "candidate_sources": [
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 632
+    },
+    {
+      "id": "RAG-DRAFT-036",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1732,
+        1733
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 692 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：—What are these? —They are two ______ .\n\n参考答案：C\n\n解析：句中的 two 是数词，后面必须接可数名词的复数形式，故排除单数形式 A。photo 属于\"以字母 o 结尾但直接加 -s\"的名词（同类还有 piano、radio），复数是 photos，而不是 photoes，故 B 错。D 中 photo's 是所有格形式，表示\"照片的\"，与句意不符。故选 C。易错点：误认为以 o 结尾的名词一律加 -es。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 692 题",
+          "chapter": "名词的单复数与可数性",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6
+    },
+    {
+      "id": "RAG-DRAFT-037",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1732,
+        1733
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 692 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：—What are these? —They are two ______ .\n\n参考答案：C\n\n解析：句中的 two 是数词，后面必须接可数名词的复数形式，故排除单数形式 A。photo 属于\"以字母 o 结尾但直接加 -s\"的名词（同类还有 piano、radio），复数是 photos，而不是 photoes，故 B 错。D 中 photo's 是所有格形式，表示\"照片的\"，与句意不符。故选 C。易错点：误认为以 o 结尾的名词一律加 -es。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 692 题",
+          "chapter": "名词的单复数与可数性",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 5
+    },
+    {
+      "id": "RAG-DRAFT-039",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1719,
+        1879,
+        1761,
+        1876,
+        1870
+      ],
+      "candidate_sources": [
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 530
+    },
+    {
+      "id": "RAG-DRAFT-040",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3574,
+        3418,
+        3581,
+        3588,
+        3508
+      ],
+      "candidate_sources": [
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 516
+    },
+    {
+      "id": "RAG-DRAFT-041",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        1897,
+        1898,
+        1900
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 764 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：阅读下面语段，回答问题。\n那年冬天，我第一次独自坐公交车去外婆家。临出门，母亲把一张写着换乘路线的纸条塞进我口袋，又反复叮嘱我在\"纺织厂\"站下车。车上人很多，我把纸条攥在手心，每到一站就低头看一眼。到站时，天已经擦黑，外婆正站在巷口的路灯下等我，围裙上还沾着面粉。\n上面语段中，属于记叙六要素里\"时间\"的一项是（　　）\n\n参考答案：A\n\n解析：记叙六要素中的\"时间\"指事件发生的时间。语段开头\"那年冬天\"直接交代了事情发生的季节时间，故选 A。\"'纺织厂'站\"\"外婆家\"属于地点要素，\"公交车\"是出行工具，不是时间要素。易错点：把\"到站时，天已经擦黑\"误当作唯一的时间表述，忽略了开头的总体时间交代。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 764 题",
+          "chapter": "记叙文六要素与行文线索",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-042",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        1897,
+        1898,
+        1900
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 764 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：阅读下面语段，回答问题。\n那年冬天，我第一次独自坐公交车去外婆家。临出门，母亲把一张写着换乘路线的纸条塞进我口袋，又反复叮嘱我在\"纺织厂\"站下车。车上人很多，我把纸条攥在手心，每到一站就低头看一眼。到站时，天已经擦黑，外婆正站在巷口的路灯下等我，围裙上还沾着面粉。\n上面语段中，属于记叙六要素里\"时间\"的一项是（　　）\n\n参考答案：A\n\n解析：记叙六要素中的\"时间\"指事件发生的时间。语段开头\"那年冬天\"直接交代了事情发生的季节时间，故选 A。\"'纺织厂'站\"\"外婆家\"属于地点要素，\"公交车\"是出行工具，不是时间要素。易错点：把\"到站时，天已经擦黑\"误当作唯一的时间表述，忽略了开头的总体时间交代。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 764 题",
+          "chapter": "记叙文六要素与行文线索",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9
+    },
+    {
+      "id": "RAG-DRAFT-044",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1886,
+        2047,
+        1999,
+        1914,
+        1939
+      ],
+      "candidate_sources": [
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 910
+    },
+    {
+      "id": "RAG-DRAFT-045",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3661,
+        3753,
+        3707,
+        3684,
+        3729
+      ],
+      "candidate_sources": [
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 537
+    },
+    {
+      "id": "RAG-DRAFT-046",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        2067,
+        2068,
+        2101
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 836 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列物质中属于盐的是（　　）\n\n参考答案：D\n\n解析：盐是由金属离子（或铵根离子）与酸根离子组成的化合物。Na₂CO₃ 由 Na⁺ 和 CO₃²⁻ 组成，属于盐，D 正确。Na₂O 由两种元素组成且其中一种是氧，属于氧化物，A 错误。H₂SO₄ 电离时阳离子全部为 H⁺，属于酸，B 错误。Ca(OH)₂ 电离时阴离子全部为 OH⁻，属于碱，C 错误。故选 D。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 836 题",
+          "chapter": "物质的分类与分散系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9
+    },
+    {
+      "id": "RAG-DRAFT-047",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        2067,
+        2068,
+        2101
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 836 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列物质中属于盐的是（　　）\n\n参考答案：D\n\n解析：盐是由金属离子（或铵根离子）与酸根离子组成的化合物。Na₂CO₃ 由 Na⁺ 和 CO₃²⁻ 组成，属于盐，D 正确。Na₂O 由两种元素组成且其中一种是氧，属于氧化物，A 错误。H₂SO₄ 电离时阳离子全部为 H⁺，属于酸，B 错误。Ca(OH)₂ 电离时阴离子全部为 OH⁻，属于碱，C 错误。故选 D。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 836 题",
+          "chapter": "物质的分类与分散系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-049",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2054,
+        2284,
+        2212,
+        2261,
+        2151
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 532
+    },
+    {
+      "id": "RAG-DRAFT-050",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        536,
+        537,
+        514,
+        540,
+        647
+      ],
+      "candidate_sources": [
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 529
+    },
+    {
+      "id": "RAG-DRAFT-051",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        2308,
+        2309
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 907 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：距今约一万年前，我国进入新石器时代。下列新石器时代文化遗存中，位于长江流域且以稻作农业为代表的是（　　）\n\n参考答案：B\n\n解析：河姆渡遗址位于长江下游浙江余姚，以稻作农业和干栏式建筑为代表，故选 B。半坡遗址位于黄河流域陕西西安，以粟作农业和半地穴式房屋为代表，A 错；陶寺文化位于黄河中游山西襄汾，属中原早期文明遗存，C 错；二里头遗址位于河南偃师，属夏文化遗存，不在长江流域，D 错。易错点：混淆黄河流域粟作与长江流域稻作。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 907 题",
+          "chapter": "中华文明的起源与早期国家",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-052",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        2308,
+        2309
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 907 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：距今约一万年前，我国进入新石器时代。下列新石器时代文化遗存中，位于长江流域且以稻作农业为代表的是（　　）\n\n参考答案：B\n\n解析：河姆渡遗址位于长江下游浙江余姚，以稻作农业和干栏式建筑为代表，故选 B。半坡遗址位于黄河流域陕西西安，以粟作农业和半地穴式房屋为代表，A 错；陶寺文化位于黄河中游山西襄汾，属中原早期文明遗存，C 错；二里头遗址位于河南偃师，属夏文化遗存，不在长江流域，D 错。易错点：混淆黄河流域粟作与长江流域稻作。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 907 题",
+          "chapter": "中华文明的起源与早期国家",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-054",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2462,
+        2295,
+        2300,
+        2340,
+        2313
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 1104
+    },
+    {
+      "id": "RAG-DRAFT-055",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        719,
+        770,
+        743,
+        698,
+        794
+      ],
+      "candidate_sources": [
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 563
+    },
+    {
+      "id": "RAG-DRAFT-056",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        2485,
+        2486
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 979 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：太阳辐射的能量直接来自太阳内部的（　　）\n\n参考答案：B\n\n解析：太阳辐射的能量来源是太阳内部在高温高压条件下发生的氢氦核聚变反应，释放巨大能量，并以电磁波形式向外辐射。A、C 说的\"燃烧\"是化学反应，并非太阳内部机制；D 黑子是太阳活动现象，不是能量来源。故选 B。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 979 题",
+          "chapter": "宇宙中的地球与太阳对地球的影响",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 14
+    },
+    {
+      "id": "RAG-DRAFT-057",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        2485,
+        2486
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 979 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：太阳辐射的能量直接来自太阳内部的（　　）\n\n参考答案：B\n\n解析：太阳辐射的能量来源是太阳内部在高温高压条件下发生的氢氦核聚变反应，释放巨大能量，并以电磁波形式向外辐射。A、C 说的\"燃烧\"是化学反应，并非太阳内部机制；D 黑子是太阳活动现象，不是能量来源。故选 B。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 979 题",
+          "chapter": "宇宙中的地球与太阳对地球的影响",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10
+    },
+    {
+      "id": "RAG-DRAFT-059",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2501,
+        2473,
+        2643,
+        2490,
+        2479
+      ],
+      "candidate_sources": [
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 515
+    },
+    {
+      "id": "RAG-DRAFT-060",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        867,
+        866,
+        922,
+        923,
+        915
+      ],
+      "candidate_sources": [
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 585
+    },
+    {
+      "id": "RAG-DRAFT-061",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        2665,
+        2666
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2665,
+        2658,
+        2670,
+        2661,
+        2676
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "货币的本质是 **C. 一般等价物**。\n\n**解释如下（依据资料）：**  \n- 资料[1]明确指出：“货币的本质是一般等价物”，并说明“货币是从商品世界中分离出来，固定地充当一般等价物的商品”。  \n- 资料[2]和[4]再次强调：“货币是商品交换发展到一定阶段的产物，本质是一般等价物”。  \n- A错误：货币虽是商品，但不是“普通商品”，而是专门起一般等价物作用的特殊商品（资料[1]解析）。  \n- B错误：“特殊等价物”不是标准表述，资料中只提“一般等价物”，无“特殊等价物”定义（资料[1]解析）。  \n- D错误：“价值尺度”是货币的**职能**之一，不是本质（资料[1]解析、[3]、[4]均区分了“本质”与“职能”）。\n\n✅ 所以，正确答案是：**C**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7659286856651306
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7001514434814453
+        },
+        {
+          "number": 3,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7025390863418579
+        },
+        {
+          "number": 4,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6802845597267151
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6282
+    },
+    {
+      "id": "RAG-DRAFT-062",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        2665,
+        2666
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2665,
+        2658,
+        2669,
+        2666,
+        2663
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "关键依据来自【资料】[1]的解析：  \n**货币的本质是一般等价物**。  \n这是教材定义，也是本题唯一正确答案（C）。\n\n---\n\n### 为什么选 C？——三步判断：\n1. **本质 ≠ 职能**：  \n   - D项“价值尺度”是货币的**职能**（资料[1]明确说“D错误，价值尺度是货币的职能，不是本质”），  \n   - 本质回答的是“货币**是什么**”，职能回答的是“货币**能做什么**”。（资料[1]易错点提示）\n\n2. **本质 ≠ 普通商品**：  \n   - A项“普通商品”错误，因为货币虽由商品发展而来，但已**固定地、专门地**充当交换媒介，不再是一般意义上的普通商品（资料[1]：“A错误，货币虽是商品但不是普通商品”）。\n\n3. **“一般等价物”是标准表述**：  \n   - 资料[1]和[2]均使用“**一般等价物**”这一术语；  \n   - B项“特殊等价物”在资料中**未出现、未定义**，且明确标注为“错误”（资料[1]：“B错误，应为‘一般等价物’而非‘特殊等价物’”）。\n\n---\n\n### 容易出错的地方（据资料总结）：\n- ❌ 混淆“本质”和“职能”：看到“价值尺度”（D）很熟悉，就误选——但它只是功能，不是身份。  \n- ❌ 望文生义选“普通商品”（A）：忽略“从商品中分离出来并固定充当……”这一质变过程。  \n- ❌ 被“特殊”误导选B：资料中无“特殊等价物”概念，属干扰项，纯属字面杜撰。\n\n✅ 正确记忆口诀（据资料）：  \n**货币的本质 = 一般等价物**（出现两次：资料[1]解析 + 资料[2]填空第一空）。  \n\n答案：**C**",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7743227481842041
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6929676532745361
+        }
+      ],
+      "refused": false,
+      "latency_ms": 11522
+    },
+    {
+      "id": "RAG-DRAFT-064",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2717,
+        2716,
+        2718,
+        2707,
+        2742
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 613
+    },
+    {
+      "id": "RAG-DRAFT-065",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1095,
+        1116,
+        1091,
+        1141,
+        1042
+      ],
+      "candidate_sources": [
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 601
+    },
+    {
+      "id": "RAG-DRAFT-066",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        2840,
+        2841,
+        2843,
+        2988
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1123 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：集合 $\\{x\\in\\mathbb{Z}\\mid -2<x\\le2\\}$ 用列举法可表示为（　　）\n\n参考答案：A\n\n解析：满足 $-2<x\\le2$ 且 $x\\in\\mathbb{Z}$ 的整数依次为 $-1,0,1,2$（$-2$ 不满足\"$-2<x$\"，舍去）。故列举法表示为 $\\{-1,0,1,2\\}$。易错点：把 $-2$ 也纳入，或漏掉 $2$，关键是区分\"$<$\"与\"$\\le$\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1123 题",
+          "chapter": "集合的概念与运算",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-067",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        2840,
+        2841,
+        2843,
+        2988
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1123 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：集合 $\\{x\\in\\mathbb{Z}\\mid -2<x\\le2\\}$ 用列举法可表示为（　　）\n\n参考答案：A\n\n解析：满足 $-2<x\\le2$ 且 $x\\in\\mathbb{Z}$ 的整数依次为 $-1,0,1,2$（$-2$ 不满足\"$-2<x$\"，舍去）。故列举法表示为 $\\{-1,0,1,2\\}$。易错点：把 $-2$ 也纳入，或漏掉 $2$，关键是区分\"$<$\"与\"$\\le$\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1123 题",
+          "chapter": "集合的概念与运算",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6
+    },
+    {
+      "id": "RAG-DRAFT-069",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2823,
+        2971,
+        3015,
+        3012,
+        2940
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 588
+    },
+    {
+      "id": "RAG-DRAFT-070",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1274,
+        1292,
+        1217,
+        1271,
+        1216
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 896
+    },
+    {
+      "id": "RAG-DRAFT-071",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        3033,
+        3034,
+        3036
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1194 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：关于质点，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物体能否看作质点取决于其大小和形状对所研究问题的影响能否忽略，而非物体本身的大小，A 错误。研究地球绕太阳公转轨道时，地球的尺寸远小于轨道半径，形状和大小对轨道描述的影响可忽略，可看作质点，B 正确。研究体操运动员的动作姿态时需要关注身体各部位的运动，不能看作质点，C 错误。同一物体在不同研究问题中能否看作质点结论可能不同，D 过于绝对。故选 B。易错点：把\"小\"等同于\"可看作质点\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1194 题",
+          "chapter": "质点参考系与坐标系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-072",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        3033,
+        3034,
+        3036
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1194 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：关于质点，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物体能否看作质点取决于其大小和形状对所研究问题的影响能否忽略，而非物体本身的大小，A 错误。研究地球绕太阳公转轨道时，地球的尺寸远小于轨道半径，形状和大小对轨道描述的影响可忽略，可看作质点，B 正确。研究体操运动员的动作姿态时需要关注身体各部位的运动，不能看作质点，C 错误。同一物体在不同研究问题中能否看作质点结论可能不同，D 过于绝对。故选 B。易错点：把\"小\"等同于\"可看作质点\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1194 题",
+          "chapter": "质点参考系与坐标系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-074",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3022,
+        3037,
+        3026,
+        3134,
+        3111
+      ],
+      "candidate_sources": [
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 579
+    },
+    {
+      "id": "RAG-DRAFT-075",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1507,
+        1402,
+        1380,
+        1426,
+        1455
+      ],
+      "candidate_sources": [
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 529
+    },
+    {
+      "id": "RAG-DRAFT-076",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        3231,
+        3232,
+        3234,
+        3286,
+        3326
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1265 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列关于细胞内化合物的叙述，正确的是（　　）\n\n参考答案：D\n\n解析：葡萄糖是细胞生命活动的主要能源物质，但不是储能物质，储能物质是糖原（动物）、淀粉（植物）以及脂肪，A 错；细胞内主要的储能物质是脂肪，主要的能源物质是葡萄糖，B 错；糖原是动物细胞特有的多糖，植物细胞内的多糖是淀粉和纤维素，C 错；磷脂是构成生物膜（细胞膜、细胞器膜、核膜）的重要成分，D 正确。易错点：把\"能源物质\"与\"储能物质\"混淆。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1265 题",
+          "chapter": "细胞中的糖类、脂质和无机物",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-077",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        3231,
+        3232,
+        3234,
+        3286,
+        3326
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1265 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：下列关于细胞内化合物的叙述，正确的是（　　）\n\n参考答案：D\n\n解析：葡萄糖是细胞生命活动的主要能源物质，但不是储能物质，储能物质是糖原（动物）、淀粉（植物）以及脂肪，A 错；细胞内主要的储能物质是脂肪，主要的能源物质是葡萄糖，B 错；糖原是动物细胞特有的多糖，植物细胞内的多糖是淀粉和纤维素，C 错；磷脂是构成生物膜（细胞膜、细胞器膜、核膜）的重要成分，D 正确。易错点：把\"能源物质\"与\"储能物质\"混淆。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1265 题",
+          "chapter": "细胞中的糖类、脂质和无机物",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10
+    },
+    {
+      "id": "RAG-DRAFT-079",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3218,
+        3273,
+        3372,
+        3223,
+        3395
+      ],
+      "candidate_sources": [
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 508
+    },
+    {
+      "id": "RAG-DRAFT-080",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1650,
+        1657,
+        1594,
+        1645,
+        1658
+      ],
+      "candidate_sources": [
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 1281
+    },
+    {
+      "id": "RAG-DRAFT-081",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        3418,
+        3419,
+        3421
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1337 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：Look! The students ______ basketball on the playground.\n\n参考答案：C\n\n解析：句首 Look! 是现在进行时的典型提示，表示动作此刻正在进行，结构为 be + 动词-ing。主语 The students 是复数，be 动词用 are，故选 are playing。A 项 play 是一般现在时，表示习惯性动作；B 项 played 是一般过去时，表示过去发生；D 项 will play 是一般将来时，表示将来发生，均与 Look! 提示的\"此刻正在进行\"不符。故选 C。易错点：忽视 Look! 这一关键线索而误选 A。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1337 题",
+          "chapter": "动词时态基础（一般现在/过去/将来/进行时）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-082",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        3418,
+        3419,
+        3421
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1337 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：Look! The students ______ basketball on the playground.\n\n参考答案：C\n\n解析：句首 Look! 是现在进行时的典型提示，表示动作此刻正在进行，结构为 be + 动词-ing。主语 The students 是复数，be 动词用 are，故选 are playing。A 项 play 是一般现在时，表示习惯性动作；B 项 played 是一般过去时，表示过去发生；D 项 will play 是一般将来时，表示将来发生，均与 Look! 提示的\"此刻正在进行\"不符。故选 C。易错点：忽视 Look! 这一关键线索而误选 A。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1337 题",
+          "chapter": "动词时态基础（一般现在/过去/将来/进行时）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-084",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3405,
+        3453,
+        3615,
+        3437,
+        3472
+      ],
+      "candidate_sources": [
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 947
+    },
+    {
+      "id": "RAG-DRAFT-085",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1738,
+        1778,
+        1803,
+        1859,
+        1802
+      ],
+      "candidate_sources": [
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 589
+    },
+    {
+      "id": "RAG-DRAFT-086",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        3633,
+        3634,
+        3635,
+        3637
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1409 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：阅读下面散文语段，回答问题。\n晨光乍破，老巷的早市便醒了。青石板上还卧着昨夜的雨水，卖豆腐脑的老陈把三轮车停在老槐树下，车轮碾过水洼，溅起一地碎金。他的吆喝不算响，却像是巷子的闹钟——一声落下，豆浆的香气、油条的滋滋声、主妇们讨价还价的笑骂便次第展开，整条巷子热腾腾地活过来了。老陈做豆腐脑三十年，卤水点得恰到好处，一勺舀下去，颤巍巍地兜在碗里，浇一勺咸卤，撒几粒香菜。常来的街坊都知道他的规矩：碗只盛八分满，余下两分留给热气。他说：\"盛太\n\n参考答案：A\n\n解析：散文\"形散神聚\"中，\"形散\"指取材自由广泛、不受时空限制，\"神聚\"指有统一的主题与情感贯穿全文。本文写早市、老陈、豆腐脑、街坊等，取材自由但统一于\"老巷烟火气与人情味\"这一中心，故选 A。B、C、D 三项对\"形\"\"神\"的理解均有偏差。易错点：把\"形散\"误解为\"没有中心\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1409 题",
+          "chapter": "现代散文阅读（概括与鉴赏）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8
+    },
+    {
+      "id": "RAG-DRAFT-087",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        3633,
+        3634,
+        3635,
+        3637
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 1409 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：阅读下面散文语段，回答问题。\n晨光乍破，老巷的早市便醒了。青石板上还卧着昨夜的雨水，卖豆腐脑的老陈把三轮车停在老槐树下，车轮碾过水洼，溅起一地碎金。他的吆喝不算响，却像是巷子的闹钟——一声落下，豆浆的香气、油条的滋滋声、主妇们讨价还价的笑骂便次第展开，整条巷子热腾腾地活过来了。老陈做豆腐脑三十年，卤水点得恰到好处，一勺舀下去，颤巍巍地兜在碗里，浇一勺咸卤，撒几粒香菜。常来的街坊都知道他的规矩：碗只盛八分满，余下两分留给热气。他说：\"盛太\n\n参考答案：A\n\n解析：散文\"形散神聚\"中，\"形散\"指取材自由广泛、不受时空限制，\"神聚\"指有统一的主题与情感贯穿全文。本文写早市、老陈、豆腐脑、街坊等，取材自由但统一于\"老巷烟火气与人情味\"这一中心，故选 A。B、C、D 三项对\"形\"\"神\"的理解均有偏差。易错点：把\"形散\"误解为\"没有中心\"。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1409 题",
+          "chapter": "现代散文阅读（概括与鉴赏）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-089",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3622,
+        3654,
+        3628,
+        3658,
+        3656
+      ],
+      "candidate_sources": [
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 888
+    },
+    {
+      "id": "RAG-DRAFT-090",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1971,
+        1946,
+        1897,
+        1995,
+        1953
+      ],
+      "candidate_sources": [
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 615
+    },
+    {
+      "id": "RAG-DRAFT-091",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        515,
+        516,
+        518
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 190 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：判断：判断一个变化是物理变化还是化学变化，根本依据是看该变化过程中是否有发光、放热等现象。\n\n参考答案：错误\n\n解析：物理变化与化学变化的本质区别是**是否有新物质生成**，而不是是否有发光、放热、变色等现象。某些物理变化也能伴随发光或放热（如灯泡通电发光、白炽灯丝发热），某些化学变化也可能没有明显现象（如氢氧化钠溶液与稀盐酸反应）。因此，发光放热只是辅助判断的现象，不能作为根本依据。故原说法错误。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 190 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-092",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        515,
+        516,
+        518
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 190 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：判断：判断一个变化是物理变化还是化学变化，根本依据是看该变化过程中是否有发光、放热等现象。\n\n参考答案：错误\n\n解析：物理变化与化学变化的本质区别是**是否有新物质生成**，而不是是否有发光、放热、变色等现象。某些物理变化也能伴随发光或放热（如灯泡通电发光、白炽灯丝发热），某些化学变化也可能没有明显现象（如氢氧化钠溶液与稀盐酸反应）。因此，发光放热只是辅助判断的现象，不能作为根本依据。故原说法错误。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 190 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7
+    },
+    {
+      "id": "RAG-DRAFT-094",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        502,
+        622,
+        679,
+        623,
+        580
+      ],
+      "candidate_sources": [
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 568
+    },
+    {
+      "id": "RAG-DRAFT-095",
+      "category": "cross_grade",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2126,
+        2155,
+        2261,
+        2106,
+        2107
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 560
+    },
+    {
+      "id": "RAG-DRAFT-096",
+      "category": "answerable",
+      "expected_chunk_ids": [
+        699,
+        700,
+        702
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 214 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：西周初年为稳定政治形势、巩固疆土，周王实行了一项重要制度，把宗亲和功臣等分封到各地建立诸侯国。这一制度是（　　）\n\n参考答案：B\n\n解析：西周为巩固统治，把宗亲和功臣等分封到各地，授予他们管理土地和人民的权力，建立诸侯国，这一制度是分封制，故选 B。禅让制是原始社会末期推举部落联盟首领的办法；郡县制是秦朝在地方推行的制度；世袭制指王位在一家一姓中传承，与\"分封到各地建立诸侯国\"不符。易错点：把分封制与郡县制混淆，注意二者分属西周与秦朝。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 214 题",
+          "chapter": "夏商周的更替与西周分封制",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9
+    },
+    {
+      "id": "RAG-DRAFT-097",
+      "category": "wrong_question",
+      "expected_chunk_ids": [
+        699,
+        700,
+        702
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [
+        "本地题库 · 第 214 题"
+      ],
+      "route": "local_question",
+      "answer": "题库中找到相关题目：西周初年为稳定政治形势、巩固疆土，周王实行了一项重要制度，把宗亲和功臣等分封到各地建立诸侯国。这一制度是（　　）\n\n参考答案：B\n\n解析：西周为巩固统治，把宗亲和功臣等分封到各地，授予他们管理土地和人民的权力，建立诸侯国，这一制度是分封制，故选 B。禅让制是原始社会末期推举部落联盟首领的办法；郡县制是秦朝在地方推行的制度；世袭制指王位在一家一姓中传承，与\"分封到各地建立诸侯国\"不符。易错点：把分封制与郡县制混淆，注意二者分属西周与秦朝。",
+      "reason": "本地题库直接命中；未调用大模型",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 214 题",
+          "chapter": "夏商周的更替与西周分封制",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9
+    },
+    {
+      "id": "RAG-DRAFT-099",
+      "category": "unanswerable",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        845,
+        728,
+        686,
+        727,
+        706
+      ],
+      "candidate_sources": [
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 553
+    },
+    {
+      "id": "RAG-DRAFT-100",
+      "category": "cross_grade",
+      "expected_chunk_ids": [
+        2303,
+        2304,
+        2316,
+        2317,
+        2319,
+        2355
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2316,
+        2304,
+        2303,
+        2317,
+        2355
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这道题问的是西周初年，周王为稳定政治形势、巩固疆土，把宗亲和功臣分封到各地建立诸侯国所实行的制度。\n\n我们看【资料】中明确提到：  \n- 【资料】虽未直接写出“分封制”三字，但指出“**分封、宗法互为表里**”，且描述了“把宗亲和功臣等分封到各地建立诸侯国”这一做法——这正是**分封制的核心内容**；  \n- 同时，【资料】说明该制度在“**周初有利于稳定政局、扩大统治范围**”，与题干中“西周初年为稳定政治形势、巩固疆土”完全对应；  \n- 其他选项：  \n  - A. 禅让制：是传说中尧舜禹时期的权力交接方式，与西周无关，资料未提及；  \n  - C. 郡县制：是秦朝以后推行的地方行政制度，资料未涉及，且与“建立诸侯国”矛盾（郡县制下无世袭诸侯）；  \n  - D. 世袭制：指职位或爵位由家族世代承袭，它是分封制下诸侯权力延续的方式之一，但不是题干所指的“把人分封到各地建诸侯国”这一整套制度。\n\n因此，正确答案是：**B. 分封制**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_历史_高一_中外历史纲要_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.683253824710846
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7879
+    },
+    {
+      "id": "RAG-CONCEPT-001",
+      "category": "concept",
+      "expected_chunk_ids": [
+        642
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        642,
+        651,
+        641,
+        525,
+        639
+      ],
+      "candidate_sources": [
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "依据【资料】，**“固体加热型”发生装置的选择依据是**：\n\n- **反应物的状态为固体**（如高锰酸钾、氯酸钾都是固体）；  \n- **反应条件需要加热**（如“加热高锰酸钾”“加热氯酸钾”中的“加热”明确表示需加热）。\n\n因此，只要满足“**反应物全是固体**”且“**反应必须加热才能发生**”这两个条件，就选用**固体加热型装置**，其装置与一般固体加热实验（如加热试管中的固体）相同。\n\n✅ 资料中明确举例：加热高锰酸钾、加热氯酸钾 → 都符合上述两个条件 → 属于固体加热型。  \n❌ 不符合的情况（资料未列但可排除）：若反应物含液体，或不需加热，则不属于此类（如过氧化氢与二氧化锰是“固液常温型”）。\n\n结论：选择固体加热型装置的依据只有两个——**反应物是固体**、**反应需要加热**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8044760227203369
+        },
+        {
+          "number": 2,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7386804819107056
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6105
+    },
+    {
+      "id": "RAG-CONCEPT-002",
+      "category": "concept",
+      "expected_chunk_ids": [
+        508
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        516,
+        508,
+        512,
+        515,
+        525
+      ],
+      "candidate_sources": [
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+        "初中_化学_初三_走进化学世界与空气_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：**发光、放热、变色、放出气体、生成沉淀等现象，可以提示我们“可能发生了化学变化”，但不能单凭这些现象下结论；判断的根本标准只能是“有没有新物质生成”。**\n\n依据如下（全部来自资料）：\n\n✅ **为什么“有现象不一定是化学变化”？**  \n资料[1]和[3]明确指出：灯泡通电发光放热、白炽灯丝发热发红——这些过程**没有新物质生成**，属于**物理变化**。  \n→ 说明：发光、放热等现象也可能出现在物理变化中，因此**不能作为决定性依据**。\n\n✅ **为什么“没现象也可能是化学变化”？**  \n资料[2]和[3]举例：氢氧化钠溶液与稀盐酸反应，**没有明显现象**（如无颜色变化、无气体、无沉淀），但实际生成了氯化钠和水（新物质），是化学变化；需借助指示剂变色或测温度升高来辅助判断。  \n→ 说明：化学变化的本质是生成新物质，不是“必须看得见”。\n\n✅ **根本依据是什么？**  \n资料[2]原文：“两者的本质区别是**是否有新物质生成**”；  \n资料[1]强调：“物理变化与化学变化的本质区别是**是否有新物质生成**，而不是是否有发光、放热等现象”。\n\n📌 总结（紧扣资料）：  \n- 现象（发光、放热等）→ 是**辅助线索**，像“提示灯”；  \n- 新物质生成 → 是**唯一标准**，像“判决书”。  \n老师这句话完全符合资料观点，**说法正确**（注意：资料[1]中的“错误”是指另一道判断题的题干，不是本句；本句与资料[2]原文一致，是正确表述）。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8336374759674072
+        },
+        {
+          "number": 2,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7959171533584595
+        },
+        {
+          "number": 3,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8170936107635498
+        },
+        {
+          "number": 4,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7901502847671509
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10103
+    },
+    {
+      "id": "RAG-CONCEPT-003",
+      "category": "concept",
+      "expected_chunk_ids": [
+        790
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        790,
+        799,
+        800,
+        796,
+        792
+      ],
+      "candidate_sources": [
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为【资料】明确指出：“‘文景之治’是政策长期推行的结果，属于治世局面而非某一具体制度”。\n\n具体依据如下：\n\n1. **它是“政策长期推行的结果”**：  \n   - 资料[1]说休养生息政策的核心是“轻徭薄赋、与民休息”，而“文景之治”正是这一政策在汉文帝、汉景帝时期**延续和发展**的成果（见资料[2]解析中：“汉初推行休养生息政策……在文帝、景帝时期得到延续和发展”）；  \n   - 资料[2]（3）也强调：“出现原因：汉初推行休养生息政策、恢复经济的成果在文帝、景帝时期得到延续和发展”。\n\n2. **它属于“治世局面”而非“某一具体制度”**：  \n   - 资料[1]直接定义：“‘文景之治’……属于治世局面而非某一具体制度”；  \n   - “治世局面”指的是一种**整体状态**——如资料[1][2]反复描述的“社会安定、经济发展、人民生活比较安定”，这是多种政策长期作用形成的**结果性现象**，不是像“郡县制”“察举制”那样有固定名称、结构和运行规则的制度。\n\n✅ 所以，依据资料，“文景之治”不是某一个制度，而是休养生息政策持续施行数十年后，呈现出的安定繁荣的社会状态。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7119854092597961
+        },
+        {
+          "number": 2,
+          "source_name": "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6728537082672119
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8526
+    },
+    {
+      "id": "RAG-CONCEPT-004",
+      "category": "concept",
+      "expected_chunk_ids": [
+        693
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        693,
+        705,
+        706,
+        794,
+        702
+      ],
+      "candidate_sources": [
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+        "初中_历史_初一_先秦至秦汉时期_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 553
+    },
+    {
+      "id": "RAG-CONCEPT-005",
+      "category": "concept",
+      "expected_chunk_ids": [
+        913
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        930,
+        913,
+        928,
+        910,
+        927
+      ],
+      "candidate_sources": [
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "根据【资料】，解释如下：\n\n太阳直射点之所以会在南北回归线之间移动，根本原因是：  \n✅ 地球在**公转**（绕太阳一年一圈）的同时，  \n✅ 地轴始终**倾斜且方向不变**，与公转轨道面成约 $66.5^\\circ$ 夹角（即赤道面与公转轨道面夹角为 $23.5^\\circ$，称黄赤交角）。\n\n→ 这个倾斜导致：  \n- 每年不同时间，太阳光垂直照射地球的位置（即直射点）在赤道南北来回移动；  \n- 夏至时，北半球倾向太阳，直射点移到最北（北回归线）；  \n- 冬至时，南半球倾向太阳，直射点移到最南（南回归线）；  \n- 春秋分时，地轴侧向太阳，直射点回到赤道。\n\n→ 直射点移动 → 各地正午太阳高度变化 + 昼夜长短变化 → 四季更替。\n\n⚠️ 注意：若地轴不倾斜（即垂直于公转轨道面），则直射点将永远在赤道，全球各地全年昼夜平分、太阳高度不变 → **没有四季**。  \n（这与资料[3]评分要点中“若地轴不倾斜则无四季”一致）\n\n所以，**公转提供了“时间变化”的背景，地轴倾斜（$66.5^\\circ$）并保持方向不变，才使直射点随公转位置而南北移动——这才是根本原因。**",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7400034666061401
+        },
+        {
+          "number": 2,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6666127443313599
+        },
+        {
+          "number": 3,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7101423740386963
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8998
+    },
+    {
+      "id": "RAG-CONCEPT-006",
+      "category": "concept",
+      "expected_chunk_ids": [
+        988
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        988,
+        998,
+        999,
+        1008,
+        985
+      ],
+      "candidate_sources": [
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md",
+        "初中_地理_初一_地球与地图_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：  \n**地形剖面图是一种把地面上某一条直线方向的地势起伏“竖起来看”的图，它不是从上往下看（像等高线图那样），而是沿着一条直的剖面线，把这条线上各点的海拔高度画成上下起伏的曲线，从而让人一眼看出哪里高、哪里低、起伏多大。**\n\n依据来自【资料】：\n\n✅ 【资料[1]】明确说：  \n> “为了更直观地表示某条线上地面的起伏变化，可以在等高线地形图上沿某一条直线（剖面线）作**地形剖面图**。”  \n→ 这直接解释了老师话中的目的（更直观表示起伏）和做法（在等高线图上沿直线作图）。\n\n✅ 【资料[2]】进一步说明：  \n- 它是“沿某一条直线（剖面线）所作的**纵剖面图**”；  \n- 作图方法是：找等高线与剖面线的交点 → 按各自海拔向下投影到水平线上 → 连成平滑曲线；  \n- 效果是：“把地势变化‘立起来’显示”，比等高线图**更直观表现起伏程度**。\n\n✅ 【资料[3]】小结强调：  \n> “地形剖面图是沿剖面线的纵切面，比等高线图更直观地显示地势起伏。”  \n→ 这印证了老师说的“更直观地表示……起伏变化”的科学依据。\n\n⚠️ 注意（依据资料，不额外补充）：  \n- 老师话中没提具体怎么画，但资料给出了标准步骤（投影、连线）；  \n- 老师话中没对比等高线图，但资料[2]指出：等高线图是“俯视”，看不出真实起伏感，而剖面图解决了这个问题；  \n- 资料未提“工程选线”以外的具体用途，所以不扩展其他应用。\n\n✅ 总结一句话（学生可直接记住）：  \n**地形剖面图就是把等高线地形图上某条直线切开，把它“竖着展开”画出来，让地势高低一目了然。**",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8622273802757263
+        },
+        {
+          "number": 2,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8117574453353882
+        },
+        {
+          "number": 3,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.736526608467102
+        },
+        {
+          "number": 4,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6909170746803284
+        }
+      ],
+      "refused": false,
+      "latency_ms": 12348
+    },
+    {
+      "id": "RAG-CONCEPT-007",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1040
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1040,
+        1043,
+        1066,
+        1035,
+        1076
+      ],
+      "candidate_sources": [
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 544
+    },
+    {
+      "id": "RAG-CONCEPT-008",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1064
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1064,
+        1080,
+        1072,
+        1073,
+        1077
+      ],
+      "candidate_sources": [
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+        "初中_政治_初一_成长的节拍与友谊_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话讲的是“学会学习”的第一种具体方法：**合理安排时间，制定学习计划，区分轻重缓急，提高学习效率**。\n\n依据【资料】[1]，它属于“学会学习的方法”这一知识点，不涉及学科技巧或梦想实现（如第6单元内容），所以我们要聚焦在“怎么管好自己的学习节奏”上。\n\n我们可以把它拆成4个相互关联的小步骤来理解：\n\n1. **合理安排时间**：  \n   指不是随意学、熬夜学，而是根据自己的精力状态（比如早上清醒、下午易困）、任务量和截止时间，把学习任务分配到合适的时间段。例如：上午背单词，下午做数学题，晚上整理错题。\n\n2. **制定学习计划**：  \n   是“合理安排时间”的落实形式。可以是每日计划（如：今晚7–8点复习物理）、每周计划（如：这周完成第3章习题），目标要具体、可检查（不说“多看书”，而说“完成课本P25–30的例题和课后3题”）。\n\n3. **区分轻重缓急**：  \n   意思是：不是所有任务都一样重要。  \n   - “重”：关乎基础、考试重点、自己薄弱处（如函数概念没懂，就比刷十道偏题更重要）；  \n   - “急”：有明确截止时间（如明天交的作业、后天的小测）。  \n   优先做“又重又急”的事（如复习明天要考的公式），避免把时间花在“不重不急”的事上（如反复抄写已掌握的定义）。\n\n4. **提高学习效率**：  \n   这是前3步的共同目标——用更少时间取得更好效果。  \n   资料中虽未直接解释“效率”，但隐含逻辑是：有计划 + 分清主次 + 时间不浪费 → 单位时间收获更大（比如专注学45分钟，胜过边刷手机边学2小时）。\n\n⚠️注意：资料中没有说明具体工具（如番茄钟、四象限法）、也没有给出时间分配比例（如“每天学几小时”），因此我们不能补充这些内容。\n\n总结一句话：  \n**这句话强调，学会学习的第一步，是从“被动赶任务”变成“主动管节奏”——用计划框住时间，用轻重缓急定顺序，最终让每一分学习都更有效。**",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7083596587181091
+        }
+      ],
+      "refused": false,
+      "latency_ms": 12926
+    },
+    {
+      "id": "RAG-CONCEPT-009",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1264
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1264,
+        1268,
+        1214,
+        1277,
+        1237
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "错误原因在于：学生只记住了三角形外角的一个**部分性质**——“外角大于任何一个不相邻的内角”，但**漏掉了更根本、更精确的性质**：“**三角形的一个外角等于与它不相邻的两个内角的和**”。\n\n这个“等于两内角之和”是外角的核心性质，而“大于其中一个不相邻内角”只是它的**直接推论**（因为两个正角的和一定大于其中任意一个）。\n\n✅ 正确理解应是：\n- 设三角形三个内角为 ∠A、∠B、∠C；\n- 延长边 BC 得到外角 ∠ACD（在顶点 C 处，与 ∠C 相邻）；\n- 则 ∠ACD = ∠A + ∠B（即等于两个不相邻内角之和）；\n- 因此 ∠ACD > ∠A，且 ∠ACD > ∠B —— 这两个“大于”都成立，但**前提是先知道“等于和”**。\n\n⚠️ 若只记“大于”，容易误以为外角大于**所有**内角（包括相邻的那个），但资料[2]明确指出这是错的：  \n例如内角为 100°、40°、40° 的三角形，100° 角的外角是 80°，而 80° < 100°，说明外角**不一定大于相邻内角**。\n\n所以，忘记“等于两内角之和”，就失去了判断依据，也容易扩大结论范围，导致错误。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7018738985061646
+        },
+        {
+          "number": 2,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7757258415222168
+        },
+        {
+          "number": 3,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6638988256454468
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9671
+    },
+    {
+      "id": "RAG-CONCEPT-010",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1339
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1337,
+        1345,
+        1356,
+        1339,
+        1336
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：**用勾股定理的逆定理判断一个三角形是否为直角三角形时，必须先把三边中最大的那个数当作 $c$（即假设它为斜边），再看另外两边的平方和是否等于 $c^2$。**\n\n依据如下（全部来自资料）：\n\n✅ **定义依据**（资料[1]、[4]核心）：  \n勾股定理的逆定理明确要求“**其中 $c$ 最长**”（资料[1]核心知识），否则关系式 $a^2 + b^2 = c^2$ **无意义**（资料[1]），因为只有最长边才可能是直角所对的斜边。\n\n✅ **逻辑依据**（资料[3]第1条、[4]误区2）：  \n在直角三角形中，“斜边恒为最长边”，且“斜边对直角”。所以，若真存在直角，它一定对着最长边。因此，验证时只能把最长边当作潜在的斜边（即 $c$），其他两边作 $a$、$b$——这是唯一合理的检验方向。\n\n✅ **操作依据**（资料[2]两个例题）：  \n- 对 $7, 24, 25$：先找最长边 $25$，令 $c = 25$，再算 $7^2 + 24^2 = 625 = 25^2$ → 成立 → 是直角三角形；  \n- 对 $5, 7, 9$：先找最长边 $9$，令 $c = 9$，再算 $5^2 + 7^2 = 74 \\ne 81 = 9^2$ → 不成立 → 不是直角三角形。  \n若乱取 $c$（如对 $5,7,9$ 取 $c=7$），则 $5^2 + 9^2 = 106 \\ne 49$，结果错误且无几何意义（资料[4]误区3）。\n\n⚠️ 注意：不取最长边作 $c$，就违背了逆定理的条件（资料[1]说“否则关系式无意义”），验算结果不能用于判定。\n\n**总结一句话**：  \n因为只有最长边才可能是斜边，而逆定理只在“$c$ 是最长边”的前提下才适用，所以验证时必须取最长边作 $c$。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.854935884475708
+        },
+        {
+          "number": 2,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6897261738777161
+        },
+        {
+          "number": 3,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6900218725204468
+        },
+        {
+          "number": 4,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6798408031463623
+        }
+      ],
+      "refused": false,
+      "latency_ms": 14450
+    },
+    {
+      "id": "RAG-CONCEPT-011",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1378
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1378,
+        1400,
+        1453,
+        1482,
+        1424
+      ],
+      "candidate_sources": [
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为资料[1]中明确指出：  \n**“串联电路中各处的电流完全相同，被消耗的是电能而不是电流。”**\n\n所以，“误把‘用电器的先后’理解为‘消耗电流’”的错误在于：  \n- 学生看到用电器在电路中“一个接一个”（如A在前、B在后），就主观认为“电流先经过A，被A用掉一部分，剩下再流给B”，从而觉得后面的用电器电流变小；  \n- 但事实上，**电流是电荷的定向移动，在串联路径中无分支，单位时间通过任意横截面的电荷量相等 → 电流处处相等**；  \n- 真正被“消耗”的不是电流本身，而是**电能**（转化为热、光、机械能等），电压降（即电能转化）发生在每个用电器两端，但电流大小不变。\n\n因此，该错误的本质是混淆了“电流”（电荷流动的速率，不被消耗）和“电能”（可被转化、减少）的概念。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.695509135723114
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6321
+    },
+    {
+      "id": "RAG-CONCEPT-012",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1450
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1450,
+        1448,
+        1465,
+        1470,
+        1473
+      ],
+      "candidate_sources": [
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "我们来逐句讲解你复习时遇到的这句话：\n\n> **“电功率表示消耗电能的快慢，P = W/t = UI，单位瓦特（W），1 kW = 1000 W。”**\n\n依据【资料】，我们分四步解释（每一步都严格来自资料）：\n\n---\n\n✅ **第一步：什么是电功率？**  \n资料[1]说：“**电功率表示消耗电能的快慢**”。  \n👉 这就像“速度”表示运动的快慢，“功率”就是表示“用掉电能”的快慢。  \n- 用得快 → 功率大（如电热水壶，1100 W）；  \n- 用得慢 → 功率小（如LED灯，约10 W）。\n\n---\n\n✅ **第二步：为什么 P = W/t？**  \n这是功率的**定义式**（任何能量转化的快慢都这么算）：  \n- $ P = \\dfrac{W}{t} $：单位时间内做的电功（即消耗的电能）。  \n- W 是电功（单位：焦耳 J），t 是时间（单位：秒 s），所以 $ \\dfrac{J}{s} = $ 瓦特（W）。  \n→ 这个式子**永远成立**，适用于所有用电器（资料[1]和[4]都默认此为基础）。\n\n---\n\n✅ **第三步：为什么 P = UI？**  \n资料[1]给出电功公式：**W = UIt**（电压 × 电流 × 时间）。  \n把它代入定义式：  \n$$\nP = \\frac{W}{t} = \\frac{UIt}{t} = UI\n$$  \n→ t 被约掉，得到 **P = UI**。  \n⚠️ 关键点（资料[4]强调）：**这个公式对任何用电器都适用**（纯电阻如灯泡、非纯电阻如电动机），因为它只依赖于输入的电压和电流。\n\n---\n\n✅ **第四步：单位与换算**  \n- 单位是**瓦特（W）**，1 W = 1 J/s；  \n- 生活中常用**千瓦（kW）**：**1 kW = 1000 W**（资料[1]明确写出）；  \n- 例如题目[3]中：P = 220 V × 5 A = 1100 W = **1.1 kW**。\n\n---\n\n🔍 补充提醒（来自资料，帮你避坑）：  \n- P = I²R 和 P = U²/R 是由 P = UI + 欧姆定律（U = IR）推出来的，**只适用于纯电阻电路**（如电炉、白炽灯），不适用于电动机、充电器等（资料[1][4]反复强调）；  \n- 但 P = W/t 和 P = UI **永远可用**——这是你解题最稳的两个公式。\n\n---\n\n✅ 总结一句话：  \n**电功率 P 就是“每秒消耗多少焦耳电能”，它等于电压乘电流（UI），也等于电功除以时间（W/t）；单位是瓦特，1 kW 就是 1000 W。**\n\n需要我帮你用这个概念解一道类似题目吗？ 😊",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7367358207702637
+        },
+        {
+          "number": 2,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7482170462608337
+        },
+        {
+          "number": 3,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6651953458786011
+        },
+        {
+          "number": 4,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.733915388584137
+        }
+      ],
+      "refused": false,
+      "latency_ms": 17828
+    },
+    {
+      "id": "RAG-CONCEPT-013",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1589
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1589,
+        1611,
+        1597,
+        1567,
+        1581
+      ],
+      "candidate_sources": [
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "根据【资料】[1]，生态系统的组成包括两大部分：**非生物部分**和**生物部分**。\n\n其中，**非生物部分**指的是生态系统中没有生命的物质和条件，资料明确列举了：**阳光、水、空气、土壤等**。  \n问题中提到的“温度”虽未在资料原文中列出，但资料用了“等”字，说明非生物部分不限于所列项；而“温度”属于影响生物生存的常见非生物因素，在中学生态学语境中常与阳光、水、空气、土壤并列。但需注意：**资料未直接写出“温度”，因此不能断定其为资料所确认的组成部分**。\n\n所以，严格依据资料，可确认的非生物部分是：**阳光、水、空气、土壤**。  \n“温度”在资料中**未出现，无法从资料中得出其属于该组成**。\n\n✅ 结论：  \n资料支持“非生物部分包括阳光、空气、水、土壤”，不支持（也不否定）“温度”是否包含在内——因资料未提，故**不能确定**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6897401213645935
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6769
+    },
+    {
+      "id": "RAG-CONCEPT-014",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1570
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1572,
+        1570,
+        1568,
+        1583,
+        1567
+      ],
+      "candidate_sources": [
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+        "初中_生物_初一_生物和生物圈与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：在影响小麦生活的各种因素中，**杂草、害虫是“生物”，它们通过竞争、捕食等关系直接与小麦发生相互作用，所以属于生物因素；而阳光、温度、水分本身不是生物，不能主动与其他生物发生生命活动层面的关系，所以属于非生物因素。**\n\n依据来自【资料】中的明确定义和举例：\n\n✅ **定义依据（见资料[3]核心知识）：**  \n> “环境中影响生物生活和分布的因素叫作生态因素，分为两类：  \n> ① 非生物因素，包括光、温度、水、空气、土壤等；  \n> ② 生物因素，指影响某种生物生活的**其他生物**，包括同种或不同种生物之间的关系，如捕食、竞争、合作、寄生等。”\n\n✅ **实例依据（见资料[1]解析）：**  \n> “杂草与小麦争夺阳光、水分和无机盐，属于影响小麦生活的**其他生物**，是生物因素（竞争关系）”；  \n> “阳光、温度、水分都属于**非生物因素**”。\n\n✅ **分类逻辑（见资料[2]常见误区第1条）：**  \n> 明确指出：“影响小麦生活的杂草、害虫属于生物因素，阳光、温度、水分属于非生物因素。”——这正是老师所讲内容的原文依据。\n\n📌 简单判断方法（学生可用）：  \n- 问：“它是活的生物吗？” → 是（如杂草、害虫、蚯蚓、人）→ **生物因素**；  \n- 问：“它是自然界中的物理或化学条件吗？” → 是（如阳光、温度、水、空气、土壤）→ **非生物因素**。\n\n⚠️ 注意：资料中未提及其他具体例子（如“土壤微生物”是否算生物因素），因此不扩展；也不讨论“水分是否含微生物”等复杂情况——按初中课标，水分统一归为非生物因素。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.831847071647644
+        },
+        {
+          "number": 2,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7312321066856384
+        },
+        {
+          "number": 3,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7616005539894104
+        },
+        {
+          "number": 4,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7159568071365356
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10870
+    },
+    {
+      "id": "RAG-CONCEPT-015",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1772
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1725,
+        1727,
+        1772,
+        1734,
+        1723
+      ],
+      "candidate_sources": [
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "资料中**没有说明**“复数名词或不可数名词表示泛指时，如 Books are our friends.”的原因。\n\n理由如下：  \n- 资料[1]只定义了可数名词与不可数名词、复数构成规则、不可数名词的数量表达方式，以及部分易混点；  \n- 资料中**未提及“泛指”概念**，也**未解释为何复数名词（如 books）作主语时可用复数谓语（are）来表达泛指意义**；  \n- 例句 “Books are our friends.” 及其语法功能（泛指用法）在资料中**完全没有出现或分析**。\n\n因此，依据所给资料，**无法说明该现象的原因**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_英语_初一_词法与句法_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7034989595413208
+        }
+      ],
+      "refused": false,
+      "latency_ms": 5370
+    },
+    {
+      "id": "RAG-CONCEPT-016",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1729
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1729,
+        1800,
+        1740,
+        1824,
+        1723
+      ],
+      "candidate_sources": [
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的意思是：在“数词 + 量词 + of + 名词”这个结构中（比如 two pieces of bread），**量词（如 piece）本身要根据前面的数词变成复数形式，而后面的名词（如 bread）通常保持原形（尤其不可数名词）或按规则变化（但不是靠加 -s 简单处理）**。\n\n依据【资料】第3条：\n\n> **错误原因：只把名词保持不变，却忘记量词要随数词变化。**\n\n我们来拆解一个典型例子（资料中已隐含，且符合英语事实）：\n\n✅ 正确：  \n- two **pieces** of bread（✓ “piece” 变为复数 **pieces**；bread 是不可数名词，保持原形）  \n- three **boxes** of apples（✓ “box” 变为复数 **boxes**；apples 本身已是复数，因 apple 是可数名词，且此处指多颗苹果）\n\n❌ 错误：  \n- ❌ two **piece** of bread（× “piece” 没变复数，应为 pieces）  \n- ❌ three **box** of apples（× “box” 没变复数，应为 boxes）\n\n⚠️ 注意：资料明确指出，出错时人们**只记得让最终的名词“保持不变”（比如 bread 不加 -s 是对的），但忽略了中间的量词（piece, box, cup, slice 等）必须随数词变为复数**。\n\n所以，“只把名词保持不变，却忘记量词要随数词变化”的核心是：  \n→ 名词（尤其是不可数名词）确实不该乱加 -s（如 ✅ bread，❌ breads）；  \n→ 但量词是**可数名词**，它自己也要遵循复数规则（如 piece → pieces，box → boxes）。\n\n这就是资料所指的错误原因。\n\n总结一步判断法：  \n看到“数词 + ____ + of + 名词”，先问：  \n① 空格处是不是量词？（如 piece, bottle, loaf, pair…）  \n② 如果是，它是否已按数词变为复数？（two → pieces, three → bottles…）  \n→ 若没变，就是资料中说的这个错误。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_英语_初一_词法与句法_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6654053926467896
+        }
+      ],
+      "refused": false,
+      "latency_ms": 12572
+    },
+    {
+      "id": "RAG-CONCEPT-017",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1966
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1975,
+        1966,
+        1974,
+        1964,
+        2005
+      ],
+      "candidate_sources": [
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 553
+    },
+    {
+      "id": "RAG-CONCEPT-018",
+      "category": "concept",
+      "expected_chunk_ids": [
+        1969
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        1969,
+        1978,
+        1977,
+        1966,
+        1964
+      ],
+      "candidate_sources": [
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的意思是：文言词“绝”有多个意思（一词多义），具体取哪一个义项，**必须根据它所在的词语搭配和句子语境来判断**，不能脱离上下文硬套。\n\n依据来自【资料】中的题目与解析：\n\n- ①“江水阻绝”中，“阻绝”是一个固定搭配，表示被阻断、隔断；结合解析①，“绝”取义项 **A. 断绝**。  \n- ②“声绝于耳”意思是声音在耳边听不到了；“绝”在这里不是“断绝关系”，而是声音“停止、消失”，对应解析②，选 **B**。  \n- ③“绝壁千寻”中，“绝壁”是常见词，指极高陡峭的山壁；“千寻”进一步强调高度，“绝”起修饰作用，表程度，即 **D. 极、非常**（解析③）。\n\n这三例共同说明：同一个字“绝”，在不同词语和句意中，意义不同——  \n→ “阻绝”强调**中断连接**（A），  \n→ “声绝”强调**动作终止**（B），  \n→ “绝壁”强调**程度极高**（D）。  \n\n所以老师说“必须据境判断”，就是强调：**不能死记硬背一个意思，而要观察它和谁搭配、在句中做什么成分、表达什么逻辑关系**。\n\n（注：资料中未提供“声绝于耳”的原始出处或更多例证，仅给出该句及对应义项B；判断严格依据资料，不补充其他文献用例。）",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8309921622276306
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9470
+    },
+    {
+      "id": "RAG-CONCEPT-019",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2061
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2061,
+        2071,
+        2058,
+        2069,
+        2060
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为【资料】[1] 中明确给出定义：“** 分散系是指把一种或多种物质以微小粒子的形式分散到另一种物质中所形成的混合物。”  \n这是资料直接陈述的概念定义，没有附加条件或例外。\n\n所以，该说法成立的依据就是资料[1]的原文定义——它本身就是对“分散系”这一概念的标准表述。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8441283702850342
+        },
+        {
+          "number": 2,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6888365149497986
+        },
+        {
+          "number": 3,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6646682024002075
+        }
+      ],
+      "refused": false,
+      "latency_ms": 3039
+    },
+    {
+      "id": "RAG-CONCEPT-020",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2126
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2126,
+        2155,
+        2124,
+        2134,
+        2127
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话：“氧化还原反应的特征是**有元素化合价的变化**，本质是**电子的转移（得失或偏移）**”，可以从【资料】中直接理解为两个层次：\n\n---\n\n✅ **第一层：特征——看得到、易判断 → 化合价是否变化？**  \n这是最直观的判断方法。  \n- 【资料[1]】明确说：“判断一个反应是否为氧化还原反应，**最直观的依据是看反应前后有无元素化合价的改变**。”  \n- 举例：  \n  - $2\\text{Na} + \\text{Cl}_2 \\xrightarrow{\\text{点燃}} 2\\text{NaCl}$  \n    → Na：0价 → +1价（升高），Cl：0价 → −1价（降低）→ **有化合价变化** → 是氧化还原反应。  \n  - $\\text{CaCO}_3 \\xrightarrow{\\text{高温}} \\text{CaO} + \\text{CO}_2\\uparrow$  \n    → Ca（+2）、C（+4）、O（−2）各元素价态均不变 → **无化合价变化** → 不是氧化还原反应（题例9答案B）。  \n\n🔹所以，“特征”就是你**一眼能发现的标志**，像“红灯停、绿灯行”一样，是识别反应类型的“信号灯”。\n\n---\n\n✅ **第二层：本质——藏在背后、决定原因 → 电子发生了转移**  \n- 【资料[1]】定义：“有电子转移（或化合价升降）的化学反应叫氧化还原反应”，并强调“本质是**电子的转移（得失或偏移）**”。  \n- 为什么化合价会变？因为电子变了：  \n  - Na → Na⁺ + e⁻（失去1个电子 → 化合价从0升到+1）  \n  - Cl₂ + 2e⁻ → 2Cl⁻（得到电子 → 化合价从0降到−1）  \n- 【资料[2]】口诀“**升失氧、降得还**”正是把这两层对应起来：  \n  - “升”（化合价升高）←→“失”（失去电子）←→“氧”（被氧化）  \n  - “降”（化合价降低）←→“得”（得到电子）←→“还”（被还原）  \n\n🔹所以，“本质”是内在原因：**化合价变化只是电子转移的表现形式**；没有电子转移，就不会有化合价变化。\n\n---\n\n📌 总结一句话（按资料原意）：  \n> **化合价变化是“看得见的特征”，电子转移是“看不见的本质”——就像苹果落地，下落是现象（特征），万有引力才是原因（本质）。**\n\n不需要额外知识，只依据资料即可确认：这个说法完全正确，且资料中所有例子和口诀都围绕它展开。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8649296760559082
+        },
+        {
+          "number": 2,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7938687801361084
+        },
+        {
+          "number": 3,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7675029635429382
+        },
+        {
+          "number": 4,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6881649494171143
+        }
+      ],
+      "refused": false,
+      "latency_ms": 15169
+    },
+    {
+      "id": "RAG-CONCEPT-021",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2381
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2392,
+        2381,
+        2391,
+        2377,
+        2395
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "依据【资料】，江南开发的**主要原因**中：\n\n- **根本原因是北民南迁**：资料明确指出，“原因要突出‘北民南迁（带去劳动力和技术）’这一主因”，且参考答案第一条即为：“①北方战乱、南方相对安定，自西晋末起北方人口大量南迁，带去劳动力和先进的生产技术”。这说明，劳动力输入与技术传播是驱动开发的**直接、主动力量**。\n\n- **南方相对安定**是重要条件：资料提到“北方战乱、南方相对安定”，并将其与南迁并列作为前提；评分要点也要求“答出‘南方相对安定（或自然条件、兴修水利）’1分”，说明安定的社会环境使南迁人口能安居生产，是必要保障。\n\n- **自然条件只是客观基础，非根本原因**：资料[1]②说“南方自然条件较为优越……土地可垦面积大”，但解析强调“避免把自然条件当作根本原因”，并明确“自然条件只是基础”；评分标准未单独给自然条件赋分，而是将其与“兴修水利”等同列为次要项。可见，资料中自然条件未被赋予主导作用——它始终是被动的、静态的背景，不具备推动开发的主动性。\n\n✅ 总结（严格依资料）：  \n江南开发的**主要（根本）原因**是**北民南迁带来劳动力与先进技术**；  \n**重要辅助条件**是**南方相对安定**（及政权重视、兴修水利等人为努力）；  \n**自然条件**虽被提及（如土地可垦面积大），但资料明确定性为“客观基础”，**不是根本原因**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_历史_高一_中外历史纲要_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7905154824256897
+        }
+      ],
+      "refused": false,
+      "latency_ms": 9338
+    },
+    {
+      "id": "RAG-CONCEPT-022",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2304
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2304,
+        2315,
+        2317,
+        2295,
+        2313
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义和依据，可结合【资料】分三部分讲解：\n\n---\n\n**一、“血缘纽带”——指国家组织以血缘关系为基础**  \n✅ **依据来自资料[1]**：  \n- “推行宗法制：以血缘关系亲疏和嫡长子继承为核心，确定贵族等级与权力分配”；  \n- 分封对象包括“同姓子弟、异姓功臣和古帝王后裔”（见资料[2]材料），其中“同姓子弟”占主体，说明政权分配高度依赖血缘。  \n→ 血缘不是私人关系，而是政治组织原则。\n\n---\n\n**二、“等级秩序”——指社会与权力结构严格分层**  \n✅ **依据来自资料[1]**：  \n- 宗法制“确定贵族等级与权力分配”；  \n- 礼乐制“对祭祀、宴饮、车服等作出等级规范”，且“与分封、宗法互为表里”；  \n- 分封制下，周王—诸侯—卿大夫—士形成层层隶属关系（资料[2]提到诸侯须“纳贡、随从作战、朝觐述职”）。  \n→ 等级渗透到政治、礼仪、经济（如井田制）各方面。\n\n---\n\n**三、“神权色彩”——资料中未直接提及**  \n⚠️ **资料未提供关于神权（如占卜、祭祀神灵、君权神授等）的具体内容**；  \n- 虽提到“祭祀”属礼乐制规范范围，但未说明其与神权统治的关系（如是否借神意 legitimise 王权）；  \n- 也无考古发现（如甲骨文、祭坛遗址）或文献引证（如“天命”“昊天上帝”等表述）支持。  \n→ **无法从给定资料得出“神权色彩”的依据，此点在本题资料中证据不足。**\n\n---\n\n**四、“注意考古材料与文献记载的互证”——强调史料运用方法**  \n✅ **依据隐含于资料[1]的提示句本身**：  \n- 该句作为方法论要求单独提出，说明这是分析早期国家的基本规范；  \n- 虽资料未给出具体考古例证（如青铜器铭文、墓葬等级差异），但指出需“互证”，即不能只信文献（如史书记载分封），也要看实物（如诸侯墓出土礼器数量/规格是否符合等级规定）。  \n→ 这是历史研究的基本原则，在本资料中属于**明确提出的分析要求**，但具体例证未提供。\n\n---\n\n✅ **总结回答（简洁版）：**  \n老师这句话的意思是：分析夏商周等早期国家，要抓住三个关键特征——  \n① **血缘纽带**：如宗法制按血缘亲疏和嫡庶分配权力（资料[1]）；  \n② **等级秩序**：如分封制、礼乐制共同构建从周王到士的严密等级（资料[1][2]）；  \n③ **神权色彩**：资料中**未提供相关证据**，无法说明；  \n同时要**用考古材料和文献相互印证**——这是资料[1]明确提出的分析方法，但本资料未给出具体互证案例。\n\n（注：考试作答时，若为填空或简答，第三点应如实写“资料未体现”或“依据缺失”，不可自行补充殷墟甲骨、二里头绿松石龙等课外内容。）",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_历史_高一_中外历史纲要_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6970852613449097
+        },
+        {
+          "number": 2,
+          "source_name": "高中_历史_高一_中外历史纲要_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6919280290603638
+        }
+      ],
+      "refused": false,
+      "latency_ms": 18214
+    },
+    {
+      "id": "RAG-CONCEPT-023",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2504
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2504,
+        2517,
+        2524,
+        2509,
+        2505
+      ],
+      "candidate_sources": [
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为【资料】[1] 明确指出：“大气对太阳辐射的削弱作用主要包括三种形式：①吸收作用（平流层臭氧吸收紫外线，对流层水汽与二氧化碳吸收红外线）……”\n\n这是资料给出的直接陈述，且在[2]的解析中再次确认：“大气削弱太阳辐射的三种方式：吸收（臭氧吸紫外线、水汽二氧化碳吸红外）……”\n\n所以，该说法成立的依据就是资料本身——它明确将“吸收作用”列为第一种削弱形式，并具体说明：  \n- 平流层中的臭氧吸收**紫外线**，  \n- 对流层中的水汽和二氧化碳吸收**红外线**。\n\n注意：太阳辐射以**短波辐射**为主（含紫外、可见光），但其中一小部分是近红外；而资料中“水汽与二氧化碳吸收红外线”实际主要指它们吸收**地面辐射的长波红外线**（见后文“地面辐射”定义）。但本题仅问“资料中为什么这么说”，不涉及科学准确性判断。资料[1]原文如此表述，因此答案即：**资料直接这样定义和举例**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_地理_高一_自然地理基础_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8660475015640259
+        },
+        {
+          "number": 2,
+          "source_name": "高中_地理_高一_自然地理基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.769798994064331
+        },
+        {
+          "number": 3,
+          "source_name": "高中_地理_高一_自然地理基础_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6978261470794678
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7193
+    },
+    {
+      "id": "RAG-CONCEPT-024",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2503
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2513,
+        2503,
+        2512,
+        2524,
+        2507
+      ],
+      "candidate_sources": [
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md",
+        "高中_地理_高一_自然地理基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的意思是：\n\n**岩石圈 ≠ 地壳**，  \n它是由 **地壳 + 上地幔顶部（软流层以上部分）** 共同组成的刚性外壳。\n\n依据【资料】解析中的明确说明：  \n→ “岩石圈是地壳加上地幔顶部（软流层以上），范围比地壳**大**。”  \n→ 填空题参考答案中也确认第一空填“地壳”，第二空填“大”。\n\n所以判断步骤很简单：\n\n1. 岩石圈 = 地壳 + 软流层以上的上地幔 → 包含地壳，但**不止地壳**；  \n2. 因此它的范围**比地壳大**（资料明确说“范围比地壳大”）；  \n3. 二者不等同，常见错误就是把它们当成一回事。\n\n✅ 结论：  \n- 岩石圈范围**更大**，地壳只是它的**一部分**；  \n- 分界参考：地壳底界是**莫霍面**，而岩石圈底界是**软流层顶界**（在上地幔内，深度约80–200 km，因地而异）；  \n- 资料未给出软流层具体深度数值，所以不补充；只依据资料说清“包含地壳+其下一部分上地幔”即可。\n\n如有图（如题目7的图），可结合图中莫霍面、软流层位置进一步辨认，但本题资料未提供图，故不推测。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_地理_高一_自然地理基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8238589763641357
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8410
+    },
+    {
+      "id": "RAG-CONCEPT-025",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2661
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2661,
+        2660,
+        2676,
+        2670,
+        2658
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "依据【资料】，这句话的解释如下：\n\n**“货币所以能充当一般等价物，是因为它本身也是商品，具有使用价值和价值”**  \n——这在资料[1]中被直接陈述为一个基本结论，并可在资料其他部分得到支撑：\n\n1. **货币本身是商品**：  \n   资料指出，“货币是商品交换发展到一定阶段的产物”，“当一般等价物固定地由某种商品（如金银）充当时，货币便产生了”。这说明，最初的货币（如金银）本身就是从众多商品中分离出来的、大家普遍接受的**特殊商品**，不是凭空产生的符号。\n\n2. **作为商品，它必须具有两个基本属性**（资料中明确给出）：  \n   - **使用价值**：即能满足某种需要的属性。例如，金银可做装饰、可做工业原料，这使人们愿意持有它；  \n   - **价值**：即凝结了无差别的人类劳动。金银的开采、冶炼需要耗费劳动，因此它本身有价值。\n\n3. **为什么必须同时具备这两个属性，才能充当一般等价物？**  \n   - 因为要被大家普遍接受来衡量、交换其他商品，它自身必须**有真实价值**（否则无法衡量别人商品的价值）；  \n   - 同时，它也必须有**实际用途或公认接受度**（使用价值或由此衍生的信用基础），否则没人愿意拿自己的商品去换它。  \n   → 资料虽未展开此逻辑推导，但明确将“是商品”“具有使用价值和价值”作为货币能成为一般等价物的**原因**（见[1]首句），且与商品定义完全一致。\n\n✅ 所以，这句话的意思是：  \n货币不是任意一种东西，而是从商品世界中自然产生的——正因为它本身是商品，有真实价值（可衡量其他商品的价值），也有使用价值（可被接受、被储存），所以才能稳定地、普遍地充当所有商品共同的交换媒介，即“一般等价物”。\n\n⚠️ 注意：资料未涉及纸币、信用货币等非商品形态的货币，因此该解释**仅适用于金属货币等商品货币形态**（符合资料适用边界）。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7340919971466064
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6613593697547913
+        },
+        {
+          "number": 3,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6603207588195801
+        }
+      ],
+      "refused": false,
+      "latency_ms": 11803
+    },
+    {
+      "id": "RAG-CONCEPT-026",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2710
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2710,
+        2708,
+        2734,
+        2718,
+        2720
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：**勤俭节约不是要求人少花钱、不消费，而是反对没有必要的浪费；只要消费是合理的、在收入能力范围内的，就和勤俭节约不矛盾。**\n\n依据来自【资料】[1]第3点：“**认为勤俭节约就是降低消费水平。错误原因：勤俭节约反对的是铺张浪费，不是反对正常消费。**”  \n同时，【资料】[2]中对“勤俭节约，艰苦奋斗”的定义是：“**珍惜劳动成果，反对铺张浪费**”，也明确将“反对铺张浪费”作为核心，而非否定消费本身。\n\n所以，判断一个消费行为是否违背勤俭节约，关键看它是否属于“铺张浪费”，而不是看它金额大小或是否用了钱。例如：  \n- 用工资买一本需要的学习资料——是正常消费，符合勤俭节约；  \n- 为攀比而买远超需求的名牌包——属于铺张浪费，违背勤俭节约。\n\n✅ 总结：勤俭节约强调的是**消费的态度和目的（珍惜、适度、不浪费）**，不是压缩所有消费。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6800633668899536
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.677729606628418
+        },
+        {
+          "number": 3,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6640303134918213
+        }
+      ],
+      "refused": false,
+      "latency_ms": 6512
+    },
+    {
+      "id": "RAG-CONCEPT-027",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2981
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2978,
+        2981,
+        2977,
+        2979,
+        2892
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "根据【资料】，原因如下：\n\n- 资料[2]第2点明确指出：“**错误原因：忽视负指数幂在 $x=0$ 处无意义。如 $y=x^{-1}$、$y=x^{-\\frac{1}{2}}$ 在 $x=0$ 处无定义，图象不过原点。**”\n\n- 具体解释（仅依据资料，不补充外部知识）：\n  - $y = x^{-1} = \\dfrac{1}{x}$：当 $x = 0$ 时，分母为 0，**除法无定义** → 函数在 $x = 0$ 处无定义。\n  - $y = x^{-\\frac{1}{2}} = \\dfrac{1}{x^{1/2}} = \\dfrac{1}{\\sqrt{x}}$：要求 $\\sqrt{x}$ 有定义且不为 0；而 $\\sqrt{x}$ 在实数范围内仅对 $x \\geq 0$ 有定义，且 $\\sqrt{0} = 0$，导致分母为 0 → **在 $x = 0$ 处无定义**。\n\n- 又由资料[1]中幂函数单调性规律：“当 $\\alpha < 0$ 时……图象过 $(1,1)$ 且以 $x$ 轴、$y$ 轴为渐近线”，说明图象**无限接近但永不接触坐标轴**，尤其 $y$ 轴（即 $x = 0$），因此**不可能经过原点 $(0,0)$**。\n\n✅ 结论：因负指数幂在 $x = 0$ 处数学上无定义（出现除零或分母为零），故函数在该点无定义，图象自然不过原点。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6884361505508423
+        },
+        {
+          "number": 2,
+          "source_name": "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6838117241859436
+        }
+      ],
+      "refused": false,
+      "latency_ms": 10098
+    },
+    {
+      "id": "RAG-CONCEPT-028",
+      "category": "concept",
+      "expected_chunk_ids": [
+        2921
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        2921,
+        2922,
+        2950,
+        2918,
+        2823
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "我们来逐句理解这句话：\n\n> **函数 $y = a^x$（$a > 0$ 且 $a \\ne 1$）叫指数函数，定义域为 $\\mathbb{R}$。**\n\n依据【资料】，我们分三步解释：\n\n---\n\n**第一步：为什么要求 $a > 0$？**  \n资料中明确指出：  \n- 指数运算性质（如 $a^r \\cdot a^s = a^{r+s}$）是在 **$a > 0$** 的前提下给出的（见[1]：“设 $a > 0, b > 0$…”）；  \n- 后面还强调：“**指数函数底数 $a$ 必须满足 $a > 0$ 且 $a \\ne 1$，否则函数 $y = a^x$ 不属于指数函数**”；  \n- 补充说明：“$0^0$ 无意义，$0$ 的负指数幂也无意义”，说明 $a = 0$ 不行；  \n- 若 $a < 0$（比如 $a = -2$），则当 $x = \\frac{1}{2}$ 时，$a^x = (-2)^{1/2} = \\sqrt{-2}$，在实数范围内无定义；而定义域要求是全体实数 $\\mathbb{R}$，所以 $a$ 不能为负。\n\n✅ 所以，**$a > 0$ 是为了保证对任意实数 $x$，$a^x$ 都有确定的实数值**。\n\n---\n\n**第二步：为什么要求 $a \\ne 1$？**  \n资料说：“底数 $a$ 必须满足 $a > 0$ 且 $a \\ne 1$，否则不属于指数函数”。  \n我们验证一下 $a = 1$ 的情况：  \n- $y = 1^x$，对任意实数 $x$，都有 $1^x = 1$（因为 $1^r = 1$ 对所有有理数 $r$ 成立，推广到实数仍为 1）；  \n- 所以 $y = 1^x$ 是常数函数 $y = 1$，图象是一条水平直线，**不具有指数函数的典型特征**（如单调性变化、过 $(0,1)$ 但不是“增长/衰减”型、值域不是 $(0,+\\infty)$ 而是单点集 $\\{1\\}$）；  \n- 资料中描述的性质（如“当 $a > 1$ 时单调递增”“当 $0 < a < 1$ 时单调递减”“值域为 $(0,+\\infty)$”）在 $a = 1$ 时不成立。\n\n✅ 所以，**排除 $a = 1$ 是为了保证函数具有指数函数的本质特征（非常数、严格单调、正函数等）**。\n\n---\n\n**第三步：为什么定义域是 $\\mathbb{R}$（全体实数）？**  \n资料中两次明确写出：  \n- “函数 $y = a^x$（$a > 0$ 且 $a \\ne 1$）叫指数函数，**定义域为 $\\mathbb{R}$**”；  \n- 并指出指数运算性质“可推广到实数指数幂”，即：只要 $a > 0$ 且 $a \\ne 1$，对**任意实数 $x$**（不只是整数或分数），$a^x$ 都有定义且唯一（这是推广的结果，资料虽未展开推导，但已作为前提给出）。\n\n✅ 因此，在满足 $a > 0$ 且 $a \\ne 1$ 的条件下，$a^x$ 对所有实数 $x$ 都有意义，故定义域为 $\\mathbb{R}$。\n\n---\n\n✅ 总结一句话（适合复习记忆）：  \n> 因为只有当 $a > 0$ 且 $a \\ne 1$ 时，$a^x$ 才对**所有实数 $x$** 都有定义、不恒为常数、具备单调性和正性等关键性质——所以这样定义的函数才叫“指数函数”，且定义域自然就是 $\\mathbb{R}$。\n\n如还有某一步想深入（比如“怎么推广到实数？”），可以告诉我，我会严格按资料范围说明是否能答。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.772834062576294
+        }
+      ],
+      "refused": false,
+      "latency_ms": 23457
+    },
+    {
+      "id": "RAG-CONCEPT-029",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3029
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3029,
+        3049,
+        3087,
+        3114,
+        3026
+      ],
+      "candidate_sources": [
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "根据【资料】，**时刻**是指某一瞬间，在时间轴上对应一个**点**。\n\n例如：  \n- “第 3 s 末”——表示从计时开始经过正好 3 秒的那个瞬时，是时间轴上的一个确定的点；  \n- “第 5 s 初”——等同于“第 4 s 末”，也是时间轴上的一个点（即从开始经过 4 秒的瞬间）。\n\n⚠️ 注意：资料中**没有给出具体数值计算或坐标定义**，也未将时刻与位置 $x$ 直接关联计算；它仅说明时刻是时间轴上的点，用于标记某个瞬时，而位移 $\\Delta x = x_2 - x_1$ 是在**两个不同时刻**的位置之差，隐含了时刻是确定位置的前提，但资料未进一步展开该联系。\n\n因此，对问题的解释完全依据资料原文：  \n✅ 时刻 = 某一瞬时；  \n✅ 在时间轴上是一个点；  \n✅ 举例“第 3 s 末”“第 5 s 初”都是这样的点。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_物理_高一_运动学与力学基础_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7278150320053101
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7072
+    },
+    {
+      "id": "RAG-CONCEPT-030",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3123
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3123,
+        3058,
+        3120,
+        3125,
+        3031
+      ],
+      "candidate_sources": [
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：**“运动状态改变的难易”指的是惯性大小，而惯性只由质量决定；速度大并不意味着更难改变运动状态，因此不能把“速度快”等同于“惯性大”或“运动状态难改变”。**\n\n依据来自【资料】中明确指出：\n\n- 在[1]常见误区第2条：“**认为速度越大惯性越大。** 错误原因：**把‘运动状态改变的难易’与速度混为一谈。惯性只与质量有关，与速度无关。一辆汽车无论快慢，其惯性（质量）不变。**”\n\n进一步说明：\n\n- “运动状态改变的难易” → 指的是物体抵抗加速度的能力，即**惯性大小**；\n- 资料明确说：**惯性只与质量有关，与速度无关**；\n- 所以，一个物体速度很大（如高速飞行的子弹），只要质量小，它的运动状态其实**容易改变**（例如轻轻一碰就偏转）；\n- 反之，一个物体速度很小（如静止的卡车），但质量大，它的运动状态就**很难改变**（需要很大的力才能推动）。\n\n✅ 结论：  \n老师指出的错误，就是误以为“速度快 → 更难停下/转向/加速”，从而把**速度大小**当成了决定“运动状态是否易变”的因素；但真正起作用的是**质量**，不是速度。\n\n（注：资料未提及其他影响因素，因此不讨论相对论等情形。）",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_物理_高一_运动学与力学基础_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.728090763092041
+        }
+      ],
+      "refused": false,
+      "latency_ms": 8540
+    },
+    {
+      "id": "RAG-CONCEPT-031",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3252
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3252,
+        3259,
+        3249,
+        3269,
+        3255
+      ],
+      "candidate_sources": [
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为资料明确指出：  \n- **链状肽**中，肽键数＝氨基酸数－1；  \n- **环肽**中，肽键数＝氨基酸数。  \n\n而脱水数＝肽键数（资料[1]），所以脱水数在两种情况下也不同：  \n- 链状肽：脱水数＝氨基酸数－1；  \n- 环肽：脱水数＝氨基酸数。  \n\n这是因为链状肽首尾不相连，两端的氨基和羧基不参与肽键形成；而环肽首尾相连，多形成一个肽键（即最后一个氨基酸的羧基与第一个氨基酸的氨基缩合），因此肽键数比链状肽多1个。  \n\n所以，**不区分环肽和链状肽，直接套用“氨基酸数－1”会算错肽键数和脱水数**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8010050654411316
+        },
+        {
+          "number": 2,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7176756858825684
+        },
+        {
+          "number": 3,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6825299859046936
+        },
+        {
+          "number": 4,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6967192888259888
+        },
+        {
+          "number": 5,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6814027428627014
+        }
+      ],
+      "refused": false,
+      "latency_ms": 5398
+    },
+    {
+      "id": "RAG-CONCEPT-032",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3306
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3306,
+        3315,
+        3314,
+        3309,
+        3322
+      ],
+      "candidate_sources": [
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md",
+        "高中_生物_高一_分子与细胞_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话完全符合【资料】中的描述。我们来逐句对照解释：\n\n---\n\n**① “自由扩散和协助扩散都属于被动运输”**  \n✅ 资料[1]明确说：“自由扩散和协助扩散都属于被动运输”。  \n→ 因为二者都不需要消耗能量（ATP），只依靠浓度差驱动。\n\n**② “方向都是从高浓度到低浓度”**  \n✅ 资料[1]中：  \n- 自由扩散：“方向由高浓度一侧到低浓度一侧”；  \n- 协助扩散：“方向由高浓度到低浓度”。  \n→ 两者方向一致，都是顺浓度梯度。\n\n**③ “但协助扩散需要载体”**  \n✅ 资料[1]中：  \n- 自由扩散：“不需要载体和能量”；  \n- 协助扩散：“借助载体蛋白（或通道蛋白）的扩散……需要载体、不需要能量”。  \n→ 关键区别就在这里：协助扩散必须有载体蛋白（或通道蛋白）参与，而自由扩散不需要。\n\n---\n\n✅ 补充说明（仅基于资料）：  \n- 举例上，水、O₂、CO₂等小分子、脂溶性物质可自由扩散；  \n- 葡萄糖进入红细胞是协助扩散（需载体，不耗能）；  \n- 但葡萄糖进入小肠上皮细胞是主动运输（资料[2]提到），因为要逆浓度梯度吸收，需载体+ATP。\n\n---\n\n⚠️ 注意：资料中未说明“所有葡萄糖运输都是协助扩散”，只明确指出“葡萄糖进入红细胞”是协助扩散；其他情况（如小肠吸收）则属于主动运输——这正说明：**是否需要能量、是否逆浓度梯度，才是判断运输方式的关键，不能只看物质种类。**\n\n---\n\n总结（直接回答你的疑问）：  \n这句话正确，且依据充分：  \n- 自由扩散与协助扩散都是被动运输（不耗能、顺浓度梯度）；  \n- 区别仅在于：协助扩散需要载体蛋白（或通道蛋白）帮助，自由扩散不需要。  \n\n这就是资料所给的全部依据。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8167738914489746
+        },
+        {
+          "number": 2,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7386900186538696
+        }
+      ],
+      "refused": false,
+      "latency_ms": 12043
+    },
+    {
+      "id": "RAG-CONCEPT-033",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3412
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3412,
+        3418,
+        3413,
+        3437,
+        3411
+      ],
+      "candidate_sources": [
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "依据【资料】，对“④现在进行时”的解释如下：\n\n**含义**：表示说话时（即此刻）或现阶段正在进行的动作。  \n**结构**：be 动词（am / is / are）+ 动词-ing 形式。  \n**例句**：*The students are playing basketball now.*  \n→ 其中 *are* 是 be 动词（因主语 *The students* 是复数），*playing* 是动词 *play* 的-ing 形式。\n\n**判断线索（时间状语）**：常与 *now*、*Look!*、*Listen!*、*at the moment* 等连用（见资料[1]“时间状语线索”部分）。  \n例如题例中：*Look! The students ______ basketball...* → “Look!” 是现在进行时的典型提示（资料[2]解析），故选 *are playing*（选项C）。\n\n**否定与疑问形式**：  \n- 否定：在 be 动词后加 *not*，如 *They are not reading.*  \n- 一般疑问：把 be 动词提前，如 *Are you reading now?*（资料[1]“否定与疑问形式”部分）\n\n✅ 所有内容均严格来自资料，无补充、无推断。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_英语_高一_语法与阅读基础_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8425297141075134
+        },
+        {
+          "number": 2,
+          "source_name": "高中_英语_高一_语法与阅读基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7282751798629761
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7521
+    },
+    {
+      "id": "RAG-CONCEPT-034",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3411
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3411,
+        3423,
+        3434,
+        3412,
+        3413
+      ],
+      "candidate_sources": [
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md",
+        "高中_英语_高一_语法与阅读基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的含义是：  \n**“一般过去时”用来描述发生在过去某个具体时间的动作或状态，动词必须使用其过去式形式。**  \n例句 *She visited her grandparents last weekend.* 就体现了这一规则。\n\n依据来自【资料】[1] 中对②一般过去时的明确定义：  \n> “②一般过去时：表示过去某时发生的动作或状态，动词用过去式，如 She visited her grandparents last weekend.”\n\n我们可分两步验证这个例句是否符合定义：  \n1. **时间特征**：*last weekend*（上周末）是一个明确的过去时间，符合“过去某时”；  \n2. **动词形式**：*visited* 是动词 *visit* 的规则过去式（加 -ed），符合“动词用过去式”。\n\n因此，老师的说法完全符合资料给出的定义，有直接依据。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_英语_高一_语法与阅读基础_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6747025847434998
+        }
+      ],
+      "refused": false,
+      "latency_ms": 5778
+    },
+    {
+      "id": "RAG-CONCEPT-035",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3682
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3682,
+        3685,
+        3684,
+        3705,
+        3751
+      ],
+      "candidate_sources": [
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "因为【资料】明确指出：“兵”在文言中有多个义项，包括“士兵”“兵器”“战争”“军队”等，不能一律理解为“士兵”。\n\n具体依据如下：\n\n- 【资料】[1]第1条直接说明错误原因是：“如把‘兵’一律理解为‘士兵’，忽略其‘兵器’‘战争’等义项”。\n\n- 【资料】[2]进一步举例验证：\n  - ①“甲士执兵立于门”中，“执兵”即“拿着兵器”，“兵”指**兵器**（见解析）；\n  - ②“其国善用兵”中，“用兵”指“用兵打仗、军事谋略”，“兵”指**战争/军事**（见②说明）；\n  - ③“增兵十万”中，“增兵”意为“增加军队人数”，“兵”指**军队**（见③说明）。\n\n→ 三处“兵”的含义各不相同，若只认作“士兵”，就会误解句意。\n\n所以，错误原因就是：**忽视文言实词的多义性，未结合具体语境辨析词义**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7594522833824158
+        },
+        {
+          "number": 2,
+          "source_name": "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.670188307762146
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7108
+    },
+    {
+      "id": "RAG-CONCEPT-036",
+      "category": "concept",
+      "expected_chunk_ids": [
+        3658
+      ],
+      "expect_refusal": false,
+      "candidate_chunk_ids": [
+        3658,
+        3664,
+        3663,
+        3631,
+        3751
+      ],
+      "candidate_sources": [
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+        "高中_语文_高一_现代文阅读与古诗文_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "这句话的意思是：在分析人物描写方法时，容易犯两个错误——  \n① 把**侧面描写**（比如别人怎么评价他、环境如何烘托他）误当成**正面描写**（直接写他的外貌、语言、动作、心理等）；  \n② 忽略了文中其实存在**心理描写**（直接写人物内心想法、感受），没把它识别出来。\n\n但【资料】中只提到了**正面描写和侧面描写的区别**（[1]），并强调“还有侧面描写”，**没有提到心理描写**。  \n因此，关于“忽视心理描写的存在”这一部分，【资料】未提供依据，无法判断或解释。\n\n✅ 能依据资料说明的是：  \n- 正面描写是直接写人物本身（如语言、动作等）；  \n- 侧面描写是间接的，比如通过他人反应、环境衬托来表现人物；  \n- 所以，若把“别人吃惊的表情”说成是正面描写，就错了——它属于侧面描写。\n\n❌ 关于“心理描写”，资料中未出现相关定义、例子或判断依据，不能确认其是否被忽视，也不能据此评分或下结论。\n\n总结：资料只支持解释前半句（混淆正/侧面描写），后半句（忽视心理描写）**资料未涉及，无法依据资料讲解**。",
+      "reason": null,
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_语文_高一_现代文阅读与古诗文_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.675517737865448
+        }
+      ],
+      "refused": false,
+      "latency_ms": 7698
+    },
+    {
+      "id": "RAG-ABSENT-001",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "没有满足版本、发布状态和权限过滤的证据",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 991
+    },
+    {
+      "id": "RAG-ABSENT-002",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1747,
+        1798,
+        1800,
+        1832,
+        1797
+      ],
+      "candidate_sources": [
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md",
+        "初中_英语_初一_词法与句法_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 590
+    },
+    {
+      "id": "RAG-ABSENT-003",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1892,
+        1893,
+        1890,
+        1910,
+        1903
+      ],
+      "candidate_sources": [
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md",
+        "初中_语文_初一_记叙文阅读与基础文言_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 736
+    },
+    {
+      "id": "RAG-ABSENT-004",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [],
+      "candidate_sources": [],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "没有满足版本、发布状态和权限过滤的证据",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 664
+    },
+    {
+      "id": "RAG-ABSENT-005",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1248,
+        1275,
+        1226,
+        1274,
+        1255
+      ],
+      "candidate_sources": [
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md",
+        "初中_数学_初一_图形与几何_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 604
+    },
+    {
+      "id": "RAG-ABSENT-006",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        1397,
+        1382,
+        1405,
+        1375,
+        1451
+      ],
+      "candidate_sources": [
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md",
+        "初中_物理_初三_电与磁_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 879
+    },
+    {
+      "id": "RAG-ABSENT-007",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2859,
+        2856,
+        2858,
+        2883,
+        2869
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 549
+    },
+    {
+      "id": "RAG-ABSENT-008",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2130,
+        2155,
+        2128,
+        2182,
+        2225
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 659
+    },
+    {
+      "id": "RAG-ABSENT-009",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2347,
+        2363,
+        2413,
+        2351,
+        2412
+      ],
+      "candidate_sources": [
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md",
+        "高中_历史_高一_中外历史纲要_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 611
+    },
+    {
+      "id": "RAG-ABSENT-010",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2666,
+        2696,
+        2672,
+        2673,
+        2658
+      ],
+      "candidate_sources": [
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md",
+        "高中_政治_高一_经济生活_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 690
+    },
+    {
+      "id": "RAG-ABSENT-011",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2060,
+        2130,
+        2181,
+        2225,
+        2067
+      ],
+      "candidate_sources": [
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md",
+        "高中_化学_高一_化学物质与变化_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 753
+    },
+    {
+      "id": "RAG-ABSENT-012",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        3140,
+        3171,
+        3118,
+        3116,
+        3138
+      ],
+      "candidate_sources": [
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md",
+        "高中_物理_高一_运动学与力学基础_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 643
+    },
+    {
+      "id": "RAG-ABSENT-013",
+      "category": "knowledge_absent",
+      "expected_chunk_ids": [],
+      "expect_refusal": true,
+      "candidate_chunk_ids": [
+        2934,
+        2930,
+        2937,
+        2859,
+        2921
+      ],
+      "candidate_sources": [
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+        "高中_数学_高一_函数与基本初等函数_P1_v1.md"
+      ],
+      "route": "rag",
+      "answer": "当前知识库中没有足够可靠的资料来回答这个问题。",
+      "reason": "最高证据分不足",
+      "citations": [],
+      "refused": true,
+      "latency_ms": 670
+    }
+  ]
+}
