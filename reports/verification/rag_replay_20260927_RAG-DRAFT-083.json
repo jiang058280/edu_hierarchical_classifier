@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-083",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "Look! The students ______ basketball on the playground.\nA. play\nB. played\nC. are playing\nD. will play",
+      "session_id": 46,
+      "status": "completed",
+      "answer": "题库中找到相关题目：Look! The students ______ basketball on the playground.\n\n参考答案：C\n\n解析：句首 Look! 是现在进行时的典型提示，表示动作此刻正在进行，结构为 be + 动词-ing。主语 The students 是复数，be 动词用 are，故选 are playing。A 项 play 是一般现在时，表示习惯性动作；B 项 played 是一般过去时，表示过去发生；D 项 will play 是一般将来时，表示将来发生，均与 Look! 提示的\"此刻正在进行\"不符。故选 C。易错点：忽视 Look! 这一关键线索而误选 A。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1337 题",
+          "chapter": "动词时态基础（一般现在/过去/将来/进行时）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 168,
+      "first_token_ms": 133.42,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 54,
+      "client_latency_ms": 876.75
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 46,
+      "status": "completed",
+      "answer": "关键依据有两个，且必须同时成立：\n\n1. **Look! 是现在进行时的明确时间提示**：它表示“快看！——动作正在眼前发生”，对应语法结构 **be + 动词-ing**（即现在进行时），排除 A（一般现在时，表习惯）、B（一般过去时，表已完成）、D（一般将来时，表未发生）。\n\n2. **主谓一致要求 be 动词用 are**：主语 *The students* 是复数，所以 be 动词必须用 *are*，与 *playing* 构成 *are playing*；若主语是单数（如 *The student*），才用 *is playing*。\n\n因此，C 项 *are playing* 是唯一同时满足“时间提示”和“语法结构”两项要求的选项。  \n其他选项错在：虽动词形式本身合法，但时态与 *Look!* 所要求的“此刻进行”不匹配。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_英语_高一_语法与阅读基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.760284423828125
+        }
+      ],
+      "message_id": 170,
+      "first_token_ms": 7187.94,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 7084,
+      "client_latency_ms": 8047.26
+    }
+  ],
+  "session_id": 46,
+  "final_refusal_matches": true
+}

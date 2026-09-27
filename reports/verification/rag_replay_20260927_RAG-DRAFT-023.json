@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-023",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列说法正确的是（　　）\nA. 直线 $AB$ 与直线 $BA$ 是不同的直线\nB. 射线 $AB$ 与射线 $BA$ 是同一条射线\nC. 线段 $AB$ 与线段 $BA$ 是同一条线段\nD. 射线 $AB$ 的端点是 $B$",
+      "session_id": 50,
+      "status": "completed",
+      "answer": "根据【资料】中的解析：\n\n- A 错：直线向两方无限延伸，**端点字母顺序不影响直线本身**，所以直线 $AB$ 与直线 $BA$ 是同一条直线。  \n- B 错：射线 $AB$ 的端点是 $A$，方向从 $A$ 指向 $B$；射线 $BA$ 的端点是 $B$，方向从 $B$ 指向 $A$；**方向相反，不是同一条射线**。  \n- C 正确：线段 $AB$ 与线段 $BA$ 表示连接点 $A$ 和点 $B$ 的**同一段有限长度的线**，**与字母顺序无关**。  \n- D 错：射线 $AB$ 的端点是 **$A$**（资料明确说：“射线 $AB$ 的端点是 $A$”），不是 $B$。\n\n✅ 正确答案是：**C**",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8395582437515259
+        }
+      ],
+      "message_id": 183,
+      "first_token_ms": 6387.27,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6322,
+      "client_latency_ms": 7149.71
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 50,
+      "status": "completed",
+      "answer": "关键依据来自【资料】中对三类几何对象“命名规则”和“方向性”的明确定义：\n\n1. **直线无方向、无端点**：  \n   直线 $AB$ 和 $BA$ 都表示经过点 $A$ 和点 $B$ 的同一条无限延伸的直线，字母顺序不改变其本身 → 所以 A 错。\n\n2. **射线有方向、有唯一端点**：  \n   - 射线 $AB$：**端点是 $A$**，方向从 $A$ 指向 $B$ 并无限延伸；  \n   - 射线 $BA$：**端点是 $B$**，方向从 $B$ 指向 $A$ 并无限延伸。  \n   二者端点不同、方向相反，因此不是同一条射线 → B 错，D 也错（D 说射线 $AB$ 的端点是 $B$，与资料[1]“射线 $AB$ 的端点是 $A$”直接矛盾）。\n\n3. **线段无方向、有两个端点**：  \n   线段 $AB$ 和 $BA$ 都指连接点 $A$、$B$ 的有限部分，只由两个端点决定，与书写顺序无关 → C 正确。\n\n⚠️ 易错提示（资料明确指出）：不能把直线“无方向”的特点套用到射线上——射线的方向性由字母顺序严格规定，这是本题最核心的区分依据。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_数学_初一_图形与几何_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.87432461977005
+        }
+      ],
+      "message_id": 185,
+      "first_token_ms": 8724.91,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 8657,
+      "client_latency_ms": 9906.31
+    }
+  ],
+  "session_id": 50,
+  "final_refusal_matches": true
+}

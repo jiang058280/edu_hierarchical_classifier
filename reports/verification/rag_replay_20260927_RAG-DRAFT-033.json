@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-033",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列对象中，不属于生物的是（　　）\nA. 蘑菇\nB. 病毒\nC. 钟乳石\nD. 乳酸菌",
+      "session_id": 35,
+      "status": "completed",
+      "answer": "题库中找到相关题目：下列对象中，不属于生物的是（　　）\n\n参考答案：C\n\n解析：蘑菇（真菌）、乳酸菌（细菌）具有细胞结构，能生长繁殖、进行新陈代谢，属于生物；病毒没有细胞结构，但能在寄主体内繁殖、具有遗传变异现象，属于生物；钟乳石虽然在漫长的过程中会\"长大\"，但它是碳酸钙沉积形成的自然物，不进行新陈代谢、不能繁殖，也不具备应激性，属于非生物，故选 C。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 620 题",
+          "chapter": "生物的基本特征与观察方法",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 125,
+      "first_token_ms": 96.38,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 41,
+      "client_latency_ms": 592.02
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 35,
+      "status": "completed",
+      "answer": "关键依据是：**判断是否为生物，主要看是否具备生物的基本特征（如细胞结构、新陈代谢、生长繁殖、遗传变异等）；而钟乳石完全不具备这些特征，它只是无机物缓慢沉积形成的自然现象。**\n\n资料中明确指出：\n- 蘑菇（真菌）、乳酸菌（细菌）有细胞结构，能生长繁殖、进行新陈代谢 → 属于生物；\n- 病毒虽无细胞结构，但能在寄主体内繁殖、具有遗传变异现象 → **资料中将其归为生物**；\n- 钟乳石未被提及具有任何一项生物基本特征，且它是碳酸钙等矿物质在洞穴中经长期化学沉积形成，属于地质现象 → **不属于生物**。\n\n注意：资料对病毒的归类是“属于生物”，这是本题判定的关键前提。若按其他标准（如必须有细胞结构），结论可能不同，但本题**严格依据资料[1]的解析**，病毒算生物，钟乳石不算。\n\n因此，正确答案为 C 的根本原因：**只有钟乳石完全不满足资料所列的任一生物特征。**",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_生物_初一_生物和生物圈与细胞_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.846548318862915
+        }
+      ],
+      "message_id": 127,
+      "first_token_ms": 6815.37,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6760,
+      "client_latency_ms": 7803.84
+    }
+  ],
+  "session_id": 35,
+  "final_refusal_matches": true
+}

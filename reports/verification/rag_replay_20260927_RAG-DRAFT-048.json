@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-048",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列物质中属于盐的是（　　）\nA. Na₂O\nB. H₂SO₄\nC. Ca(OH)₂\nD. Na₂CO₃",
+      "session_id": 39,
+      "status": "completed",
+      "answer": "题库中找到相关题目：下列物质中属于盐的是（　　）\n\n参考答案：D\n\n解析：盐是由金属离子（或铵根离子）与酸根离子组成的化合物。Na₂CO₃ 由 Na⁺ 和 CO₃²⁻ 组成，属于盐，D 正确。Na₂O 由两种元素组成且其中一种是氧，属于氧化物，A 错误。H₂SO₄ 电离时阳离子全部为 H⁺，属于酸，B 错误。Ca(OH)₂ 电离时阴离子全部为 OH⁻，属于碱，C 错误。故选 D。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 836 题",
+          "chapter": "物质的分类与分散系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 141,
+      "first_token_ms": 76.94,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 28,
+      "client_latency_ms": 568.74
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 39,
+      "status": "completed",
+      "answer": "关键依据是资料中给出的盐的定义：  \n**“盐是由金属离子（或铵根离子）与酸根离子组成的化合物。”**\n\n我们逐项对照这个定义判断：\n\n- **A. Na₂O**：由 Na⁺ 和 O²⁻ 组成，O²⁻ 不是酸根离子（如 CO₃²⁻、SO₄²⁻、Cl⁻ 等），而是氧离子；且 Na₂O 是由两种元素组成、其中一种为氧的化合物 → 属于**氧化物**（资料明确说明），**不符合盐的定义**。\n\n- **B. H₂SO₄**：电离时阳离子全部为 H⁺ → 属于**酸**（资料解析中指出），不含金属离子与酸根离子的组合结构（虽然含 SO₄²⁻，但阳离子是 H⁺，不是金属离子或 NH₄⁺），**不符合盐的定义**。\n\n- **C. Ca(OH)₂**：电离时阴离子全部为 OH⁻ → 属于**碱**（资料解析中指出），其阳离子虽是金属离子 Ca²⁺，但阴离子是 OH⁻，不是酸根离子，**不符合盐的定义**。\n\n- **D. Na₂CO₃**：由 Na⁺（金属离子）和 CO₃²⁻（碳酸根离子，是常见酸根离子）组成 → 完全符合“金属离子 + 酸根离子”的定义 → **属于盐**。\n\n✅ 所以，判断是否为盐，**核心只看两点**：  \n1. 是否为**化合物**（所有选项都是）；  \n2. 是否由**金属离子（或 NH₄⁺）** 与 **酸根离子** 直接构成。  \n\n其他特征（如水溶液酸碱性、是否含氧等）均不是判断依据——资料未提供、也不需使用。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_化学_高一_化学物质与变化_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8292850852012634
+        }
+      ],
+      "message_id": 143,
+      "first_token_ms": 10219.51,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 10169,
+      "client_latency_ms": 11719.35
+    }
+  ],
+  "session_id": 39,
+  "final_refusal_matches": true
+}

@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-013",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列能最直接证明地球是球体的事实是（　　）\nA. 天圆地方的说法\nB. 麦哲伦船队环球航行\nC. 站在海边看远方的船\nD. 太阳东升西落",
+      "session_id": 32,
+      "status": "completed",
+      "answer": "题库中找到相关题目：下列能最直接证明地球是球体的事实是（　　）\n\n参考答案：B\n\n解析：麦哲伦船队从西班牙出发一路向西航行，最终回到原出发地，用事实证明了地球是一个球体，是最直接的证据，B 正确。A 是古代的错误认识；C 和 D 可用其他现象解释（如大气折射、地球自转），不如环球航行直接。故选 B。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 285 题",
+          "chapter": "地球的形状与大小及地球仪",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 114,
+      "first_token_ms": 80.5,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 31,
+      "client_latency_ms": 440.19
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 32,
+      "status": "completed",
+      "answer": "关键依据是：**麦哲伦船队环球航行成功，从同一地点出发、朝同一方向（向西）持续航行，最终回到了出发地**。\n\n这说明地球表面是**首尾相接的闭合曲面**，而唯一能实现“向一个方向走却回到起点”的几何形状，在常识和初中认知范围内，就是**球体**（或近似球体）。这是**亲身实践、可重复验证的直接证据**。\n\n其他选项不是直接证明：\n- C（看远方的船先见桅杆后见船身）能**间接支持**地球是球体，但它反映的是**视线被曲面阻挡**，需结合推理，不如环球航行直观、决定性；\n- B 是整段航程的结果，无需额外解释或假设，现象与结论之间逻辑最简、最直接；\n- A 和 D 与地球形状无关（A 是错误观点，D 是由地球自转引起，无论地球是球是平都会出现东升西落，若地面是平的但太阳绕其转动，也能产生该现象）。\n\n因此，资料明确指出：B 是“**用事实证明**”“**最直接的证据**”。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_地理_初一_地球与地图_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8500974178314209
+        }
+      ],
+      "message_id": 116,
+      "first_token_ms": 6735.18,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6660,
+      "client_latency_ms": 7706.45
+    }
+  ],
+  "session_id": 32,
+  "final_refusal_matches": true
+}

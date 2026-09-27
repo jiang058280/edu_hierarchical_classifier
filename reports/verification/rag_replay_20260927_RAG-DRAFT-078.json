@@ -1,0 +1,85 @@
+{
+  "case_id": "RAG-DRAFT-078",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列关于细胞内化合物的叙述，正确的是（　　）\nA. 葡萄糖是细胞内主要的储能物质\nB. 脂肪是细胞内主要的能源物质\nC. 糖原是植物细胞特有的多糖\nD. 磷脂是构成生物膜的重要成分",
+      "session_id": 45,
+      "status": "completed",
+      "answer": "题库中找到相关题目：下列关于细胞内化合物的叙述，正确的是（　　）\n\n参考答案：D\n\n解析：葡萄糖是细胞生命活动的主要能源物质，但不是储能物质，储能物质是糖原（动物）、淀粉（植物）以及脂肪，A 错；细胞内主要的储能物质是脂肪，主要的能源物质是葡萄糖，B 错；糖原是动物细胞特有的多糖，植物细胞内的多糖是淀粉和纤维素，C 错；磷脂是构成生物膜（细胞膜、细胞器膜、核膜）的重要成分，D 正确。易错点：把\"能源物质\"与\"储能物质\"混淆。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1265 题",
+          "chapter": "细胞中的糖类、脂质和无机物",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 164,
+      "first_token_ms": 108.11,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 35,
+      "client_latency_ms": 681.15
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 45,
+      "status": "completed",
+      "answer": "这道题的关键依据来自【资料】中对四类化合物功能的明确区分，具体如下（只依据资料，不补充）：\n\n1. **能源物质 ≠ 储能物质**  \n   - 【资料[1]解析】明确说：“葡萄糖是细胞生命活动的主要**能源物质**”，但“不是储能物质”；  \n   - 储能物质是糖原（动物）、淀粉（植物）和**脂肪**；  \n   → 所以 A 错（葡萄糖不是储能物质），B 错（脂肪是储能物质，不是“主要的能源物质”——主要能源物质是葡萄糖）。\n\n2. **糖原的分布有明确限定**  \n   - 【资料[1]解析】指出：“糖原是**动物细胞特有**的多糖”，而植物细胞中对应的是淀粉和纤维素；  \n   → 所以 C 错（说“植物细胞特有”与资料直接矛盾）。\n\n3. **磷脂的功能有明确定义**  \n   - 【资料[1]解析】写明：“磷脂是构成生物膜（细胞膜、细胞器膜、核膜）的**重要成分**”；  \n   - 【资料[2]小结】第2条也确认：“磷脂（构成生物膜）”；  \n   → 所以 D 正确，且这是唯一被资料双重确认的功能性描述。\n\n✅ 总结关键依据：  \n所有判断都严格依赖资料中三处一致表述：  \n- 葡萄糖 → 主要**能源物质**（非储能）；  \n- 脂肪 → 主要**储能物质**（非主要能源）；  \n- 糖原 → **动物特有**；  \n- 磷脂 → 明确承担“构成生物膜的重要成分”这一功能。  \n\n其他说法（如“主要能源物质是脂肪”或“糖原在植物中存在”）在资料中均无支持，反而被直接否定。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8479650616645813
+        },
+        {
+          "number": 2,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7096275687217712
+        },
+        {
+          "number": 3,
+          "source_name": "高中_生物_高一_分子与细胞_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6909713745117188
+        }
+      ],
+      "message_id": 166,
+      "first_token_ms": 11623.93,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 11546,
+      "client_latency_ms": 13241.25
+    }
+  ],
+  "session_id": 45,
+  "final_refusal_matches": true
+}

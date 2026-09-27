@@ -1,0 +1,93 @@
+{
+  "case_id": "RAG-DRAFT-093",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初三",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "判断：判断一个变化是物理变化还是化学变化，根本依据是看该变化过程中是否有发光、放热等现象。",
+      "session_id": 30,
+      "status": "completed",
+      "answer": "题库中找到相关题目：判断：判断一个变化是物理变化还是化学变化，根本依据是看该变化过程中是否有发光、放热等现象。\n\n参考答案：错误\n\n解析：物理变化与化学变化的本质区别是**是否有新物质生成**，而不是是否有发光、放热、变色等现象。某些物理变化也能伴随发光或放热（如灯泡通电发光、白炽灯丝发热），某些化学变化也可能没有明显现象（如氢氧化钠溶液与稀盐酸反应）。因此，发光放热只是辅助判断的现象，不能作为根本依据。故原说法错误。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 190 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 106,
+      "first_token_ms": 81.21,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 32,
+      "client_latency_ms": 613.72
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 30,
+      "status": "completed",
+      "answer": "关键依据是：**判断物理变化与化学变化的唯一根本标准，是看变化过程中是否生成了新物质；而发光、放热等只是可能伴随的现象，既不充分也不必要。**\n\n具体来说：\n\n1. **“不充分”**：有发光、放热，不一定发生化学变化。  \n　　→ 如资料[1][4]所举例子：灯泡通电时发光、放热，但灯丝只是温度升高而发光（白炽状态），没有变成新物质，属于物理变化。\n\n2. **“不必要”**：没有明显现象，也可能发生了化学变化。  \n　　→ 如资料[1][2]指出：氢氧化钠溶液与稀盐酸反应，外观无变色、无气体、无沉淀，现象不明显，但生成了氯化钠和水（新物质），是典型的化学变化。\n\n因此，这些现象只能作为**线索或提示**，帮助我们怀疑可能发生了化学变化，但**不能代替本质判断**。真正的“钥匙”始终是：**有没有新物质生成**——这是资料中反复强调的、唯一可靠的依据。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8357322216033936
+        },
+        {
+          "number": 2,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7839089035987854
+        },
+        {
+          "number": 3,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7784605026245117
+        },
+        {
+          "number": 4,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7551352977752686
+        }
+      ],
+      "message_id": 108,
+      "first_token_ms": 6419.62,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6352,
+      "client_latency_ms": 7486.4
+    }
+  ],
+  "session_id": 30,
+  "final_refusal_matches": true
+}

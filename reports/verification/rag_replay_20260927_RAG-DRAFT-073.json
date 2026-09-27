@@ -1,0 +1,85 @@
+{
+  "case_id": "RAG-DRAFT-073",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "关于质点，下列说法正确的是（　　）\nA. 体积很小的物体一定能看作质点\nB. 研究地球绕太阳公转的轨道时，地球可看作质点\nC. 研究体操运动员的动作姿态时，运动员可看作质点\nD. 任何情况下同一物体都可以看作质点",
+      "session_id": 51,
+      "status": "completed",
+      "answer": "题库中找到相关题目：关于质点，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物体能否看作质点取决于其大小和形状对所研究问题的影响能否忽略，而非物体本身的大小，A 错误。研究地球绕太阳公转轨道时，地球的尺寸远小于轨道半径，形状和大小对轨道描述的影响可忽略，可看作质点，B 正确。研究体操运动员的动作姿态时需要关注身体各部位的运动，不能看作质点，C 错误。同一物体在不同研究问题中能否看作质点结论可能不同，D 过于绝对。故选 B。易错点：把\"小\"等同于\"可看作质点\"。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1194 题",
+          "chapter": "质点参考系与坐标系",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 187,
+      "first_token_ms": 95.23,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 35,
+      "client_latency_ms": 721.96
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 51,
+      "status": "completed",
+      "answer": "关键依据有三点，全部来自【资料】：\n\n1. **判断标准唯一：看“大小和形状对所研究问题的影响能否忽略”**  \n   资料[2]明确定义：“物体能否看作质点取决于其大小和形状对所研究问题的影响能否忽略，而非物体本身的大小。”  \n   → 所以A错：体积小≠影响可忽略（如研究小球自转时，再小也不能当质点）；D错：“任何情况”违背了“取决于问题”的前提。\n\n2. **B正确是因为公转轨道问题中地球的尺寸“远小于轨道半径”，影响可忽略**  \n   资料[1]直接指出：“地球的尺寸远小于轨道半径，形状和大小对轨道描述的影响可忽略，可看作质点。”  \n   → 这是具体应用定义：不是因为地球“小”，而是它相对于公转轨道“足够小”，从而简化有效。\n\n3. **C错误是因为动作姿态问题必须关注各部位的位置和运动**  \n   资料[1]说：“研究体操运动员的动作姿态时需要关注身体各部位的运动，不能看作质点。”  \n   → 此时大小、形状、肢体相对位置正是研究对象本身，绝不能忽略——这反向印证了质点适用的前提是“可忽略”。\n\n✅ 总结一句话：  \n**能不能当质点，不看物体本身多大，而看你要研究的问题里，它的大小和形状“碍不碍事”。**  \n资料中所有正误判断，都严格按这一条展开，没有例外。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_物理_高一_运动学与力学基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8140240907669067
+        },
+        {
+          "number": 2,
+          "source_name": "高中_物理_高一_运动学与力学基础_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7089218497276306
+        },
+        {
+          "number": 3,
+          "source_name": "高中_物理_高一_运动学与力学基础_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7048659324645996
+        }
+      ],
+      "message_id": 189,
+      "first_token_ms": 9217.22,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 9152,
+      "client_latency_ms": 10588.43
+    }
+  ],
+  "session_id": 51,
+  "final_refusal_matches": true
+}

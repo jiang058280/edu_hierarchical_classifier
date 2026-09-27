@@ -1,0 +1,85 @@
+{
+  "case_id": "RAG-DRAFT-008",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "约公元前 2070 年，禹建立了中国历史上第一个王朝。这个王朝是（　　）\nA. 夏朝\nB. 商朝\nC. 西周\nD. 秦朝",
+      "session_id": 31,
+      "status": "completed",
+      "answer": "题库中找到相关题目：约公元前 2070 年，禹建立了中国历史上第一个王朝。这个王朝是（　　）\n\n参考答案：A\n\n解析：约公元前 2070 年，禹建立夏朝，这是中国历史上第一个王朝，标志着中国早期国家的产生，故选 A。商朝由商汤约在公元前 1600 年建立，西周由周武王在公元前 1046 年建立，秦朝建立于公元前 221 年，三者时间与\"第一个王朝\"均不符。易错点：把\"我国历史上第一个统一的多民族的封建国家（秦朝）\"与\"第一个王朝（夏朝）\"混淆。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 213 题",
+          "chapter": "夏商周的更替与西周分封制",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 110,
+      "first_token_ms": 92.09,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 33,
+      "client_latency_ms": 620.46
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 31,
+      "status": "completed",
+      "answer": "这道题的关键依据有两点，全部来自【资料】：\n\n1. **时间与人物的对应关系明确**：  \n   【资料】[1] 解析和[2] 核心知识都直接指出：“约公元前 2070 年，禹建立夏朝，这是中国历史上第一个王朝”。\n\n2. **其他选项的时间均晚于夏朝，且不是“第一个”**：  \n   - 商朝：约公元前 1600 年（由商汤建立），比夏朝晚约 470 年；  \n   - 西周：公元前 1046 年（周武王建立），更晚；  \n   - 秦朝：公元前 221 年，是“第一个统一的多民族的封建国家”，但远非“第一个王朝”。  \n   这些信息在【资料】[1] 的“易错点”和[3] 小结中均有明确对比。\n\n因此，判断依据不是推测或常识，而是【资料】中三次重复强调的同一事实：  \n✅ “约公元前 2070 年” + “禹建立” + “第一个王朝” = 夏朝。  \n其余选项均不同时满足这三个条件。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7934408187866211
+        },
+        {
+          "number": 2,
+          "source_name": "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7379650473594666
+        },
+        {
+          "number": 3,
+          "source_name": "初中_历史_初一_先秦至秦汉时期_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7271319031715393
+        }
+      ],
+      "message_id": 112,
+      "first_token_ms": 7293.57,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 7211,
+      "client_latency_ms": 8330.48
+    }
+  ],
+  "session_id": 31,
+  "final_refusal_matches": true
+}

@@ -1,0 +1,109 @@
+{
+  "case_id": "RAG-DRAFT-063",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "货币的本质是（　　）\nA. 普通商品\nB. 特殊等价物\nC. 一般等价物\nD. 价值尺度",
+      "session_id": 42,
+      "status": "completed",
+      "answer": "货币的本质是（ **C. 一般等价物** ）\n\n**依据资料：**  \n- [2] 明确指出：“货币的本质是一般等价物”，并说明“货币是从商品世界中分离出来，固定地充当一般等价物的商品”。  \n- [1] 补充说明：“货币所以能充当一般等价物，是因为它本身也是商品，具有使用价值和价值”，这强调了货币的特殊性——它不是普通商品（排除 A），也不是“特殊等价物”（B 是错误表述，资料中无此说法），更不是职能（D 是货币的职能之一，非本质）。  \n- [3] 和 [4] 再次确认：“货币的本质是一般等价物”。\n\n**其他选项辨析（据资料）：**  \n- A 错误：资料[2]解析明确说“货币虽是商品但不是普通商品”。  \n- B 错误：资料中从未出现“特殊等价物”这一表述，且[2]解析直接否定 B。  \n- D 错误：资料[1][4]均说明“价值尺度”是货币的**职能**，不是本质。\n\n✅ 正确答案：**C**",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7277947664260864
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7003141045570374
+        },
+        {
+          "number": 3,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6882696747779846
+        },
+        {
+          "number": 4,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6739808320999146
+        }
+      ],
+      "message_id": 153,
+      "first_token_ms": 6965.96,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6916,
+      "client_latency_ms": 7992.34
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 42,
+      "status": "completed",
+      "answer": "关键依据来自【资料】中的明确陈述，分三点说明：\n\n1. **本质定义直接给出**：  \n   【资料】[1] 解析中明确说：“货币的本质是一般等价物。”并进一步解释：“货币是从商品世界中分离出来，固定地充当一般等价物的商品。”——这是最直接、权威的判定依据。\n\n2. **排除其他选项的理由清晰**：  \n   - A 错：货币“虽是商品但不是普通商品”，它具有特殊地位（固定充当一般等价物）；  \n   - B 错：“特殊等价物”不是教材或资料中使用的规范概念，资料只认可“一般等价物”；  \n   - D 错：“价值尺度”在【资料】[1] 和 [2] 中均被明确定性为**职能**（即“能做什么”），而题目问的是“本质”（即“是什么”），二者属于不同逻辑层次。\n\n3. **概念区分有强调**：  \n   【资料】[1] 易错点特别指出：“把货币的职能（价值尺度）误认为本质，混淆‘是什么’与‘能做什么’。”这说明判断本题的核心，在于严格区分“本质”（静态属性）和“职能”（动态作用）——资料将“一般等价物”归为本质，“价值尺度”归为职能，界限分明。\n\n综上，选 C 的关键依据是：资料明确定义货币本质为“一般等价物”，且系统排除了其他选项对应的错误归属。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.781745970249176
+        },
+        {
+          "number": 2,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7095957398414612
+        },
+        {
+          "number": 3,
+          "source_name": "高中_政治_高一_经济生活_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7046291828155518
+        }
+      ],
+      "message_id": 155,
+      "first_token_ms": 8563.33,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 8509,
+      "client_latency_ms": 9877.26
+    }
+  ],
+  "session_id": 42,
+  "final_refusal_matches": true
+}

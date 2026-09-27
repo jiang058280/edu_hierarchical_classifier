@@ -1,0 +1,93 @@
+{
+  "case_id": "RAG-DRAFT-028",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初三",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "关于电流的方向，下列说法正确的是（　　）\nA. 电流的方向由负电荷定向移动的方向规定\nB. 在电源外部，电流从电源正极经用电器流向负极\nC. 在电源内部，电流从正极流向负极\nD. 电子定向移动的方向就是电流方向",
+      "session_id": 29,
+      "status": "completed",
+      "answer": "题库中找到相关题目：关于电流的方向，下列说法正确的是（　　）\n\n参考答案：B\n\n解析：物理学规定**正电荷定向移动的方向**为电流方向，故 A、D 错误。在电源外部，电流从电源正极经用电器回到负极，B 正确；在电源内部，电流由负极流向正极，C 错误。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 572 题",
+          "chapter": "电流和电路（串并联）",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 102,
+      "first_token_ms": 92.13,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 36,
+      "client_latency_ms": 456.63
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 29,
+      "status": "completed",
+      "answer": "这道题的关键依据有两点，全部来自【资料】中明确写出的规定：\n\n**第一，电流方向的定义是人为规定的，不是由实际电荷运动决定的。**  \n资料[1]解析和[2]核心知识都强调：  \n> **“规定正电荷定向移动的方向为电流方向。”**  \n因此：  \n- A错：不是负电荷移动方向；  \n- D错：电子是负电荷，其定向移动方向与电流方向**相反**（资料[4]误区1也印证了这点）；  \n- 这个“规定”是物理学的统一标准，不依赖于金属导线中实际移动的是电子。\n\n**第二，电源内外电流路径不同，这是由闭合回路和能量转换决定的。**  \n资料[1]解析明确指出：  \n> “在电源外部，电流从电源正极经用电器流向负极” → B正确；  \n> “在电源内部，电流由负极流向正极” → 所以C说“从正极流向负极”是错误的。  \n\n这个内外方向差异，保证了整个电路中电流形成**闭合循环**：外部靠电场驱动正电荷从正→负，内部靠电源非静电力（如化学能）把正电荷从负极“搬回”正极——但注意：资料未解释“非静电力”，我们只依据它给出的结论：“内部电流由负极流向正极”。\n\n✅ 总结关键依据（仅限资料所给）：  \n1. 定义依据：**电流方向 = 规定的正电荷定向移动方向**（非电子，非负电荷）；  \n2. 路径依据：**外部：正极 → 用电器 → 负极；内部：负极 → 正极**（资料[1]解析原句）。  \n\n其余说法（如为什么这样规定、电源内部如何工作）资料未提供，故不作解释。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8546400666236877
+        },
+        {
+          "number": 2,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.7233111262321472
+        },
+        {
+          "number": 3,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "小结",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6718504428863525
+        },
+        {
+          "number": 4,
+          "source_name": "初中_物理_初三_电与磁_P1_v1.md",
+          "chapter": "常见误区",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6643064618110657
+        }
+      ],
+      "message_id": 104,
+      "first_token_ms": 10611.62,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 10554,
+      "client_latency_ms": 12239.58
+    }
+  ],
+  "session_id": 29,
+  "final_refusal_matches": true
+}

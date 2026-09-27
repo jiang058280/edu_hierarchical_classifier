@@ -10,7 +10,7 @@
 
 ### 2026-09-27 增量更新（优先于下方 09-26 记录）
 
-2026-09-26 各项增强的全部未提交改动已按功能整理为 10 个提交入库（个人文件已 gitignore，未推送远端）；标准自证 ruff/guardrails/pytest 421 全过。R2.5 评测集已完成教师终审（80 条 ready=true）并两次执行正式评测：引用有效率 1.0、无来源回答率 0、拒答正确率 0.95 达标，recall_at_k=0.7083 未达标（RAG 路由样本仅 4 条，36/40 可答题走本地题库直出属设计行为），**R2.5 整体验收未通过**，差距与后续建议见 `docs/任务推进记录_20260927.md`。评测知识库版本 `rag-eval-20260927`（id=5，18 份资料 2142 子块）已激活为生产知识库，版本 1 转 ARCHIVED 可回滚。AI 智能录入已支持 DOCX/PDF/MD/TXT 多格式导入（`/teacher/questions/import-file`）。
+2026-09-26 各项增强的全部未提交改动已按功能整理入库（个人文件已 gitignore，未推送远端）。R2.5 已完成教师终审并**通过正式验收**：`eval_sets/rag_eval_formal_v2.jsonl`（136 条 = 原百题 + 36 条概念题）四项阈值全过——recall@5 0.9208、引用有效率 1.0、无来源回答率 0、拒答正确率 0.9655（真实 LLM，报告 `reports/verification/rag_eval_formal_v2_run1.json`）。生产配置两项数据驱动变更已写入 `.env`：`EDU_RAG_MIN_EVIDENCE_SCORE=0.66`（消灭软拒答，run3 拒答正确率 0.9875）、`EDU_RAG_CONVERSATION_MEMORY_ENABLED=true`（回放证明主题记忆关闭时 20/20 追问轮被拒答）。评测知识库版本 `rag-eval-20260927`（id=5）已激活为生产知识库（版本 1 转 ARCHIVED 可回滚）。follow_up 20 条会话回放完成（`reports/verification/rag_replay_20260927_*.json`，replayed_pending_review，内容质量待人工抽查）。AI 智能录入已支持 DOCX/PDF/MD/TXT 多格式导入。详见 `docs/任务推进记录_20260927.md`。
 
 ### 2026-09-26 增量更新（优先于下方历史快照）
 

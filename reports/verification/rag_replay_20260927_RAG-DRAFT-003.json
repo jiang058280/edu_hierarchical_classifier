@@ -1,0 +1,77 @@
+{
+  "case_id": "RAG-DRAFT-003",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初三",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "下列变化中属于化学变化的是（　　）\nA. 石蜡受热熔化\nB. 玻璃杯破碎\nC. 铁钉生锈\nD. 水结成冰",
+      "session_id": 28,
+      "status": "completed",
+      "answer": "题库中找到相关题目：下列变化中属于化学变化的是（　　）\n\n参考答案：C\n\n解析：化学变化的本质特征是有新物质生成。铁钉生锈生成了铁锈（主要成分为氧化铁），有新物质生成，属于化学变化，C 正确。石蜡熔化、玻璃破碎、水结冰都只是物质的状态或形状发生改变，没有新物质生成，属于物理变化，A、B、D 错误。故选 C。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 189 题",
+          "chapter": "物质的性质与变化",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 98,
+      "first_token_ms": 135.27,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 35,
+      "client_latency_ms": 574.52
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 28,
+      "status": "completed",
+      "answer": "关键依据是：**判断化学变化的根本标准，是有无新物质生成**。\n\n根据资料[1]解析和[2]核心知识：\n\n- C项“铁钉生锈”中，铁（Fe）与空气中的氧气、水反应，生成了铁锈，其主要成分是氧化铁（Fe₂O₃等），这是一种与铁不同的新物质 → **符合“有新物质生成”这一本质特征**，所以是化学变化。\n\n- A项“石蜡受热熔化”：只是从固态变为液态，石蜡分子本身没变，仍是石蜡 → 无新物质，是物理变化。  \n- B项“玻璃杯破碎”：只是形状改变，玻璃的成分没变 → 无新物质，是物理变化。  \n- D项“水结成冰”：只是状态由液态变固态，H₂O分子未改变 → 无新物质，是物理变化。\n\n⚠️ 注意：资料[2]特别强调——发光、放热、变色等现象**不能作为根本依据**，因为它们可能出现在物理变化中（如白炽灯发光放热），也可能在化学变化中不明显（如某些缓慢反应）。所以本题不能靠“有没有放热”或“有没有颜色变化”来判断，而必须回归到**是否生成新物质**这一唯一本质标准。\n\n总结：本题的关键，就是牢牢抓住资料中反复强调的定义——**化学变化的本质是新物质生成**。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8575103282928467
+        },
+        {
+          "number": 2,
+          "source_name": "初中_化学_初三_走进化学世界与空气_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6959851980209351
+        }
+      ],
+      "message_id": 100,
+      "first_token_ms": 8199.84,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 8127,
+      "client_latency_ms": 9383.15
+    }
+  ],
+  "session_id": 28,
+  "final_refusal_matches": true
+}

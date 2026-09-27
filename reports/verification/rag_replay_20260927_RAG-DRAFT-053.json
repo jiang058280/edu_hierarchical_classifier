@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-053",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "距今约一万年前，我国进入新石器时代。下列新石器时代文化遗存中，位于长江流域且以稻作农业为代表的是（　　）\nA. 半坡遗址\nB. 河姆渡遗址\nC. 陶寺文化\nD. 二里头遗址",
+      "session_id": 40,
+      "status": "completed",
+      "answer": "题库中找到相关题目：距今约一万年前，我国进入新石器时代。下列新石器时代文化遗存中，位于长江流域且以稻作农业为代表的是（　　）\n\n参考答案：B\n\n解析：河姆渡遗址位于长江下游浙江余姚，以稻作农业和干栏式建筑为代表，故选 B。半坡遗址位于黄河流域陕西西安，以粟作农业和半地穴式房屋为代表，A 错；陶寺文化位于黄河中游山西襄汾，属中原早期文明遗存，C 错；二里头遗址位于河南偃师，属夏文化遗存，不在长江流域，D 错。易错点：混淆黄河流域粟作与长江流域稻作。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 907 题",
+          "chapter": "中华文明的起源与早期国家",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 145,
+      "first_token_ms": 78.56,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 31,
+      "client_latency_ms": 671.33
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 40,
+      "status": "completed",
+      "answer": "这道题的关键依据有两点，均来自【资料】[1]的解析部分：\n\n1. **地理位置要求**：题干明确限定“位于长江流域”。  \n   - 资料指出：河姆渡遗址“位于长江下游浙江余姚” → 符合长江流域；  \n   - 半坡遗址在“黄河流域陕西西安”，陶寺文化在“黄河中游山西襄汾”，二里头遗址在“河南偃师”（属黄河流域）→ 全部不符合。\n\n2. **农业特征要求**：题干强调“以稻作农业为代表”。  \n   - 资料明确说河姆渡遗址“以稻作农业……为代表”；  \n   - 半坡遗址则“以粟作农业为代表”，与稻作无关；  \n   - 陶寺文化、二里头遗址未提稻作，且资料未将其与稻作农业关联。\n\n此外，资料特别指出“易错点：混淆黄河流域粟作与长江流域稻作”，说明本题核心就是辨清**流域+作物类型**的对应关系。  \n其他选项虽也是新石器时代或早期文明遗存，但不同时满足“长江流域”和“稻作农业”两个条件。\n\n因此，B（河姆渡遗址）是唯一符合全部题干限定条件的选项。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_历史_高一_中外历史纲要_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.8309265375137329
+        }
+      ],
+      "message_id": 147,
+      "first_token_ms": 7638.55,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 7550,
+      "client_latency_ms": 8737.07
+    }
+  ],
+  "session_id": 40,
+  "final_refusal_matches": true
+}

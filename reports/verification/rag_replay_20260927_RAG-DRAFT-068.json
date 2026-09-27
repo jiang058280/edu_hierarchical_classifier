@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-068",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "集合 $\\{x\\in\\mathbb{Z}\\mid -2<x\\le2\\}$ 用列举法可表示为（　　）\nA. $\\{-1,0,1,2\\}$\nB. $\\{-2,-1,0,1,2\\}$\nC. $\\{-1,0,1\\}$\nD. $\\{0,1,2\\}$",
+      "session_id": 43,
+      "status": "completed",
+      "answer": "题库中找到相关题目：集合 $\\{x\\in\\mathbb{Z}\\mid -2<x\\le2\\}$ 用列举法可表示为（　　）\n\n参考答案：A\n\n解析：满足 $-2<x\\le2$ 且 $x\\in\\mathbb{Z}$ 的整数依次为 $-1,0,1,2$（$-2$ 不满足\"$-2<x$\"，舍去）。故列举法表示为 $\\{-1,0,1,2\\}$。易错点：把 $-2$ 也纳入，或漏掉 $2$，关键是区分\"$<$\"与\"$\\le$\"。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 1123 题",
+          "chapter": "集合的概念与运算",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 157,
+      "first_token_ms": 93.25,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 37,
+      "client_latency_ms": 627.05
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 43,
+      "status": "completed",
+      "answer": "这道题的关键依据有两个，都来自资料[1]中的明确说明：\n\n1. **元素必须同时满足两个条件**：  \n   - 是整数（即 $x \\in \\mathbb{Z}$）；  \n   - 满足不等式 $-2 < x \\leq 2$。  \n   缺一不可。\n\n2. **严格区分不等号类型**：  \n   - “$-2 < x$” 表示 $x$ **必须大于 $-2$**，所以 $x = -2$ **不满足**，被排除；  \n   - “$x \\leq 2$” 表示 $x$ **可以等于 $2$**，所以 $x = 2$ **必须包含**。  \n\n由此逐个检验整数：  \n- $x = -2$：不满足 $-2 < x$ → 排除；  \n- $x = -1$：$-2 < -1 \\leq 2$ → 成立；  \n- $x = 0$：$-2 < 0 \\leq 2$ → 成立；  \n- $x = 1$：$-2 < 1 \\leq 2$ → 成立；  \n- $x = 2$：$-2 < 2 \\leq 2$ → 成立；  \n- $x = 3$：$3 > 2$，不满足 $\\leq 2$ → 排除。  \n\n因此，仅 $-1, 0, 1, 2$ 符合，对应选项 A。  \n易错点正是混淆“$<$”（不包含端点）和“$\\leq$”（包含右端点）。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_数学_高一_函数与基本初等函数_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.848270058631897
+        }
+      ],
+      "message_id": 159,
+      "first_token_ms": 9773.87,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 9685,
+      "client_latency_ms": 11190.11
+    }
+  ],
+  "session_id": 43,
+  "final_refusal_matches": true
+}

@@ -1,0 +1,85 @@
+{
+  "case_id": "RAG-DRAFT-018",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "初中",
+    "grade": "初一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "升入初中后，小华发现课程门类明显增多，学习内容更加系统深入。这反映了中学生活相比小学的一个显著特点是（　　）\nA. 学习任务完全由教师安排\nB. 学习的环境和内容发生新变化\nC. 人际交往范围缩小到本班\nD. 自主管理要求降低",
+      "session_id": 33,
+      "status": "completed",
+      "answer": "题库中找到相关题目：升入初中后，小华发现课程门类明显增多，学习内容更加系统深入。这反映了中学生活相比小学的一个显著特点是（　　）\n\n参考答案：B\n\n解析：中学生活相比小学，课程门类增多、学习内容更加系统深入，反映了学习环境和内容的新变化，故选 B。A 错误，中学阶段对自主性要求提高，学习任务并非完全由教师安排；C 错误，中学的人际交往范围扩大而非缩小；D 错误，中学阶段自主管理要求提高而非降低。易错点：把\"课程增多\"误读为\"学习负担加重\"而选其他选项，注意题干强调的是\"新变化\"这一特点。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 381 题",
+          "chapter": "中学生活的新起点与少年梦想",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 118,
+      "first_token_ms": 85.54,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 32,
+      "client_latency_ms": 732.99
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 33,
+      "status": "completed",
+      "answer": "关键依据来自【资料】[1]的解析和【资料】[2]的核心知识，具体如下：\n\n1. **题干直接对应**：题干中明确指出“课程门类明显增多，学习内容更加系统深入”，而【资料】[1]解析中明确说明：“这反映了学习环境和内容的新变化”，直接支持选项B。\n\n2. **其他选项被资料明确否定**：\n   - A项“学习任务完全由教师安排”→【资料】[1]解析指出“中学阶段对自主性要求提高，学习任务并非完全由教师安排”；\n   - C项“人际交往范围缩小到本班”→【资料】[2]明确说“人际交往范围从本班扩大到年级乃至全校”；\n   - D项“自主管理要求降低”→【资料】[1]和[2]均强调“自主管理要求提高”。\n\n3. **概念聚焦准确**：题干问的是“这反映了……一个显著特点”，关键词是“这”——即前句所述现象（课程增多、内容更系统深入）所体现的本质特征。【资料】[1]解析和【资料】[2]都统一将此类现象归为“学习环境和内容发生新变化”，而非泛谈负担、压力或管理方式本身。\n\n因此，判断依据不是主观推断，而是资料中对现象与特征之间的明确对应关系。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.773155689239502
+        },
+        {
+          "number": 2,
+          "source_name": "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+          "chapter": "核心知识",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6906812191009521
+        },
+        {
+          "number": 3,
+          "source_name": "初中_政治_初一_成长的节拍与友谊_P1_v1.md",
+          "chapter": "学习目标",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.6657799482345581
+        }
+      ],
+      "message_id": 120,
+      "first_token_ms": 7913.08,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 7832,
+      "client_latency_ms": 9002.2
+    }
+  ],
+  "session_id": 33,
+  "final_refusal_matches": true
+}

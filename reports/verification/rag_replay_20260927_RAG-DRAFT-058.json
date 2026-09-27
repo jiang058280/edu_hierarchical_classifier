@@ -1,0 +1,69 @@
+{
+  "case_id": "RAG-DRAFT-058",
+  "status": "replayed_pending_review",
+  "ready": true,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ],
+  "actual_scope": {
+    "grade_band": "高中",
+    "grade": "高一",
+    "subject": null,
+    "knowledge_node_id": null
+  },
+  "turns": [
+    {
+      "query": "太阳辐射的能量直接来自太阳内部的（　　）\nA. 氢气燃烧\nB. 氢氦核聚变反应\nC. 太阳大气剧烈燃烧\nD. 黑子爆发",
+      "session_id": 41,
+      "status": "completed",
+      "answer": "题库中找到相关题目：太阳辐射的能量直接来自太阳内部的（　　）\n\n参考答案：B\n\n解析：太阳辐射的能量来源是太阳内部在高温高压条件下发生的氢氦核聚变反应，释放巨大能量，并以电磁波形式向外辐射。A、C 说的\"燃烧\"是化学反应，并非太阳内部机制；D 黑子是太阳活动现象，不是能量来源。故选 B。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "本地题库 · 第 979 题",
+          "chapter": "宇宙中的地球与太阳对地球的影响",
+          "page_number": null,
+          "kb_version": "本地题库",
+          "score": 1.0
+        }
+      ],
+      "message_id": 149,
+      "first_token_ms": 92.06,
+      "refused": false,
+      "reason": "本地题库直接命中；未调用大模型",
+      "server_latency_ms": 33,
+      "client_latency_ms": 442.63
+    },
+    {
+      "query": "请进一步解释刚才这道题的关键依据，不要只重复答案。",
+      "session_id": 41,
+      "status": "completed",
+      "answer": "关键依据来自【资料】[1]中的“解析”部分，分三点说明：\n\n1. **能量来源的物理机制**：太阳辐射的能量“直接来自太阳内部在高温高压条件下发生的氢氦核聚变反应”，这是唯一被资料明确指出的、正确的能量产生过程。\n\n2. **排除错误选项的理由**：\n   - A（氢气燃烧）和 C（太阳大气剧烈燃烧）被指出是“化学反应”，而太阳内部能量产生不是化学燃烧，因此错误；\n   - D（黑子爆发）被明确定性为“太阳活动现象”，且“不是能量来源”，故排除。\n\n3. **强调“直接来源”**：题干问的是“直接来自”，而资料明确将“氢氦核聚变反应”与“释放巨大能量，并以电磁波形式向外辐射”直接关联，说明该反应是辐射能量的源头过程。\n\n综上，判断依据完全基于资料中对机制性质（核聚变 vs 化学燃烧 vs 活动现象）的定性区分，而非外部知识。",
+      "citations": [
+        {
+          "number": 1,
+          "source_name": "高中_地理_高一_自然地理基础_P1_v1.md",
+          "chapter": "题例",
+          "page_number": null,
+          "kb_version": "rag-eval-20260927",
+          "score": 0.767258882522583
+        }
+      ],
+      "message_id": 151,
+      "first_token_ms": 6188.62,
+      "refused": false,
+      "reason": null,
+      "server_latency_ms": 6074,
+      "client_latency_ms": 7101.17
+    }
+  ],
+  "session_id": 41,
+  "final_refusal_matches": true
+}
