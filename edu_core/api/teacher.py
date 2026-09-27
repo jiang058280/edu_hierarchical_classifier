@@ -706,6 +706,14 @@ def _validate_question_classification(fields: dict, existing: dict | None = None
 
 
 @router.post("/teacher/questions")
+def _sync_question_vector(question_id: int, content: str) -> None:
+    """题目向量同步到查重集合（查重与推荐语义召回共用；Milvus 不可用时静默跳过）。"""
+    try:
+        get_classification_service().dedup.upsert_question(question_id, content)
+    except Exception:  # noqa: BLE001 — 向量同步是增强功能，不阻塞题库主链路
+        pass
+
+
 def create_question(payload: dict, request: Request,
                     user: dict[str, Any] = Depends(require_teacher)) -> dict:
     """录入完整题目（AI 确认流保存入口）：题干/选项/答案/解析/难度/学段/知识点。"""
@@ -721,6 +729,7 @@ def create_question(payload: dict, request: Request,
         difficulty=fields.get("difficulty"), grade_band=fields.get("grade_band"),
         grade=fields.get("grade"), knowledge_node_id=fields.get("knowledge_node_id"),
         created_by=int(user["id"]), status=fields.get("status", "published"))
+    _sync_question_vector(question_id, fields["content"])
     stores.audit.insert(action="create_question", user_id=int(user["id"]), username=user.get("username"),
                         resource=f"teacher/questions/{question_id}", detail={"status": fields.get("status", "published")},
                         client_ip=request.client.host if request.client else None)
@@ -751,6 +760,7 @@ def create_questions_batch(payload: dict, request: Request,
                 grade=fields.get("grade"), knowledge_node_id=fields.get("knowledge_node_id"),
                 created_by=int(user["id"]), status=fields.get("status", "published"))
             created.append({"index": index, "id": question_id})
+            _sync_question_vector(question_id, fields["content"])
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"批量入库在第 {len(created) + 1} 题失败；已保存 {len(created)} 题：{str(exc)[:120]}") from exc
     stores.audit.insert(action="create_questions_batch", user_id=int(user["id"]), username=user.get("username"),
@@ -770,6 +780,8 @@ def update_question(question_id: int, payload: dict, request: Request,
         raise HTTPException(status_code=404, detail="题目不存在")
     _validate_question_classification(fields, existing)
     stores.questions.update(question_id, **fields)
+    if "content" in fields:
+        _sync_question_vector(question_id, fields["content"])
     stores.audit.insert(action="update_question", user_id=int(user["id"]), username=user.get("username"),
                         resource=f"teacher/questions/{question_id}", detail={"fields": sorted(fields)},
                         client_ip=request.client.host if request.client else None)

@@ -59,4 +59,11 @@ def get_assignment_service() -> AssignmentService:
 @lru_cache(maxsize=1)
 def get_learning_service() -> LearningService:
     settings = get_settings()
-    return LearningService(stores=StoreBundle(settings=settings))
+    if not settings.recommend_semantic_enabled:
+        return LearningService(stores=StoreBundle(settings=settings))
+    # 语义召回复用分类单例的 predictor 与查重索引（进程内已加载，不重复占用显存）。
+    dedup = get_classification_service().dedup
+    from edu_core.application.recommendation import SemanticRecaller
+
+    return LearningService(stores=StoreBundle(settings=settings),
+                           semantic=SemanticRecaller(dedup, settings))

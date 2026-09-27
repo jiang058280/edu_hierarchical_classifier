@@ -6,14 +6,20 @@ from typing import Any
 
 from edu_core.application.grading import grade_submission
 from edu_core.application.mastery import profile_for_records
-from edu_core.application.recommendation import score_candidate
+from edu_core.application.recommendation import (
+    SemanticRecaller,
+    clean_seed_text,
+    score_candidate,
+    score_candidate_semantic,
+)
 from edu_core.application.consolidation import ordered_by_difficulty, unique_ids
 from edu_core.application.analytics import reteach_items
 
 
 class LearningService:
-    def __init__(self, stores):
+    def __init__(self, stores, semantic: SemanticRecaller | None = None):
         self.stores = stores
+        self.semantic = semantic
 
     def wrong_book(self, student_id: int, **filters) -> list[dict]:
         return self.stores.learning.list_wrong(student_id, **filters)
@@ -37,14 +43,16 @@ class LearningService:
         profiles, questions, seen = self.stores.learning.recommendation_data(
             student_id, grade_band=user.get("grade_band") or ""
         )
-        candidates=[]
+        candidates = []
         for profile in profiles:
             for question in questions:
                 if question.get('subject') != profile.get('subject'):
                     continue
                 score, reasons = score_candidate(profile, question, seen)
-                candidates.append({**question,'score':score,'reasons':reasons,'profile':profile['knowledge_point']})
-        candidates.sort(key=lambda item:item['score'], reverse=True)
+                candidates.append({**question, 'score': score, 'reasons': reasons, 'profile': profile['knowledge_point']})
+        if self.semantic is not None and candidates:
+            self._apply_semantic_bonus(student_id, candidates)
+        candidates.sort(key=lambda item: item['score'], reverse=True)
         selected = []
         used = set()
         for item in candidates:
@@ -55,6 +63,27 @@ class LearningService:
                 break
         run_id = self.stores.learning.save_recommendation_run(student_id, profiles, candidates[:100], selected)
         return {'run_id': run_id, 'items': selected, 'total': len(selected)}
+
+    def _apply_semantic_bonus(self, student_id: int, candidates: list[dict]) -> None:
+        """错题为种子取语义近邻，就地为候选加分并追加可解释理由；索引不可用时静默跳过。"""
+        wrong = self.wrong_book(student_id)[:int(self.semantic.settings.recommend_semantic_seeds)]
+        seeds = [clean_seed_text(item.get("content")) for item in wrong]
+        seeds = [seed for seed in seeds if seed]
+        if not seeds:
+            return
+        exclude_ids = {int(item["question_id"]) for item in wrong}
+        sim_map = self.semantic.similarity_map(seeds, exclude_ids)
+        if not sim_map:
+            return
+        settings = self.semantic.settings
+        for item in candidates:
+            info = sim_map.get(int(item["id"]))
+            if not info:
+                continue
+            item["score"], item["reasons"] = score_candidate_semantic(
+                float(item["score"]), list(item["reasons"]), info["similarity"],
+                low=float(settings.recommend_semantic_low), high=float(settings.recommend_semantic_high),
+                weight=float(settings.recommend_semantic_weight))
 
     def _student_and_profile(self, student_id: int) -> tuple[dict, dict]:
         user = self.stores.users.get(student_id)

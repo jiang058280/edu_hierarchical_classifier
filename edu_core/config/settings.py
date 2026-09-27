@@ -99,6 +99,17 @@ class Settings(BaseSettings):
     # 相似度超过该值提示疑似重复题
     dedup_similarity_threshold: float = 0.95
 
+    # ---------- R3.3 推荐语义召回（增强，默认关闭） ----------
+    # 以学生错题为种子，在查重向量集合中检索语义相近的已发布题作为加成信号。
+    recommend_semantic_enabled: bool = False
+    recommend_semantic_seeds: int = 3
+    recommend_semantic_top_k: int = 12
+    # 相似度低于 low 视为噪声不计分；达到 high 视为近似重复题直接排除（对齐查重阈值语义）
+    recommend_semantic_low: float = 0.55
+    recommend_semantic_high: float = 0.95
+    # 语义加成权重：加成分 = weight * 归一化带内相似度，总分上限 1.0
+    recommend_semantic_weight: float = 0.12
+
     # ---------- RAG 教育知识库（R1） ----------
     # 默认关闭：资料入库与问答均须由教师审核、配置完成后再显式启用。
     rag_enabled: bool = False
