@@ -64,6 +64,8 @@ function typeOptions(subject, selected) {
 function updateCardTypes(seq) {
   const subject = $('s_' + seq).value, type = $('ty_' + seq).value;
   $('ty_' + seq).innerHTML = typeOptions(subject, type);
+  const weakHint = $('weak_' + seq);
+  if (weakHint) weakHint.style.display = ['英语', '地理', '物理'].includes(subject) ? '' : 'none';
 }
 
 function splitQuestions(raw) {
@@ -124,7 +126,8 @@ function cardHtml(item) {
     <textarea class="input" id="t_${item.seq}" rows="4">${T.escapeHtml(item.text)}</textarea>
     <div class="grid2" style="margin-top:10px">
       <div class="field"><label class="lbl">学科</label>
-        <select class="input" id="s_${item.seq}" onchange="updateCardTypes(${item.seq})">${taxonomy.subjects.map(s => `<option ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+        <select class="input" id="s_${item.seq}" onchange="updateCardTypes(${item.seq})">${taxonomy.subjects.map(s => `<option ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}</select>
+        <div class="hint" id="weak_${item.seq}" style="display:${['英语', '地理', '物理'].includes(item.subject) ? '' : 'none'};color:#b45309;font-size:12px">模型对该学科预标注较弱（题库实测 0.84-0.89），请重点核对学科与知识点</div></div>
       <div class="field"><label class="lbl">题型</label>
         <select class="input" id="ty_${item.seq}">${typeOptions(item.subject, item.question_type)}</select></div>
       <div class="field"><label class="lbl">知识点</label>

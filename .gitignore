@@ -24,6 +24,7 @@ models/versions/**/*.safetensors
 data/raw/
 # 重采样前的本地备份副本（git 历史已含原版，不入库）
 data/processed/train.pre_rebalance.csv
+data/processed/train.pre_v05_backup.csv
 # MySQL JSON 快照（体积大且含业务数据，不入库）
 backups/
 
