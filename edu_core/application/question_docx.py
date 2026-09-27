@@ -1,14 +1,16 @@
-"""DOCX 题目文本提取与服务端切分规则。"""
+"""题目文件文本提取与服务端切分规则（DOCX / PDF / Markdown / TXT）。"""
 
 from __future__ import annotations
 
 import re
 import zipfile
 from io import BytesIO
+from pathlib import Path
 
 MAX_UNCOMPRESSED_BYTES = 80 * 1024 * 1024
 STANDARD_START = re.compile(r"^\s*(?:第\s*)?(\d{1,3})\s*[.．、)]\s*")
 BRACKET_START = re.compile(r"^\s*[（(]\s*(\d{1,3})\s*[)）]\s*")
+TEXT_SUFFIXES = {".pdf", ".md", ".markdown", ".txt"}
 
 
 def _safe_docx(payload: bytes) -> None:
@@ -65,3 +67,23 @@ def split_questions(lines: list[str], *, max_questions: int = 50) -> list[str]:
 
 def parse_docx_questions(payload: bytes, *, max_questions: int = 50) -> list[str]:
     return split_questions(extract_docx_lines(payload), max_questions=max_questions)
+
+
+def parse_document_questions(filename: str, payload: bytes, *, max_questions: int = 50) -> list[str]:
+    """按扩展名分派提取方式：DOCX 走段落/表格，PDF/MD/TXT 复用资料文本提取后切分。
+
+    扫描型 PDF 在 OCR 未开启时会让资料提取明确报错，这里原样转成 400 语义。
+    """
+    suffix = Path(filename or "").suffix.lower()
+    if suffix == ".docx":
+        return parse_docx_questions(payload, max_questions=max_questions)
+    if suffix in TEXT_SUFFIXES:
+        from edu_core.rag.loaders import DocumentLoadError, load_document_bytes
+
+        try:
+            loaded = load_document_bytes(filename, payload)
+        except DocumentLoadError as exc:
+            raise ValueError(str(exc)) from exc
+        lines = [line.strip() for line in loaded.text.splitlines() if line.strip()]
+        return split_questions(lines, max_questions=max_questions)
+    raise ValueError("仅支持 .docx / .pdf / .md / .txt 文件")

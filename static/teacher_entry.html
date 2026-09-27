@@ -20,8 +20,8 @@ A．有氧呼吸的场所是线粒体
 B．无氧呼吸不产生 ATP"></textarea>
     <div class="row" style="margin-top:12px">
       <button class="btn" onclick="splitAndPredict()">智能切分并预标注</button>
-      <button class="btn plain" onclick="$('docxFile').click()">从 DOCX 导入</button>
-      <input id="docxFile" type="file" accept=".docx" hidden onchange="importDocx(this)">
+      <button class="btn plain" onclick="$('docxFile').click()">从文件导入</button>
+      <input id="docxFile" type="file" accept=".docx,.pdf,.md,.markdown,.txt" hidden onchange="importDocx(this)">
       <button class="btn plain" onclick="resetAll()">清空</button>
       <span class="muted" id="splitInfo"></span>
       <span style="flex:1"></span>
@@ -189,8 +189,8 @@ async function importDocx(input) {
   $('splitInfo').textContent = `正在读取 ${file.name}…`;
   const form = new FormData(); form.append('file', file);
   try {
-    const data = await T.api('/api/v1/teacher/questions/import-docx', {method: 'POST', body: form});
-    $('splitInfo').textContent = `从 DOCX 切分出 ${data.total} 题`;
+    const data = await T.api('/api/v1/teacher/questions/import-file', {method: 'POST', body: form});
+    $('splitInfo').textContent = `从 ${file.name} 切分出 ${data.total} 题`;
     renderPredictions(data.items || []);
   } catch (e) {
     $('splitInfo').textContent = '';

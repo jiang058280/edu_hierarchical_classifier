@@ -595,24 +595,22 @@ def export_questions_xlsx(subject: str = "", question_type: str = "", keyword: s
     return _xlsx_response(build_export(records), "题库导出.xlsx")
 
 
-@router.post("/teacher/questions/import-docx")
-async def import_questions_docx(file: UploadFile = File(...),
+@router.post("/teacher/questions/import-file")
+async def import_questions_file(file: UploadFile = File(...),
                                 _: dict[str, Any] = Depends(require_teacher)) -> dict:
-    """提取并切分 DOCX 题目，沿用 AI 预标注结果结构供教师逐题确认。"""
-    from edu_core.application.question_docx import parse_docx_questions
+    """提取并切分 DOCX/PDF/Markdown/TXT 题目，沿用 AI 预标注结果结构供教师逐题确认。"""
+    from edu_core.application.question_docx import parse_document_questions
     from edu_core.config.settings import get_settings
 
     filename = (file.filename or "").strip()
-    if not filename.lower().endswith(".docx"):
-        raise HTTPException(status_code=400, detail="仅支持 .docx 文件")
     max_bytes = 10 * 1024 * 1024
     payload = await file.read(max_bytes + 1)
     if not payload:
         raise HTTPException(status_code=400, detail="上传文件为空")
     if len(payload) > max_bytes:
-        raise HTTPException(status_code=400, detail="DOCX 文件不能超过 10 MB")
+        raise HTTPException(status_code=400, detail="文件不能超过 10 MB")
     try:
-        questions = parse_docx_questions(payload, max_questions=50)
+        questions = parse_document_questions(filename, payload, max_questions=50)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not questions:

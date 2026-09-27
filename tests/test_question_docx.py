@@ -1,11 +1,11 @@
-"""F2 DOCX 题目提取与切分测试。"""
+"""F2 DOCX 题目提取与切分测试；多格式（PDF/MD/TXT）经 parse_document_questions 分派。"""
 
 from io import BytesIO
 
 import pytest
 from docx import Document
 
-from edu_core.application.question_docx import parse_docx_questions, split_questions
+from edu_core.application.question_docx import parse_document_questions, parse_docx_questions, split_questions
 
 
 def _docx(lines: list[str]) -> bytes:
@@ -47,3 +47,38 @@ def test_max_question_limit():
     lines = [f"{index}. 第 {index} 道题目的完整内容" for index in range(1, 5)]
     with pytest.raises(ValueError, match="单次最多 3 题"):
         split_questions(lines, max_questions=3)
+
+
+def test_markdown_and_txt_files_split_with_same_rule():
+    markdown = "# 题目练习\n\n1. 第一道数学题目的完整题干\nA. 甲\nB. 乙\n\n2. 第二道数学题目的完整题干\n".encode("utf-8")
+    assert len(parse_document_questions("练习.md", markdown)) == 2
+    txt = "（1）第一道语文题目的完整题干\n（2）第二道语文题目的完整题干\n".encode("utf-8")
+    assert len(parse_document_questions("练习.txt", txt)) == 2
+
+
+def test_docx_still_routes_through_docx_parser():
+    payload = _docx(["1、第一道测试题目的完整题干", "2、第二道测试题目的完整题干"])
+    assert len(parse_document_questions("题目.docx", payload)) == 2
+
+
+def test_pdf_text_layer_splits_questions(monkeypatch):
+    import pypdf
+
+    page = type("Page", (), {"extract_text": lambda self: "1. 第一道物理题目的完整题干\nA. 甲\nB. 乙"})()
+    monkeypatch.setattr(pypdf, "PdfReader", lambda _: type("Reader", (), {"pages": [page]})())
+    questions = parse_document_questions("试卷.pdf", b"fake-pdf-bytes")
+    assert len(questions) == 1 and "物理题目" in questions[0]
+
+
+def test_scanned_pdf_without_ocr_returns_actionable_error(monkeypatch):
+    import pypdf
+
+    page = type("Page", (), {"extract_text": lambda self: ""})()
+    monkeypatch.setattr(pypdf, "PdfReader", lambda _: type("Reader", (), {"pages": [page]})())
+    with pytest.raises(ValueError, match="OCR"):
+        parse_document_questions("扫描件.pdf", b"fake-pdf-bytes")
+
+
+def test_unsupported_suffix_rejected():
+    with pytest.raises(ValueError, match="仅支持"):
+        parse_document_questions("题目.doc", b"payload")
