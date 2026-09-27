@@ -26,16 +26,34 @@ def load_cases(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
+def dataset_label(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
+
+
+def execution_errors(cases: list[dict]) -> list[str]:
+    return [f"{case.get('id', '未知')}：单轮评测不支持连续追问，请使用会话回放验收"
+            for case in cases if case.get("category") == "follow_up" or case.get("conversation_history")]
+
+
 def run_case(case: dict, service: RagAnswerService) -> dict:
+    errors = execution_errors([case])
+    if errors:
+        raise ValueError(errors[0])
     filters = RetrievalFilters(**{key: value for key, value in (case.get("filters") or {}).items()
                                   if key in {"subject", "grade_band", "grade", "knowledge_node_id"}})
     started = perf_counter()
-    debug = service.retrieval.debug(case["query"], role=case.get("role", "student"), filters=filters)
-    answer = service.answer(case["query"], role=case.get("role", "student"), filters=filters)
+    trace = {}
+    answer = service.answer(case["query"], role=case.get("role", "student"), filters=filters,
+                            evaluation_trace=trace)
     return {
         "id": case["id"], "category": case["category"], "expected_chunk_ids": case.get("expected_chunk_ids", []),
-        "expect_refusal": bool(case.get("expect_refusal")), "candidate_chunk_ids": [item.get("chunk_id") for item in debug["candidates"]],
-        "candidate_sources": [item["metadata"]["source_name"] for item in debug["candidates"]],
+        "expect_refusal": bool(case.get("expect_refusal")), "candidate_chunk_ids": [item.get("chunk_id") for item in trace["candidates"]],
+        "candidate_sources": trace["verified_sources"], "route": trace["route"],
+        "answer": answer.answer, "reason": answer.reason,
         "citations": answer.citations, "refused": answer.refused,
         "latency_ms": int((perf_counter() - started) * 1000),
     }
@@ -50,7 +68,7 @@ def main() -> int:
     cases = load_cases(args.dataset)
     errors = validate_cases(cases)
     ready = [case for case in cases if case.get("ready")]
-    report = {"dataset": str(args.dataset.relative_to(ROOT)), "total_cases": len(cases), "ready_cases": len(ready),
+    report = {"dataset": dataset_label(args.dataset), "total_cases": len(cases), "ready_cases": len(ready),
               "validation_errors": errors, "status": "ready"}
     if errors:
         report["status"] = "invalid"
@@ -59,6 +77,10 @@ def main() -> int:
         report["reason"] = "尚无已关联真实资料分块并复核过的 ready=true 用例，未发起模型调用。"
     elif args.dry_run:
         report["status"] = "dry_run"
+        report["execution_errors"] = execution_errors(ready)
+    elif execution_errors(ready):
+        report["status"] = "unsupported"
+        report["execution_errors"] = execution_errors(ready)
     else:
         settings, stores = get_settings(), StoreBundle()
         service = RagAnswerService(RagRetrievalService(stores.rag, settings), settings)

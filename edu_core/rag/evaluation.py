@@ -48,7 +48,8 @@ def summarize_runs(runs: list[dict]) -> dict:
     recalls, mrrs, ndcgs, latencies = [], [], [], []
     citation_checks, refusal_checks, source_free, faithful = [], [], [], []
     for run in runs:
-        expected = {int(item) for item in run.get("expected_chunk_ids", [])}
+        expected = ({int(item) for item in run.get("expected_chunk_ids", [])}
+                    if run.get("route") != "local_question" else set())
         ranked = [int(item) for item in run.get("candidate_chunk_ids", []) if item is not None]
         recall, mrr, ndcg = _ranking_scores(expected, ranked)
         if recall is not None:
@@ -72,6 +73,8 @@ def summarize_runs(runs: list[dict]) -> dict:
         p95 = round(max(latencies) if len(latencies) == 1 else quantiles(latencies, n=100, method="inclusive")[94], 2)
     return {
         "case_count": len(runs), "retrieval_evaluated_count": len(recalls),
+        "local_question_count": sum(run.get("route") == "local_question" for run in runs),
+        "rag_count": sum(run.get("route") == "rag" for run in runs),
         "recall_at_k": _mean(recalls), "mrr": _mean(mrrs), "ndcg": _mean(ndcgs),
         "citation_validity": _mean(float(item) for item in citation_checks),
         "faithfulness_evidence_proxy": _mean(float(item) for item in faithful),
