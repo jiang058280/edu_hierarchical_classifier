@@ -10,6 +10,7 @@ venv/
 .huggingface_cache/
 .torch_cache/
 .pip_cache/
+.ocr_models/
 .edge_profile/
 
 # ===== 模型权重（体积大不入库；版本目录结构、manifest 与评估报告入库）=====
@@ -43,6 +44,36 @@ reports/verification/*
 .env
 .env.compose
 .env.local
+
+# ===== 运行产物与本地工作区（可由脚本重建或属一次性产物，不入库）=====
+output/
+tmp/
+feishu_updates_*/
+data/rag_uploads/
+
+# ===== 本地个人文件（求职简历、其他项目脚本；不入库，lint 亦跳过）=====
+*_resume*
+resume_*
+刘国庆*.docx
+BOSS在线简历填写稿.md
+智能工单系统面试题.md
+问数平台面试题*.md
+问数平台第十五章详细答案.md
+第一个项目表述修订版.md
+第二个项目表述修订版.md
+第三个项目表述修订版.md
+面试作答方法标题.md
+飞书话术文档修订版.md
+*chatbi*
+benchmark_*.py
+check_edge_connection.py
+build_section15_detailed.py
+docxml.txt
+inspect_*.py
+render_*.py
+unify_*.py
+verify_project_*.py
+update_work_experience.py
 
 # ===== 杂项 =====
 *.tmp
