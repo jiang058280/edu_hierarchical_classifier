@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-09-27",
+  "purpose": "补齐 E6 遗留：包含真实 LLM 生成的问答压测（此前容量基线仅覆盖无证据拒答链路）",
+  "setup": {
+    "target": "http://127.0.0.1:7861（与生产同代码同库的隔离实例，独立限流预算）",
+    "tool": "locust 2.46.5，loadtests/locustfile.py RagRealUser（新增 rag_real 场景：外部问题文件轮转）",
+    "questions": "10 条初三有证据问题（化学/物理，取自 v2 正式集）",
+    "load": "10 并发用户，spawn 2/s，持续 90s，问题间隔 3-6s",
+    "account": "replay_初中_初三（id=34，测试学生）"
+  },
+  "results_clean_run": {
+    "requests": 116,
+    "http_failures": 1,
+    "failure_note": "1 次连接重置（status 0）",
+    "throughput_rps": 1.3,
+    "latency_profile": "双峰：P50 180ms（部分快速响应）与 P95 12000ms（真实生成）并存，max 17.6s",
+    "notes": "首轮运行因 locust 多用户类 --tags 筛选仍实例化无任务类而作废；改用用户类位置参数选择后本轮数据有效"
+  },
+  "finding_anomaly_and_env": {
+    "observed": "首个隔离实例负载期间约 47%（153/290）的 RAG 路径请求以「证据不足」拒绝，其中同一概念类查询交替出现 0 个与 4 个候选；该实例随后无报错堆栈静默退出",
+    "controlled_repro": "健康新实例上，同一概念类问题（必须经 Milvus 向量检索）8 线程 × 24 次并发全部正常回答；题干类问题（本地题库直出）24/24 正常",
+    "environment_note": "事后发现开发机以裸后台进程运行的服务实例会在会话轮次之间被静默回收（7860 与 7861 均复现，日志无异常），开发环境进程生命周期不受控",
+    "conclusion": "压测期异常未能在健康实例上复现，根因未定：候选为运行环境进程管理不受控或Milvus/Embedding 客户端长时并发连接劣化；需部署层监督与带监控的长稳测试定位",
+    "followup": "① 生产部署改用受监督进程（Windows 服务/NSSM 或 Docker restart 策略）+ 健康检查；② 长稳测试（30 分钟以上）带 pymilvus 连接池与限流指标抓取；③ 复现后定位客户端连接处理"
+  },
+  "comparison_to_e6": "E6 基线（无证据拒答，P95 490ms、0 失败）仍然有效；本报告补充真实生成画像：单实例 10 并发可承载 1.3 RPS 混合流量，生成请求 P95 约 12s（受 qwen-plus 延迟主导）",
+  "verdict": "真实生成压测已执行并产出基线；同时暴露隔离实例长稳问题一项（新待办）"
+}

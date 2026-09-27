@@ -26,6 +26,7 @@ def add_arguments(parser):
     parser.add_argument("--assignment-id", env_var="LOADTEST_ASSIGNMENT_ID", default="")
     parser.add_argument("--question-id", env_var="LOADTEST_QUESTION_ID", default="")
     parser.add_argument("--student-users-file", env_var="LOADTEST_STUDENT_USERS_FILE", default="")
+    parser.add_argument("--rag-queries-file", env_var="LOADTEST_RAG_QUERIES_FILE", default="")
 
 
 @events.test_start.add_listener
@@ -106,3 +107,37 @@ class RagUser(HttpUser):
     def ask(self):
         self.client.post("/api/v1/student/rag/chat/stream",
                          json={"query": "一次函数图像的增减性怎样判断？", "socratic": True})
+
+
+class RagRealUser(HttpUser):
+    """带真实 LLM 生成的问答压测：问题来自外部文件，须能命中激活知识库证据。"""
+
+    wait_time = between(3, 6)
+    _queries: list[str] = []
+    _next_index = 0
+
+    def on_start(self):
+        if not RagRealUser._queries:
+            queries_file = self.environment.parsed_options.rag_queries_file
+            if not queries_file:
+                raise RuntimeError("rag_real 场景必须提供 LOADTEST_RAG_QUERIES_FILE")
+            payload = json.loads(Path(queries_file).read_text(encoding="utf-8"))
+            queries = payload.get("queries") if isinstance(payload, dict) else payload
+            if not isinstance(queries, list) or not queries or \
+                    not all(isinstance(q, str) and q.strip() for q in queries):
+                raise RuntimeError("rag-queries-file 必须提供非空问题字符串数组")
+            RagRealUser._queries = queries
+        token = login(self.client, self.environment.parsed_options.student_user,
+                      self.environment.parsed_options.student_password)
+        self.client.headers.update({"Authorization": f"Bearer {token}"})
+
+    @tag("rag_real")
+    @task
+    def ask_real(self):
+        query = RagRealUser._queries[RagRealUser._next_index % len(RagRealUser._queries)]
+        RagRealUser._next_index += 1
+        with self.client.post("/api/v1/student/rag/chat/stream",
+                              json={"query": query}, name="/student/rag/chat/stream[real]",
+                              catch_response=True, timeout=120) as response:
+            if response.status_code != 200:
+                response.failure(f"真实问答应为 200，实际 {response.status_code}")

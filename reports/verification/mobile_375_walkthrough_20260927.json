@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-09-27",
+  "purpose": "R3.7/D6 遗留项：学生端页面 375px 真实浏览器走查（替代此前仅静态检查的口径）",
+  "method": "Playwright 真实浏览器（Chromium IAB），375×812 视口，登录后逐页加载并测量横向溢出",
+  "account": "walkthrough_375（学生，初中/初三，class_id=2）",
+  "pages": [
+    {
+      "path": "/login?portal=student",
+      "result": "pass",
+      "note": "登录页正常，登录成功"
+    },
+    {
+      "path": "/student",
+      "scroll_width": 360,
+      "horizontal_scroll": false,
+      "result": "pass"
+    },
+    {
+      "path": "/student/assignments",
+      "scroll_width": 360,
+      "horizontal_scroll": false,
+      "result": "pass"
+    },
+    {
+      "path": "/student/wrong-book",
+      "scroll_width": 360,
+      "horizontal_scroll": false,
+      "result": "pass"
+    },
+    {
+      "path": "/student/report",
+      "scroll_width": 375,
+      "horizontal_scroll": false,
+      "result": "pass"
+    },
+    {
+      "path": "/student/qa",
+      "scroll_width_before_fix": 390,
+      "result": "fail→fixed",
+      "issue": "第二个 style 块的新版 .qa-layout 重新声明 260px+1fr 双栏，级联覆盖了 820px 断点的单列规则，375px 下仍双栏渲染，qa-hero-status 右缘溢出 15px 并出现横向滚动条",
+      "fix": "新版块的 @media(max-width:820px) 补齐 grid-template-columns:1fr，并为 .qa-hero 增加 flex-wrap",
+      "scroll_width_after_fix": 360,
+      "horizontal_scroll_after_fix": false
+    }
+  ],
+  "coverage_limitation": "作答详情页（/student/assignments/{id}）未覆盖：走查账号班级内无进行中作业；桌面布局不受影响（修改仅位于 max-width:820px 媒体块内）",
+  "verdict": "学生端页面 375px 无横向滚动（发现 1 处并当场修复复测通过）"
+}
