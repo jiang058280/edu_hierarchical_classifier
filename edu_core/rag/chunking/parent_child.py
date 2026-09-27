@@ -49,24 +49,38 @@ def build_parent_child_chunks(text: str, *, parent_chars: int, child_chars: int,
                               overlap_chars: int = 0) -> list[ChunkDraft]:
     if parent_chars < 100 or child_chars < 50 or child_chars > parent_chars:
         raise ValueError("分块长度配置不合法")
+    if overlap_chars < 0 or overlap_chars >= parent_chars:
+        raise ValueError("重叠长度必须非负且小于父块长度")
     paragraphs = [item.strip() for item in re.split(r"\n\s*\n", text) if item.strip()]
     parent_texts: list[tuple[str, str | None]] = []
     buffer: list[str] = []
     size, chapter = 0, None
     for paragraph in paragraphs:
         if detected_heading := _heading(paragraph):
+            # 先按旧章节归档，不能把前一章缓冲区标成新章节。
+            if buffer:
+                parent_texts.extend((part, chapter) for part in
+                                    _split_to_limit("\n\n".join(buffer), parent_chars))
+                buffer, size = [], 0
             chapter = detected_heading
+        if len(paragraph) > parent_chars:
+            # 长段落也必须保持原文顺序，不能越过未输出的短段落。
+            if buffer:
+                parent_texts.extend((part, chapter) for part in
+                                    _split_to_limit("\n\n".join(buffer), parent_chars))
+                buffer, size = [], 0
+            parent_texts.extend((part, chapter) for part in _split_to_limit(paragraph, parent_chars))
+            continue
         addition = len(paragraph) + (2 if buffer else 0)
         if buffer and size + addition > parent_chars:
             joined = "\n\n".join(buffer)
             parent_texts.extend((part, chapter) for part in _split_to_limit(joined, parent_chars))
-            tail = joined[-overlap_chars:].strip() if overlap_chars else ""
+            available = max(0, parent_chars - len(paragraph) - 2)
+            tail_size = min(overlap_chars, available)
+            tail = joined[-tail_size:].strip() if tail_size else ""
             buffer, size = ([tail] if tail else []), len(tail)
-        if len(paragraph) > parent_chars:
-            parent_texts.extend((part, chapter) for part in _split_to_limit(paragraph, parent_chars))
-        else:
-            buffer.append(paragraph)
-            size += addition
+        size += len(paragraph) + (2 if buffer else 0)
+        buffer.append(paragraph)
     if buffer:
         parent_texts.extend((part, chapter) for part in _split_to_limit("\n\n".join(buffer), parent_chars))
 

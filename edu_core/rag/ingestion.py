@@ -34,7 +34,7 @@ class RagIngestionService:
     def ingest(self, *, kb_version_id: int, created_by: int, source_name: str, content: bytes,
                subject: str | None = None, grade_band: str | None = None, grade: str | None = None,
                knowledge_node_id: int | None = None, allowed_roles: list[str] | None = None,
-               allow_reuse: bool = True) -> IngestionResult:
+               allow_reuse: bool = True, correction_provenance: dict | None = None) -> IngestionResult:
         if not self.settings.rag_enabled:
             raise ValueError("RAG 当前未启用，不能执行资料入库")
         if len(content) > int(self.settings.rag_max_upload_bytes):
@@ -54,7 +54,12 @@ class RagIngestionService:
         try:
             self.store.update_document_status(document_id, status="PROCESSING")
             self.store.update_job(job_id, status="RUNNING", attempt_no=1)
-            loaded = load_document_bytes(source_name, content)
+            loaded = load_document_bytes(source_name, content, settings=self.settings)
+            raw_ocr_key = None
+            if loaded.ocr_raw_text is not None:
+                raw_ocr_bytes = loaded.ocr_raw_text.encode("utf-8")
+                raw_ocr_key = self._save_upload(created_by, hashlib.sha256(raw_ocr_bytes).hexdigest(),
+                                                "ocr_raw.txt", raw_ocr_bytes)
             drafts = build_parent_child_chunks(loaded.text, parent_chars=int(self.settings.rag_parent_chunk_chars),
                                                child_chars=int(self.settings.rag_child_chunk_chars),
                                                overlap_chars=int(self.settings.rag_chunk_overlap_chars))
@@ -66,7 +71,14 @@ class RagIngestionService:
             child_chunks = self.store.list_document_chunks(document_id, chunk_kind="child")
             self.vector_index.upsert_chunks(child_chunks, self.embedding_provider.embed([item["content"] for item in child_chunks]))
             self.store.update_document_status(document_id, status="PROCESSED")
-            self.store.update_job(job_id, status="SUCCEEDED", metrics={"parent_chunks": sum(d.chunk_kind == "parent" for d in drafts), "child_chunks": len(child_chunks), "page_count": loaded.page_count})
+            metrics = {"parent_chunks": sum(d.chunk_kind == "parent" for d in drafts),
+                       "child_chunks": len(child_chunks), "page_count": loaded.page_count,
+                       "ocr_pages": list(loaded.ocr_pages)}
+            if raw_ocr_key:
+                metrics.update(ocr_raw_storage_key=raw_ocr_key, ocr_corrections=list(loaded.ocr_corrections))
+            if correction_provenance:
+                metrics.update(requires_review=True, correction_provenance=correction_provenance)
+            self.store.update_job(job_id, status="SUCCEEDED", metrics=metrics)
             return IngestionResult(document_id, job_id, len(child_chunks))
         except Exception as exc:
             if stored_chunk_ids:

@@ -98,6 +98,19 @@ def test_loader_rejects_unsupported_or_empty_file():
         load_document_bytes("资料.txt", b"")
 
 
+def test_correction_is_a_new_unreviewed_draft_with_provenance(tmp_path):
+    store, index = FakeStore(), FakeIndex()
+    store.reusable = {'id': 999}
+    result = RagIngestionService(store, _settings(tmp_path), FakeEmbedding(), index).ingest(
+        kb_version_id=1, created_by=7, source_name='校对.txt', content='y = 2 × 2 + 1 = 5'.encode(),
+        allow_reuse=False, correction_provenance={'source_document_id': 23, 'note': '修正乘号'})
+    assert result.document_id != 999
+    assert store.jobs[-1]['metrics']['requires_review'] is True
+    assert store.jobs[-1]['metrics']['correction_provenance']['source_document_id'] == 23
+    assert store.documents[-1]['status'] == 'PROCESSED'
+    assert index.written and all(c['status'] == 'STAGED' for c in store.chunks)
+
+
 def test_parent_child_chunks_are_bounded_and_linkable():
     text = "# 第一章 一次函数\n\n" + "一次函数的图像和性质。" * 35
     chunks = build_parent_child_chunks(text, parent_chars=160, child_chars=60, overlap_chars=10)
