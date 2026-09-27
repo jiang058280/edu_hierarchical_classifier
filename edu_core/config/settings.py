@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pydantic import Field
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -119,11 +120,21 @@ class Settings(BaseSettings):
     rag_reranker_base_url: str = ""
     rag_reranker_api_key: str = ""
     rag_reranker_model: str = ""
+    # 不复用向量阈值；启用模型时须显式配置经评测的独立阈值。
+    rag_reranker_min_score: float | None = Field(default=None, ge=0, le=1, allow_inf_nan=False)
+    rag_reranker_max_candidates: int = Field(default=24, ge=1, le=100)
     rag_llm_provider: str = "openai_compatible"
+    rag_native_stream_enabled: bool = False
+    rag_grounding_check_enabled: bool = False
+    rag_conversation_memory_enabled: bool = False
     rag_llm_base_url: str = ""
     rag_llm_api_key: str = ""
     rag_llm_model: str = ""
     rag_top_k: int = 12
+    # 默认关闭，先完成本地评测再启用；不改已有部署的检索行为。
+    rag_hybrid_enabled: bool = False
+    rag_bm25_max_chunks: int = 5000
+    rag_rrf_k: int = 60
     rag_rerank_top_k: int = 5
     rag_min_evidence_score: float = 0.55
     rag_max_context_chars: int = 6000
@@ -132,6 +143,19 @@ class Settings(BaseSettings):
     rag_chunk_overlap_chars: int = 60
     rag_request_timeout_seconds: float = 30.0
     rag_max_upload_bytes: int = 25 * 1024 * 1024
+    rag_ocr_enabled: bool = False
+    rag_ocr_backend: str = Field(default="native", pattern=r"^(native|tesseract_js)$")
+    rag_ocr_layout_mode: str = Field(default="page", pattern=r"^(page|lines_tables)$")
+    rag_ocr_node_command: str = "node"
+    rag_ocr_js_module_dir: str = ""
+    rag_ocr_tessdata_dir: str = ""
+    rag_ocr_pdftoppm_command: str = "pdftoppm"
+    rag_ocr_tesseract_command: str = "tesseract"
+    rag_ocr_languages: str = Field(default="chi_sim+eng", pattern=r"^[a-zA-Z0-9_]+(\+[a-zA-Z0-9_]+)*$")
+    rag_ocr_min_text_chars: int = Field(default=20, ge=1, le=500)
+    rag_ocr_max_pages: int = Field(default=20, ge=1, le=100)
+    rag_ocr_max_side_pixels: int = Field(default=3000, ge=1000, le=5000)
+    rag_ocr_timeout_seconds: float = Field(default=60, gt=0, le=300, allow_inf_nan=False)
     rag_max_documents_per_teacher: int = 200
     rag_ingestion_max_attempts: int = 3
 
