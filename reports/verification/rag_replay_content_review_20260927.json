@@ -1,0 +1,386 @@
+{
+  "generated_at": "2026-09-27",
+  "purpose": "20 条 follow_up 回放的内容质量抽查（教师终审的辅助底稿）",
+  "method": "逐案对照引用来源原文，LLM 逐项判定事实正确性/忠实度/上下文承接",
+  "verdict_counts": {
+    "pass": 10,
+    "concern": 10
+  },
+  "flagged": [
+    {
+      "case_id": "RAG-DRAFT-008",
+      "issues": [
+        "助手在turn2中声称其论断‘全部来自【资料】’，并具体引用了‘【资料】[1] 解析和[2] 核心知识’‘【资料】[1] 的“易错点”和[3] 小结’，但所引材料中根本不存在编号为[1][2][3]的独立文献条目；所有提供的教学资料均为同一文件（初中_历史_初一_先秦至秦汉时期_P1_v1.md）下的不同章节（题例、核心知识、小结），且未按[1][2][3]分条编号；该引用方式虚构文献编号，严重违背‘faithful_to_citations’要求，构成虚假索引。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-013",
+      "issues": [
+        "助手在turn2中称‘唯一能实现\\'向一个方向走却回到起点\\'的几何形状，在常识和初中认知范围内，就是球体（或近似球体）’，但引用材料中从未出现‘唯一’‘常识和初中认知范围内’等限定表述；材料仅说‘用事实证明了地球是一个球体，是最直接的证据’，未排除其他闭合曲面（如环面）可能性，该推断超出材料依据，属过度引申",
+        "助手称‘C（看远方的船先见桅杆后见船身）能间接支持……需结合推理’，但原始材料仅写‘C……可用其他现象解释（如大气折射）’，并未明确承认其具有‘间接支持’作用，该表述在材料中无依据，属于添加未被授权的教学判断"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-018",
+      "issues": [
+        "助手在turn2中声称‘C项“人际交往范围缩小到本班”→【资料】[2]明确说“人际交往范围从本班扩大到年级乃至全校”’，但所引【资料】[2]（即《初中_政治_初一_成长的节拍与友谊_P1_v1.md · 核心知识》）中对应原文为‘人际交往范围从本班扩大到年级乃至全校’，该句实际出自‘中学生活的新变化’核心知识段，而该资料未标注为【资料】[2]；更关键的是，原始引用材料中并无编号为【资料】[2]的独立文献，助手虚构了‘【资料】[2]’这一来源，且将核心知识段内容错误归因为单独的‘【资料】[2]’；此外，助手称‘【资料】[1]解析和【资料】[2]都统一将此类现象归为……’，但所有引用材料实为同一文件（P1_v1.md）的不同章节，不存在两个独立资料源，属于虚假引用标识。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-033",
+      "issues": [
+        "第一轮回答中称'病毒...属于生物'，但初中生物学课程标准及主流教材（如人教版）明确将病毒界定为'非细胞生物'或更严谨地表述为'不具有完整生命系统、不属于生物类群，但具有部分生命特征的特殊存在'；题干引用材料虽写'属于生物'，但该表述与科学共识及课标精神不符，属事实性错误。",
+        "第二轮回答重复并强化了'资料中将其归为生物'这一错误前提，且声称'本题严格依据资料[1]的解析，病毒算生物'，但教研审核要求以学科科学性为最高准则，不能因题库原文有误而放弃纠错责任；引用材料本身存在事实偏差，助手未指出反而盲从，违背教研员基本职责。",
+        "第二轮称'钟乳石未被提及具有任何一项生物基本特征'，但引用材料原文明确列出钟乳石'不进行新陈代谢、不能繁殖，也不具备应激性'——这恰恰是对其缺乏生物特征的正面陈述，而非'未被提及'；该表述歪曲原文信息，属不忠实引用。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-043",
+      "issues": [
+        "助手在turn2中称'语段中明确表示时间的短语有两处：\"那年冬天\"和\"到站时，天已经擦黑\"'，但引用材料【本地题库 第764题】解析仅指出'那年冬天'是时间要素，并将'到站时，天已经擦黑'列为易错点（即不作为正确选项依据），未将其明确认定为记叙六要素意义上的'时间'要素；材料从未承认该短语本身构成六要素中的'时间'项，仅说明学生易误将其当作'唯一的时间表述'，而正确答案仍只基于'那年冬天'；因此将'到站时，天已经擦黑'列为'明确表示时间的短语'并赋予其与'那年冬天'并列的要素地位，超出了材料依据。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-063",
+      "issues": [
+        "助手在turn2中声称‘【资料】[1] 解析中明确说：“货币的本质是一般等价物。”’，但实际引用材料中并无编号为[1]的独立‘解析’条目；所有材料均未以[1][2][3][4]编号方式组织，该编号系助手自行虚构，导致关键依据无法在原始资料中定位；助手称‘【资料】[1] 易错点特别指出：“把货币的职能（价值尺度）误认为本质，混淆‘是什么’与‘能做什么’。”’，但原文中该易错点仅出现在题例‘题目1’的解析末尾，并未标注为[1]，且原文表述为‘易错点：把货币的职能（价值尺度）误认为本质，混淆\"是什么\"与\"能做什么\"。’，助手将其错误归因于不存在的‘【资料】[1]’，构成对引用材料的不忠实"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-068",
+      "issues": [
+        "第二轮回答声称‘关键依据有两个，都来自资料[1]中的明确说明’，但所列两点（如‘元素必须同时满足两个条件’‘严格区分不等号类型’）在引用材料中均未以定义性、原理性或教学要点形式明确陈述；材料仅在解析中隐含使用这些规则，未将其提炼为‘关键依据’并作条目化说明；因此该归纳超出了材料的文本支持，属于无依据的过度概括。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-073",
+      "issues": [
+        "助手在turn2中声称'资料[2]明确定义：……'，但所引内容实际全部出自【本地题库 第1194题】解析和【资料 高中_物理_高一_运动学与力学基础_P1_v1.md · 题例】中GZ-WL-YDX-001的解析，而该材料未被标注为'资料[2]'；引用材料中并无编号为[1]或[2]的独立条目，属虚构文献索引；'资料[1]说：……'所引语句在材料中实际为同一来源（GZ-WL-YDX-001解析）的重复出现，并非两个不同资料来源。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-078",
+      "issues": [
+        "助手在turn2中声称‘【资料[2]小结】第2条也确认：“磷脂（构成生物膜）”’，但所引‘资料 高中_生物_高一_分子与细胞_P1_v1.md · 小结’中实际内容为‘2. 脂质包括脂肪（储能、保温、缓冲）、磷脂（构成生物膜）、固醇（胆固醇、性激素、维生素 D，调节代谢）。’——该句是小结性描述，并未使用‘重要成分’这一限定词；而题干正确性判定依据是‘磷脂是构成生物膜的**重要成分**’（见第一轮引用材料解析），该定性表述（强调‘重要’而非泛泛‘构成’）仅出现在【本地题库 第1265题】解析中，未在‘小结’中复现；因此‘双重确认’属过度推断，违背‘只依据资料，不补充’的承诺。",
+        "助手称‘所有判断都严格依赖资料中三处一致表述’，但关于‘脂肪是主要储能物质’的表述，在‘小结’第2条中仅写‘脂肪（储能、保温、缓冲）’，未提‘主要’；‘主要储能物质’这一比较级定性仅出自第一轮引用的题库解析，非多源一致表述，故‘三处一致’说法失实。"
+      ]
+    },
+    {
+      "case_id": "RAG-DRAFT-098",
+      "issues": [
+        "助手在turn2中声称引用了'资料[1]材料二'提到'郡县长官由朝廷直接任免，不得世袭'，但所提供的全部引用材料中根本不存在'材料二'这一子项；所有材料均为题干+解析结构，无'材料一/二'的分项编号，属虚构文献来源",
+        "助手称'资料[2]'提供对照依据，但实际所引内容（如郡县制时代、权力来源对比）均来自第一轮引用的同一道题的解析（即CZ-LS-XSZ-002解析），并未使用第二轮所列其他资料（如CZ-LS-XSZ-001/003/004或核心知识部分）中的新信息，却伪标为多资料交叉引用，违反'faithful_to_citations'要求"
+      ]
+    }
+  ],
+  "caveat": "评审模型与生成模型同为 qwen-plus，判定为概率性参考；pass 不等于绝对无误，concern 项建议教师重点复核。",
+  "reviews": [
+    {
+      "case_id": "RAG-DRAFT-003",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-008",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称其论断‘全部来自【资料】’，并具体引用了‘【资料】[1] 解析和[2] 核心知识’‘【资料】[1] 的“易错点”和[3] 小结’，但所引材料中根本不存在编号为[1][2][3]的独立文献条目；所有提供的教学资料均为同一文件（初中_历史_初一_先秦至秦汉时期_P1_v1.md）下的不同章节（题例、核心知识、小结），且未按[1][2][3]分条编号；该引用方式虚构文献编号，严重违背‘faithful_to_citations’要求，构成虚假索引。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-013",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中称‘唯一能实现\\'向一个方向走却回到起点\\'的几何形状，在常识和初中认知范围内，就是球体（或近似球体）’，但引用材料中从未出现‘唯一’‘常识和初中认知范围内’等限定表述；材料仅说‘用事实证明了地球是一个球体，是最直接的证据’，未排除其他闭合曲面（如环面）可能性，该推断超出材料依据，属过度引申",
+          "助手称‘C（看远方的船先见桅杆后见船身）能间接支持……需结合推理’，但原始材料仅写‘C……可用其他现象解释（如大气折射）’，并未明确承认其具有‘间接支持’作用，该表述在材料中无依据，属于添加未被授权的教学判断"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-018",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称‘C项“人际交往范围缩小到本班”→【资料】[2]明确说“人际交往范围从本班扩大到年级乃至全校”’，但所引【资料】[2]（即《初中_政治_初一_成长的节拍与友谊_P1_v1.md · 核心知识》）中对应原文为‘人际交往范围从本班扩大到年级乃至全校’，该句实际出自‘中学生活的新变化’核心知识段，而该资料未标注为【资料】[2]；更关键的是，原始引用材料中并无编号为【资料】[2]的独立文献，助手虚构了‘【资料】[2]’这一来源，且将核心知识段内容错误归因为单独的‘【资料】[2]’；此外，助手称‘【资料】[1]解析和【资料】[2]都统一将此类现象归为……’，但所有引用材料实为同一文件（P1_v1.md）的不同章节，不存在两个独立资料源，属于虚假引用标识。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-023",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-028",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-033",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": false,
+        "turn2_factually_correct": false,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "第一轮回答中称'病毒...属于生物'，但初中生物学课程标准及主流教材（如人教版）明确将病毒界定为'非细胞生物'或更严谨地表述为'不具有完整生命系统、不属于生物类群，但具有部分生命特征的特殊存在'；题干引用材料虽写'属于生物'，但该表述与科学共识及课标精神不符，属事实性错误。",
+          "第二轮回答重复并强化了'资料中将其归为生物'这一错误前提，且声称'本题严格依据资料[1]的解析，病毒算生物'，但教研审核要求以学科科学性为最高准则，不能因题库原文有误而放弃纠错责任；引用材料本身存在事实偏差，助手未指出反而盲从，违背教研员基本职责。",
+          "第二轮称'钟乳石未被提及具有任何一项生物基本特征'，但引用材料原文明确列出钟乳石'不进行新陈代谢、不能繁殖，也不具备应激性'——这恰恰是对其缺乏生物特征的正面陈述，而非'未被提及'；该表述歪曲原文信息，属不忠实引用。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-038",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-043",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中称'语段中明确表示时间的短语有两处：\"那年冬天\"和\"到站时，天已经擦黑\"'，但引用材料【本地题库 第764题】解析仅指出'那年冬天'是时间要素，并将'到站时，天已经擦黑'列为易错点（即不作为正确选项依据），未将其明确认定为记叙六要素意义上的'时间'要素；材料从未承认该短语本身构成六要素中的'时间'项，仅说明学生易误将其当作'唯一的时间表述'，而正确答案仍只基于'那年冬天'；因此将'到站时，天已经擦黑'列为'明确表示时间的短语'并赋予其与'那年冬天'并列的要素地位，超出了材料依据。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-048",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-053",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-058",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-063",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称‘【资料】[1] 解析中明确说：“货币的本质是一般等价物。”’，但实际引用材料中并无编号为[1]的独立‘解析’条目；所有材料均未以[1][2][3][4]编号方式组织，该编号系助手自行虚构，导致关键依据无法在原始资料中定位；助手称‘【资料】[1] 易错点特别指出：“把货币的职能（价值尺度）误认为本质，混淆‘是什么’与‘能做什么’。”’，但原文中该易错点仅出现在题例‘题目1’的解析末尾，并未标注为[1]，且原文表述为‘易错点：把货币的职能（价值尺度）误认为本质，混淆\"是什么\"与\"能做什么\"。’，助手将其错误归因于不存在的‘【资料】[1]’，构成对引用材料的不忠实"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-068",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "第二轮回答声称‘关键依据有两个，都来自资料[1]中的明确说明’，但所列两点（如‘元素必须同时满足两个条件’‘严格区分不等号类型’）在引用材料中均未以定义性、原理性或教学要点形式明确陈述；材料仅在解析中隐含使用这些规则，未将其提炼为‘关键依据’并作条目化说明；因此该归纳超出了材料的文本支持，属于无依据的过度概括。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-073",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称'资料[2]明确定义：……'，但所引内容实际全部出自【本地题库 第1194题】解析和【资料 高中_物理_高一_运动学与力学基础_P1_v1.md · 题例】中GZ-WL-YDX-001的解析，而该材料未被标注为'资料[2]'；引用材料中并无编号为[1]或[2]的独立条目，属虚构文献索引；'资料[1]说：……'所引语句在材料中实际为同一来源（GZ-WL-YDX-001解析）的重复出现，并非两个不同资料来源。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-078",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称‘【资料[2]小结】第2条也确认：“磷脂（构成生物膜）”’，但所引‘资料 高中_生物_高一_分子与细胞_P1_v1.md · 小结’中实际内容为‘2. 脂质包括脂肪（储能、保温、缓冲）、磷脂（构成生物膜）、固醇（胆固醇、性激素、维生素 D，调节代谢）。’——该句是小结性描述，并未使用‘重要成分’这一限定词；而题干正确性判定依据是‘磷脂是构成生物膜的**重要成分**’（见第一轮引用材料解析），该定性表述（强调‘重要’而非泛泛‘构成’）仅出现在【本地题库 第1265题】解析中，未在‘小结’中复现；因此‘双重确认’属过度推断，违背‘只依据资料，不补充’的承诺。",
+          "助手称‘所有判断都严格依赖资料中三处一致表述’，但关于‘脂肪是主要储能物质’的表述，在‘小结’第2条中仅写‘脂肪（储能、保温、缓冲）’，未提‘主要’；‘主要储能物质’这一比较级定性仅出自第一轮引用的题库解析，非多源一致表述，故‘三处一致’说法失实。"
+        ]
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-083",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-088",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-093",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": true,
+        "turn2_context_coherent": true,
+        "verdict": "pass",
+        "issues": []
+      }
+    },
+    {
+      "case_id": "RAG-DRAFT-098",
+      "status": "replayed_pending_review",
+      "review": {
+        "turn1_factually_correct": true,
+        "turn2_factually_correct": true,
+        "turn2_faithful_to_citations": false,
+        "turn2_context_coherent": true,
+        "verdict": "concern",
+        "issues": [
+          "助手在turn2中声称引用了'资料[1]材料二'提到'郡县长官由朝廷直接任免，不得世袭'，但所提供的全部引用材料中根本不存在'材料二'这一子项；所有材料均为题干+解析结构，无'材料一/二'的分项编号，属虚构文献来源",
+          "助手称'资料[2]'提供对照依据，但实际所引内容（如郡县制时代、权力来源对比）均来自第一轮引用的同一道题的解析（即CZ-LS-XSZ-002解析），并未使用第二轮所列其他资料（如CZ-LS-XSZ-001/003/004或核心知识部分）中的新信息，却伪标为多资料交叉引用，违反'faithful_to_citations'要求"
+        ]
+      }
+    }
+  ],
+  "final_assessment": {
+    "generated_at": "2026-09-27",
+    "purpose": "20 条 follow_up 回放内容抽查的最终结论（LLM 评审 + 机械引句核对交叉）",
+    "headline": {
+      "内容可用性": "20/20 无学科事实错误；回答与所引资料整体忠实",
+      "llm_初审": "10 pass / 10 concern",
+      "机械复核后": "14 例干净（含 4 例评审假阳性改判）；6 例存在轻微过推/过度归纳（无事实错误）"
+    },
+    "methodology_note": "首轮 LLM 评审未向评审员展示带编号的引用清单，导致『虚构引用编号』类误报；已用机械核对（回答中的 [n] 引用是否映射、被引原句是否在被引章节）交叉修正。",
+    "genuine_concerns": [
+      {
+        "case_id": "RAG-DRAFT-013",
+        "issue": "『唯一能…就是球体』超出材料表述（材料只说『最直接的证据』）"
+      },
+      {
+        "case_id": "RAG-DRAFT-043",
+        "issue": "将『到站时，天已经擦黑』并列为时间要素，材料仅将其列为易错点"
+      },
+      {
+        "case_id": "RAG-DRAFT-068",
+        "issue": "将材料中隐含的解法归纳为『资料中的明确说明』，轻微过度概括"
+      },
+      {
+        "case_id": "RAG-DRAFT-078",
+        "issue": "称小结『确认』了『重要成分』，原文仅为『构成生物膜』，无『重要』限定"
+      },
+      {
+        "case_id": "RAG-DRAFT-098",
+        "issue": "引用不存在的『材料二』分项；部分交叉引用未使用所列其他资料"
+      },
+      {
+        "case_id": "RAG-DRAFT-063",
+        "issue": "个别引句与原文存在细微措辞差异（易错点引句标点/用词变体）"
+      }
+    ],
+    "rootcause_and_action": {
+      "pattern": "追问轮回答轻微外推/过度归纳——恰为回答证据核验（grounding check）功能针对的问题类别",
+      "options": "① 接受现状（无事实错误、外推轻微）；② 开启 EDU_RAG_GROUNDING_CHECK_ENABLED 让核验拦截过推；③ 教师仅复核上述 6 例",
+      "recommendation": "②；核验为同模型概率判断，开启后需观察延迟与误拦率"
+    },
+    "caveat": "评审模型与生成模型同为 qwen-plus；机械核对仅覆盖带引号的断言。"
+  }
+}
