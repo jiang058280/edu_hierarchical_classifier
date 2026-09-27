@@ -20,9 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-ruff@v3
+      - uses: actions/setup-python@v5
         with:
-          version: "0.14.5"
+          python-version: "3.12"
+      # astral-sh/setup-ruff action 不存在（历史 CI 一直因此失败）；改用锁版本的 pip 安装
+      - name: Install ruff
+        run: pip install ruff==0.14.5
       - run: ruff check .
 
   test:
