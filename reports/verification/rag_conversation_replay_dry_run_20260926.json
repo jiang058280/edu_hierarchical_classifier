@@ -1,0 +1,15 @@
+{
+  "case_id": "RAG-DRAFT-003",
+  "status": "dry_run",
+  "ready": false,
+  "planned_turns": 2,
+  "history_policy": "仅发送历史用户问题；实际生成回答替代参考回答",
+  "ignored_filter_keys": [
+    "subject"
+  ],
+  "limitations": [
+    "权限范围由测试账号及服务端决定，不传客户端 filters",
+    "回放完成不等于答案正确或具备上下文记忆；须审核真实回答",
+    "接口未返回分块排名，不计算 Recall、MRR 或 nDCG"
+  ]
+}

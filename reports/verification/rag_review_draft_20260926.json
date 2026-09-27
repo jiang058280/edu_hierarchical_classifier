@@ -1,0 +1,8 @@
+{
+  "dataset": "output\\rag_review_draft_20260926\\cases.jsonl",
+  "total_cases": 100,
+  "ready_cases": 0,
+  "validation_errors": [],
+  "status": "not_ready",
+  "reason": "尚无已关联真实资料分块并复核过的 ready=true 用例，未发起模型调用。"
+}
