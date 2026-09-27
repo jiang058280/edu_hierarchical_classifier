@@ -110,7 +110,7 @@ class OpenAICompatibleChatProvider:
             timeout=self.settings.rag_request_timeout_seconds,
         )
         if response.status_code >= 400:
-            raise ProviderResponseError(self._response_error("LLM", response))
+            raise ProviderResponseError(OpenAICompatibleEmbeddingProvider._response_error("LLM", response))
         try:
             content = response.json()["choices"][0]["message"]["content"]
         except (IndexError, KeyError, TypeError) as exc:
