@@ -25,5 +25,27 @@
     "cross_grade_absent": 3
   },
   "cases_needing_attention": [],
-  "discipline_note": "本报告仅机器核验（源完整性/答案与源一致性/真实分块关联），不替代教师对答案正确性与拒答预期的人工复核；正式评测需在教师终审后执行。"
+  "discipline_note": "本报告仅机器核验（源完整性/答案与源一致性/真实分块关联），不替代教师对答案正确性与拒答预期的人工复核；正式评测需在教师终审后执行。",
+  "teacher_signoff": {
+    "reviewer": "lgq",
+    "reviewed_at": "2026-09-27",
+    "source_review": "教师确认已抽查源题学科正确性",
+    "refusal_scope": "教师确认拒答预期与年级过滤符合产品预期",
+    "ready_cases": {
+      "answerable": 20,
+      "wrong_question": 20,
+      "unanswerable": 20,
+      "cross_grade": 20
+    },
+    "ready_total": 80,
+    "follow_up_ready": 0,
+    "note": "follow_up 20 条保持 not-ready，走会话回放验收。"
+  },
+  "metric_definition_fix": {
+    "date": "2026-09-27",
+    "change": "cross_grade/unanswerable 用例 expected_chunk_ids 置空：拒答例证据在过滤范围外属预期行为，不参与 Recall/MRR/NDCG；分块召回指标仅对 route=rag 且预期回答的用例计算。",
+    "cleared": {
+      "cross_grade": 20
+    }
+  }
 }

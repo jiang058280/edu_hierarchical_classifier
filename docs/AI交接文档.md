@@ -10,7 +10,7 @@
 
 ### 2026-09-27 增量更新（优先于下方 09-26 记录）
 
-2026-09-26 各项增强的全部未提交改动已按功能整理为 10 个提交入库（个人文件已 gitignore，未推送远端）；标准自证 ruff/guardrails/pytest 416 全过。R2.5 评测集机器预审完成：新建 STAGED 评测知识库版本 `rag-eval-20260927`（id=5，18 份 knowledge_base 源资料真实入库并发布，2142 个子块，激活指针未动、生产版本 1 不变）；正式评测集 `eval_sets/rag_eval_formal_v1.jsonl` 已关联真实 child chunk ID 且机器核验零待办，**ready 仍为 false，等教师终审**（答案学科正确性 + 拒答范围）。终审后置 80 条 ready=true、跑 `scripts/evaluate_rag.py --dataset eval_sets/rag_eval_formal_v1.jsonl`（真实 LLM 调用）即为 R2.5 正式验收；多轮 follow_up 走会话回放。详见 `docs/任务推进记录_20260927.md`。
+2026-09-26 各项增强的全部未提交改动已按功能整理为 10 个提交入库（个人文件已 gitignore，未推送远端）；标准自证 ruff/guardrails/pytest 421 全过。R2.5 评测集已完成教师终审（80 条 ready=true）并两次执行正式评测：引用有效率 1.0、无来源回答率 0、拒答正确率 0.95 达标，recall_at_k=0.7083 未达标（RAG 路由样本仅 4 条，36/40 可答题走本地题库直出属设计行为），**R2.5 整体验收未通过**，差距与后续建议见 `docs/任务推进记录_20260927.md`。评测知识库版本 `rag-eval-20260927`（id=5，18 份资料 2142 子块）已激活为生产知识库，版本 1 转 ARCHIVED 可回滚。AI 智能录入已支持 DOCX/PDF/MD/TXT 多格式导入（`/teacher/questions/import-file`）。
 
 ### 2026-09-26 增量更新（优先于下方历史快照）
 
