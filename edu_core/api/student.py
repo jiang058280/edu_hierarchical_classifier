@@ -6,6 +6,8 @@ M0：加入班级、我的班级；M2：作业列表、作答提交与结果查�
 from __future__ import annotations
 
 import json
+import re
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -31,6 +33,15 @@ def _student_retrieval_filters(user: dict[str, Any], subject: str | None = None)
 
 def _sse(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+def _answer_stream_chunks(answer: str, target_size: int = 12):
+    """按中文语义边界切成适合浏览器逐段绘制的小块，且不改变原文。"""
+    for segment in re.findall(r".*?(?:\n+|[。！？；：，、,.!?;:]|$)", answer, flags=re.S):
+        for start in range(0, len(segment), target_size):
+            chunk = segment[start:start + target_size]
+            if chunk:
+                yield chunk
 
 
 def _assignment_question_context(assignment_id: int, question_id: int, student_id: int) -> dict:
@@ -258,6 +269,13 @@ def rag_session_messages(session_id: int, user: dict[str, Any] = Depends(require
     return {"items": stores.rag.messages(session_id, int(user["id"]))}
 
 
+@router.delete("/student/rag/sessions/{session_id}")
+def delete_rag_session(session_id: int, user: dict[str, Any] = Depends(require_student)) -> dict:
+    if not StoreBundle().rag.delete_session(session_id, int(user["id"]), "student"):
+        raise HTTPException(status_code=404, detail="会话不存在")
+    return {"status": "ok", "deleted_session_id": session_id}
+
+
 @router.get("/student/rag/assignment-question-context")
 def rag_assignment_question_context(assignment_id: int, question_id: int,
                                     user: dict[str, Any] = Depends(require_student)) -> dict:
@@ -272,6 +290,14 @@ def clear_rag_session(session_id: int, user: dict[str, Any] = Depends(require_st
     if not StoreBundle().rag.clear_session(session_id, int(user["id"])):
         raise HTTPException(status_code=404, detail="会话不存在")
     return {"status": "ok"}
+
+
+@router.get("/student/rag/scope")
+def rag_scope(user: dict[str, Any] = Depends(require_student)) -> dict:
+    """返回当前学生普通问答的服务端检索范围，不接受客户端覆盖。"""
+    filters = _student_retrieval_filters(user)
+    return {"grade_band": filters.grade_band, "grade": filters.grade,
+            "subject": filters.subject, "knowledge_node_id": filters.knowledge_node_id}
 
 
 @router.post("/student/rag/chat/stream")
@@ -292,13 +318,30 @@ def rag_chat_stream(payload: dict, user: dict[str, Any] = Depends(require_studen
         learning_context = get_learning_service().coaching_context(int(user["id"]))
         # 已提交作业的错题上下文可引用其答案；其他未提交作业题则从本地题库知识源排除。
         excluded_question_ids = set() if context else stores.assignments.pending_question_ids_for_student(int(user["id"]))
-        result = RagConversationService(
+        conversation = RagConversationService(
             stores.rag, RagAnswerService(RagRetrievalService(stores.rag, settings), settings)
-        ).ask(user_id=int(user["id"]), query=query,
+        )
+        ask_kwargs = dict(user_id=int(user["id"]), query=query,
               session_id=payload.get("session_id"), filters=_student_retrieval_filters(
                   user, context.get("subject") if context else None), learner_context=learning_context,
               learning_action=learning_action, socratic=bool(payload.get("socratic")),
               excluded_question_ids=excluded_question_ids)
+        if settings.rag_native_stream_enabled:
+            from contextlib import aclosing
+
+            async def native_events():
+                try:
+                    async with aclosing(conversation.ask_stream(**ask_kwargs)) as stream:
+                        async for event, data in stream:
+                            if event == "session":
+                                data = data | {"question_context": context}
+                            yield _sse(event, data)
+                except Exception:  # 不回传上游密钥、内部错误和资料正文
+                    yield _sse("error", {"message": "回答未完成，请重试；未将部分内容保存为成功回答。"})
+
+            return StreamingResponse(native_events(), media_type="text/event-stream",
+                                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        result = conversation.ask(**ask_kwargs)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
@@ -307,9 +350,10 @@ def rag_chat_stream(payload: dict, user: dict[str, Any] = Depends(require_studen
     def events():
         yield _sse("session", {"session_id": result["session_id"], "message_id": result["message_id"],
                                "question_context": context})
-        answer = result["answer"]
-        for index in range(0, len(answer), 80):
-            yield _sse("token", {"text": answer[index:index + 80]})
+        for chunk in _answer_stream_chunks(result["answer"]):
+            yield _sse("token", {"text": chunk})
+            # 本地题库与非流式兼容 Provider 都采用一致的渐进展示，不增加模型调用或 Token。
+            time.sleep(0.018)
         yield _sse("citations", {"items": result["citations"]})
         yield _sse("done", {"refused": result["refused"], "reason": result["reason"],
                             "latency_ms": result["latency_ms"]})

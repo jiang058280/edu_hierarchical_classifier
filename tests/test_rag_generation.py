@@ -44,6 +44,7 @@ def test_answer_uses_evidence_and_server_generated_citations():
     assert result.citations == [{"number": 1, "source_name": "函数讲义.md", "chapter": "第一章",
                                  "page_number": 2, "kb_version": "kb-v1", "score": 0.9}]
     assert "【资料】" in chat.messages[1]["content"] and "[1]" in chat.messages[1]["content"]
+    assert "不得引入资料未定义的新术语" in chat.messages[1]["content"]
 
 
 def test_answer_refuses_without_high_enough_evidence_without_calling_llm():
@@ -51,6 +52,28 @@ def test_answer_refuses_without_high_enough_evidence_without_calling_llm():
     result = _service([_candidate(0.2)], chat).answer("一次函数是什么", role="student", filters=RetrievalFilters())
     assert result.refused is True and not result.citations
     assert chat.messages is None
+
+
+def test_duplicate_source_fragments_share_a_resolvable_citation_number():
+    service = _service([])
+    context, citations = service._context_and_citations([
+        _candidate(), _candidate(), _candidate(source="另一份.md")])
+    assert context.count("[1]") == 2
+    assert "[2]" in context and "[3]" not in context
+    assert [c["number"] for c in citations] == [1, 2]
+
+
+def test_skipped_empty_evidence_does_not_create_number_gaps():
+    blank = _candidate() | {"content": " "}
+    context, citations = _service([])._context_and_citations([blank, _candidate()])
+    assert context.startswith("[1]") and citations[0]["number"] == 1
+
+
+def test_same_named_source_from_distinct_versions_has_distinct_citations():
+    first, second = _candidate(), _candidate()
+    second["metadata"]["kb_version"] = "kb-v2"
+    context, citations = _service([])._context_and_citations([first, second])
+    assert "[1]" in context and "[2]" in context and len(citations) == 2
 
 
 def test_answer_refuses_empty_generation():

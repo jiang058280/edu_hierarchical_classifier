@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from edu_core.rag.conversations import RagConversationService
+from edu_core.api.student import _answer_stream_chunks
 from edu_core.rag.generation import RagAnswer
 from edu_core.rag.retrieval import RetrievalFilters
 
@@ -72,3 +73,10 @@ def test_profile_action_returns_only_server_computed_learning_summary():
         }]})
     assert "一次函数" in result["answer"]
     assert result["citations"][0]["source_name"] == "你的学习记录（系统统计）"
+
+
+def test_answer_stream_chunks_preserve_text_and_limit_chunk_size():
+    answer = "先看定义。\n再代入计算：|-3|=3，答案是 B。"
+    chunks = list(_answer_stream_chunks(answer, target_size=6))
+    assert "".join(chunks) == answer
+    assert chunks and all(0 < len(chunk) <= 6 for chunk in chunks)

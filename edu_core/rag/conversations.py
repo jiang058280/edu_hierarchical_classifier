@@ -6,15 +6,80 @@
 from __future__ import annotations
 
 from time import perf_counter
+from contextlib import aclosing
+from functools import partial
+
+import anyio
 
 from edu_core.rag.generation import RagAnswer, RagAnswerService
 from edu_core.rag.retrieval import RetrievalFilters
 from edu_core.storage.stores import RagKnowledgeBaseStore
+from edu_core.rag.memory import completed_questions
 
 
 class RagConversationService:
     def __init__(self, store: RagKnowledgeBaseStore, answer_service: RagAnswerService):
         self.store, self.answer_service = store, answer_service
+
+    def _history(self, session_id: int, user_id: int) -> list[str]:
+        settings = getattr(self.answer_service, "settings", None)
+        if not getattr(settings, "rag_conversation_memory_enabled", False):
+            return []
+        return completed_questions(self.store.recent_student_messages(session_id, user_id))
+
+    async def ask_stream(self, *, user_id: int, query: str, session_id: int | None,
+                         filters: RetrievalFilters, **kwargs):
+        query = " ".join((query or "").split())
+        if not query or len(query) > 2000:
+            raise ValueError("问题不能为空且不能超过 2000 个字符")
+        if kwargs.get("learning_action"):
+            result = await anyio.to_thread.run_sync(partial(
+                self.ask, user_id=user_id, query=query, session_id=session_id, filters=filters, **kwargs))
+            yield "session", {"session_id": result["session_id"], "message_id": result["message_id"]}
+            yield "token", {"text": result["answer"]}
+            yield "citations", {"items": result["citations"]}
+            yield "done", result
+            return
+        kwargs.pop("learning_action", None)
+        if session_id is None:
+            session_id = await anyio.to_thread.run_sync(partial(self.store.create_session, user_id, "student", query[:64]))
+        elif not await anyio.to_thread.run_sync(partial(self.store.get_owned_session, session_id, user_id, "student")):
+            raise ValueError("会话不存在或无权访问")
+        history = await anyio.to_thread.run_sync(partial(self._history, session_id, user_id))
+        if history:
+            kwargs["conversation_questions"] = history
+        await anyio.to_thread.run_sync(partial(self.store.add_message, session_id, "user", query))
+        started, finished = perf_counter(), False
+        try:
+            yield "session", {"session_id": session_id, "message_id": None}
+            async with aclosing(self.answer_service.stream_answer(query, role="student", filters=filters, **kwargs)) as stream:
+                async for event, value in stream:
+                    if event == "token":
+                        yield "token", {"text": value}
+                    elif event == "answer":
+                        result = value
+                        message_id = await anyio.to_thread.run_sync(partial(
+                            self.store.add_message, session_id, "assistant", result.answer,
+                            citations=result.citations, refused=result.refused))
+                        latency = int((perf_counter() - started) * 1000)
+                        await anyio.to_thread.run_sync(partial(
+                            self.store.add_query_trace, session_id=session_id, user_id=user_id,
+                            kb_version=result.citations[0].get("kb_version") if result.citations else None,
+                            query_text=query, candidates=[{"source_name": c.get("source_name"), "score": c.get("score")}
+                                                          for c in result.citations],
+                            latency_ms=latency, failure_stage=self._failure_stage(result)))
+                        finished = True
+                        yield "citations", {"items": result.citations}
+                        yield "done", {"message_id": message_id, "refused": result.refused,
+                                       "reason": result.reason, "latency_ms": latency}
+        finally:
+            if not finished:
+                # 断线/取消时关闭上游；不把已经展示的半截文本保存成成功回答。
+                with anyio.CancelScope(shield=True):
+                    await anyio.to_thread.run_sync(partial(
+                        self.store.add_query_trace, session_id=session_id, user_id=user_id, kb_version=None,
+                        query_text=query, candidates=[], latency_ms=int((perf_counter() - started) * 1000),
+                        failure_stage="stream_incomplete"))
 
     def ask(self, *, user_id: int, query: str, session_id: int | None,
             filters: RetrievalFilters, learner_context: dict | None = None,
@@ -30,12 +95,15 @@ class RagConversationService:
         elif not self.store.get_owned_session(session_id, user_id, "student"):
             raise ValueError("会话不存在或无权访问")
 
+        history = self._history(session_id, user_id) if not learning_action else []
         user_message_id = self.store.add_message(session_id, "user", query)
         started = perf_counter()
         if learning_action:
             result = self._profile_answer(learning_action, learner_context or {})
         else:
             answer_kwargs = {}
+            if history:
+                answer_kwargs["conversation_questions"] = history
             if learner_context:
                 answer_kwargs["learner_context"] = learner_context
             if socratic:
@@ -51,11 +119,17 @@ class RagConversationService:
             session_id=session_id, user_id=user_id, kb_version=kb_version, query_text=query,
             candidates=[{"source_name": item.get("source_name"), "score": item.get("score")}
                         for item in result.citations], latency_ms=latency_ms,
-            failure_stage="evidence" if result.refused else None)
+            failure_stage=self._failure_stage(result))
         return {"session_id": session_id, "user_message_id": user_message_id,
                 "message_id": assistant_message_id, "answer": result.answer,
                 "citations": result.citations, "refused": result.refused, "reason": result.reason,
                 "latency_ms": latency_ms}
+
+    @staticmethod
+    def _failure_stage(answer: RagAnswer) -> str | None:
+        if not answer.refused:
+            return None
+        return "grounding" if answer.reason == "回答证据核验未通过" else "evidence"
 
     @staticmethod
     def _profile_answer(action: str, context: dict) -> RagAnswer:
