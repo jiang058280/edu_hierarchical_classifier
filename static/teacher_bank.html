@@ -65,8 +65,8 @@
         <select class="input" id="eBand"><option value="">—</option><option>初中</option><option>高中</option></select></div>
       <div class="field"><label class="lbl">年级</label>
         <input class="input" type="text" id="eGrade" placeholder="如 初三 / 高一"></div>
-      <div class="field"><label class="lbl">知识点（格式：学科::知识点）</label>
-        <input class="input" type="text" id="eKp" placeholder="如 数学::代数"></div>
+      <div class="field"><label class="lbl">知识点</label>
+        <input class="input" type="text" id="eKp" list="kpCatalogList" placeholder="如 绝对值的意义"></div>
       <div class="field"><label class="lbl">难度（1~5）</label>
         <select class="input" id="eDiff"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
       <div class="field"><label class="lbl">参考答案（客观题为选项键）</label>
@@ -282,8 +282,16 @@ async function saveEdit() {
   } catch (e) { $('editErr').textContent = e.message; }
 }
 
-if (T.token()) { initTaxonomy().then(() => loadList(0)).catch(e => T.toast(e.message, 'err')); }
+if (T.token()) {
+  initTaxonomy().then(() => loadList(0)).catch(e => T.toast(e.message, 'err'));
+  T.api('/api/v1/teacher/knowledge-catalog').then(data => {
+    $('kpCatalogList').innerHTML = (data.subjects || []).flatMap(subject =>
+      (subject.points || []).map(point =>
+        `<option value="${T.escapeHtml(point.knowledge_point)}" label="${subject.subject}">`)).join('');
+  }).catch(() => {});
+}
 else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fbank'; }
 </script>
+<datalist id="kpCatalogList"></datalist>
 </body>
 </html>

@@ -498,6 +498,22 @@ def question_taxonomy(subject: str = "", grade_band: str = "", knowledge: str = 
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@router.get("/teacher/knowledge-catalog")
+def knowledge_catalog(_: dict[str, Any] = Depends(require_teacher)) -> dict:
+    """细粒度知识点目录：题库实际数据构建，供录入确认、题库筛选与组卷共用同一口径。"""
+    from sqlalchemy import text
+
+    from edu_core.application.knowledge_catalog import build_catalog
+
+    stores = _stores()
+    with stores.questions.engine.connect() as conn:
+        rows = conn.execute(text("""
+            SELECT subject, knowledge_point, status, COUNT(*) AS n FROM questions
+            WHERE knowledge_point IS NOT NULL
+            GROUP BY subject, knowledge_point, status""")).mappings().all()
+    return build_catalog([dict(row) for row in rows])
+
+
 @router.get("/teacher/questions")
 def list_questions(subject: str = "", question_type: str = "", keyword: str = "",
                    grade_band: str = "", difficulty: int | None = None,

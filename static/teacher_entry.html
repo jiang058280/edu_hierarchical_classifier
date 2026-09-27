@@ -40,9 +40,11 @@ B．无氧呼吸不产生 ATP"></textarea>
   </div>
 
   <div class="card" id="emptyCard" style="display:none">
-    <div class="empty"><div class="ico">✂️</div>暂无待确认题目<div class="hint">粘贴题目后点击「智能切分并预标注」，AI 会给出三级标签建议，确认后入库</div></div>
+    <div class="empty"><div class="ico">✂️</div>暂无待确认题目<div class="hint">粘贴题目后点击「智能切分并预标注」，AI 会给出学科、题型、知识点的三级预标注，教师逐题确认后入库。</div>
   </div>
 </div>
+
+<datalist id="kpCatalogList"></datalist>
 
 <script src="/static/teacher_common.js?v=20260914-horizontal"></script>
 <script>
@@ -126,7 +128,7 @@ function cardHtml(item) {
       <div class="field"><label class="lbl">题型</label>
         <select class="input" id="ty_${item.seq}">${typeOptions(item.subject, item.question_type)}</select></div>
       <div class="field"><label class="lbl">知识点</label>
-        <input class="input" id="k_${item.seq}" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="例如：三角函数"></div>
+        <input class="input" id="k_${item.seq}" list="kpCatalogList" value="${T.escapeHtml(item.knowledge_point || '')}" placeholder="例如：三角函数"></div>
       <div class="field"><label class="lbl">学段</label>
         <select class="input" id="g_${item.seq}"><option value="">—</option>${['初中','高中'].map(g => `<option ${g === item.grade_band ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
       <div class="field"><label class="lbl">参考答案（可空）</label>
@@ -294,6 +296,11 @@ $('rawInput').addEventListener('input', (event) => {
 if (T.token()) {
   T.api('/api/v1/teacher/question-taxonomy').then(data => { taxonomy = data; })
     .catch(e => T.toast(e.message, 'err'));
+  T.api('/api/v1/teacher/knowledge-catalog').then(data => {
+    $('kpCatalogList').innerHTML = (data.subjects || []).flatMap(subject =>
+      (subject.points || []).map(point =>
+        `<option value="${T.escapeHtml(point.knowledge_point)}" label="${subject.subject}">`)).join('');
+  }).catch(() => {});
 } else { location.href = '/login?portal=teacher&next=%2Fteacher%2Fentry'; }
 </script>
 </body>
