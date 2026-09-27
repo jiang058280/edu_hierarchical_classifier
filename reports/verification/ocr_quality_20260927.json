@@ -66,5 +66,30 @@
     }
   ],
   "known_issues": "数学符号、表头大小写、页脚仍是 0926 诊断记录中的已知误差来源",
-  "conclusion": "本量化为现状基线，不构成 OCR 自动识别质量验收通过；发布仍以人工复核门禁为准。"
+  "conclusion": "本量化为现状基线，不构成 OCR 自动识别质量验收通过；发布仍以人工复核门禁为准。",
+  "cleanup_improvement_20260927": {
+    "method": "同一扫描件用当前引擎（tesseract_js + Poppler 24.08）重新识别，仅变换清洗规则后对比 CER；引擎输出确定性不变，隔离清洗规则贡献",
+    "rules_added": [
+      "cjk_adjacent_punctuation：中文句读的半角逗号/分号/冒号/问号/叹号恢复全角（跳过空白判定 CJK 邻接；公式与代码中的半角不受影响）",
+      "cjk_context_letter_o：CJK/全角标点之后（允许间隔空格）的数字 0，若跳过空白后紧跟两个字母，恢复为字母 O/o（如“OCR 验证”→“0CR验证”）；数字串与比较运算中的 0 不受影响"
+    ],
+    "measurements": {
+      "engine_raw_no_cleanup": {
+        "cer": 0.0904,
+        "accuracy": 0.9096
+      },
+      "cleanup_before_enhancement": {
+        "cer": 0.0847,
+        "accuracy": 0.9153,
+        "edit_count": 2
+      },
+      "cleanup_after_enhancement": {
+        "cer": 0.0339,
+        "accuracy": 0.9661,
+        "edit_count": 24
+      }
+    },
+    "improvement": "字符准确率 91.53% → 96.61%（相对旧存量口径 92.37% 提升 4.2pt）；剩余差异为引擎级漏行（表格数据行整行未识别）与 ；/： 形近误读，清洗层已到保守边界",
+    "deployment_note": "规则仅在 OCR 入库时生效；资料 23 的存量分块不回写，历史口径报告保持不变"
+  }
 }
