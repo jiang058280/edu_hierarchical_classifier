@@ -10,7 +10,7 @@
 
 ### 2026-09-27 增量更新（优先于下方 09-26 记录）
 
-2026-09-26 各项增强的全部未提交改动已按功能整理入库（个人文件已 gitignore，未推送远端）。R2.5 已完成教师终审并**通过正式验收**：`eval_sets/rag_eval_formal_v2.jsonl`（136 条 = 原百题 + 36 条概念题）四项阈值全过——recall@5 0.9208、引用有效率 1.0、无来源回答率 0、拒答正确率 0.9655（真实 LLM，报告 `reports/verification/rag_eval_formal_v2_run1.json`）。生产配置两项数据驱动变更已写入 `.env`：`EDU_RAG_MIN_EVIDENCE_SCORE=0.66`（消灭软拒答，run3 拒答正确率 0.9875）、`EDU_RAG_CONVERSATION_MEMORY_ENABLED=true`（回放证明主题记忆关闭时 20/20 追问轮被拒答）。评测知识库版本 `rag-eval-20260927`（id=5）已激活为生产知识库（版本 1 转 ARCHIVED 可回滚）。follow_up 20 条会话回放完成（`reports/verification/rag_replay_20260927_*.json`，replayed_pending_review，内容质量待人工抽查）。AI 智能录入已支持 DOCX/PDF/MD/TXT 多格式导入。详见 `docs/任务推进记录_20260927.md`。
+2026-09-26 各项增强的全部未提交改动已按功能整理入库（个人文件已 gitignore，未推送远端）。R2.5 已完成教师终审并**通过正式验收**：`eval_sets/rag_eval_formal_v2.jsonl`（136 条 = 原百题 + 36 条概念题）四项阈值全过——recall@5 0.9208、引用有效率 1.0、无来源回答率 0、拒答正确率 0.9655（真实 LLM，报告 `reports/verification/rag_eval_formal_v2_run1.json`）。生产配置三项数据驱动变更已写入 `.env`：`EDU_RAG_MIN_EVIDENCE_SCORE=0.66`（消灭软拒答）、`EDU_RAG_CONVERSATION_MEMORY_ENABLED=true`（回放证明主题记忆关闭时 20/20 追问轮被拒答）、`EDU_RAG_NATIVE_STREAM_ENABLED=true`（浏览器端到端验收通过）。评测知识库版本 `rag-eval-20260927`（id=5）已激活为生产知识库（版本 1 转 ARCHIVED 可回滚）。follow_up 20 条会话回放 20/20 完成（`reports/verification/rag_replay_20260927_*.json`，replayed_pending_review，内容质量待人工抽查）。AI 智能录入已支持 DOCX/PDF/MD/TXT 多格式导入。Reranker 真实联调经用户拍板跳过（半成品模型已删除，恢复路径见任务记录）；OCR 量化基线：字符准确率 92.37%、内容准确率 97.74%（`reports/verification/ocr_quality_20260927.json`），质量门禁仍未通过、发布以人工复核为准。详见 `docs/任务推进记录_20260927.md`。
 
 ### 2026-09-26 增量更新（优先于下方历史快照）
 

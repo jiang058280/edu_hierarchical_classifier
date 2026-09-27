@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-09-27",
+  "purpose": "OCR 识别质量现状量化：当前生产管线对扫描测试件的输出 vs 人工校对版金标",
+  "ocr_source": "rag_documents id=23 父块合并（本地 Poppler + Tesseract.js chi_sim+eng，数学符号清理后）",
+  "gold_source": "data/rag_uploads/33/a440d4a2….md（人工校对版，资料 24 的上传原件）",
+  "normalized_lengths": {
+    "gold": 354,
+    "ocr": 354
+  },
+  "difflib_similarity": 0.9181,
+  "cer": 0.0763,
+  "accuracy": 0.9237,
+  "nfkc_cer": 0.0226,
+  "nfkc_accuracy": 0.9774,
+  "nfkc_note": "NFKC 归一全半角字形后的内容级准确率；差额主要是全角逗号/分号与符号形近（o/0、</〈）",
+  "diff_samples": [
+    {
+      "type": "replace",
+      "gold": "：",
+      "ocr": ":"
+    },
+    {
+      "type": "replace",
+      "gold": "o",
+      "ocr": "0"
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    },
+    {
+      "type": "replace",
+      "gold": "；",
+      "ocr": ";"
+    },
+    {
+      "type": "replace",
+      "gold": "<",
+      "ocr": "〈"
+    },
+    {
+      "type": "replace",
+      "gold": "，",
+      "ocr": ","
+    }
+  ],
+  "known_issues": "数学符号、表头大小写、页脚仍是 0926 诊断记录中的已知误差来源",
+  "conclusion": "本量化为现状基线，不构成 OCR 自动识别质量验收通过；发布仍以人工复核门禁为准。"
+}
