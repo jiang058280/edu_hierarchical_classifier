@@ -8,6 +8,10 @@
 
 ## 一、当前状态快照（先读这段）
 
+### 2026-09-27 增量更新（优先于下方 09-26 记录）
+
+2026-09-26 各项增强的全部未提交改动已按功能整理为 10 个提交入库（个人文件已 gitignore，未推送远端）；标准自证 ruff/guardrails/pytest 416 全过。R2.5 评测集机器预审完成：新建 STAGED 评测知识库版本 `rag-eval-20260927`（id=5，18 份 knowledge_base 源资料真实入库并发布，2142 个子块，激活指针未动、生产版本 1 不变）；正式评测集 `eval_sets/rag_eval_formal_v1.jsonl` 已关联真实 child chunk ID 且机器核验零待办，**ready 仍为 false，等教师终审**（答案学科正确性 + 拒答范围）。终审后置 80 条 ready=true、跑 `scripts/evaluate_rag.py --dataset eval_sets/rag_eval_formal_v1.jsonl`（真实 LLM 调用）即为 R2.5 正式验收；多轮 follow_up 走会话回放。详见 `docs/任务推进记录_20260927.md`。
+
 ### 2026-09-26 增量更新（优先于下方历史快照）
 
 最新：回答证据核验功能已实现，配置 `EDU_RAG_GROUNDING_CHECK_ENABLED`，默认关闭，7862 测试进程启用。生成后核验，最多一次重写及再核验，失败拒答；开启时流式正文核验后才发送。真实测试已拦截并修正现有“斜率”Bad Case，最终两题答案/引用正确、跨学段拒答。核验复用同一模型，存在误判，不得宣称消除幻觉或正式评测通过。详见 `docs/回答证据核验接入_20260926.md`，其部署状态优先于下面旧记录。
@@ -20,14 +24,14 @@ OCR 测试教师 33、测试版本 3；原扫描 OCR 资料 23 保持未发布�
 | --- | --- |
 | 项目根目录 | `D:\edu_hierarchical_classifier`（Windows，shell 为 cmd/PowerShell） |
 | 项目一句话 | 基于 RAG 与学情画像的个性化智慧学习平台；分类、题库、作业闭环及 RAG/画像主链路已进入持续完善阶段 |
-| git 分支 | 以 `git status` / `git log -1` 为准；当前存在 C1～C5 未提交变更及用户原有修改，不可重置或直接全量暂存 |
+| git 分支 | 以 `git status` / `git log -1` 为准；2026-09-27 已完成历史改动整理提交，工作区仅剩个人文件（已 gitignore） |
 | 模型 | **v0.4-20260906 ACTIVE**（BERT 多任务：学科9/题型3/知识点50 + 学段头 初中/高中；判断题重采样训练，golden 题型 F1 0.9406，温度 T=0.9984），v0.3/v0.2/v0.1-base 已归档可回滚 |
 | 后端 | FastAPI（`app.py` 薄入口 + `edu_core/` 分层包），端口 **7860** |
 | 数据库 | MySQL 8.4 **Docker 容器 `edu-classifier-mysql`，宿主端口 3307**（不是 3306！），库 `edu_classifier`；已应用 V1～V10；凭证只从本地环境读取，不写文档 |
 | 查重 | Milvus 容器（宿主 19531），**可降级**（不可用时主链路不受影响） |
 | 本地配置 | `.env` 已存在（未提交）：`EDU_MYSQL_PORT=3307`、`EDU_MILVUS_URI=http://127.0.0.1:19531`、`EDU_JWT_SECRET`；`EDU_ADMIN_BOOTSTRAP_PASSWORD` 已置空（A2 整改，users 非空后无作用） |
 | 账号 | 管理员 `lgq`（2026-09-07 由 admin 更名，密码线下留存不落仓库）；学生 `stu_test01`（已入班，class_id=2） |
-| 测试 | 247 条通过（2026-09-13）；含判分、题型、作业、RAG、画像、批量题库、容量与干净基准回归 |
+| 测试 | 416 条通过（2026-09-27）；含判分、题型、作业、RAG、画像、批量题库、容量与干净基准回归 |
 | 验收 | `scripts/verify_release.py` 标准发布检查；`scripts/verify_m2.py` 真实 MySQL/HTTP/浏览器 20 题闭环，报告含失败与清理状态 |
 
 **环境事实**：venv 在 `venv/`（所有命令前缀 `venv\Scripts\python.exe`）；GPU 为 RTX 3050 6GB（训练 batch 8 / max_len 256）。网络可用性以实际检查为准；发布脚本使用项目内独立临时目录避免 Windows TEMP 权限问题。

@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-09-27",
+  "purpose": "R2.5 正式评测集机器预审；ready 保持 false，待教师终审后置 ready=true",
+  "eval_kb_version": {
+    "id": 5,
+    "name": "rag-eval-20260927",
+    "status": "STAGED",
+    "quality_report_passed": true,
+    "published_documents": 18,
+    "published_child_chunks": 2142
+  },
+  "draft_input": "output\\rag_review_draft_20260926\\cases.jsonl",
+  "formal_output": "eval_sets\\rag_eval_formal_v1.jsonl",
+  "category_counts": {
+    "answerable": 20,
+    "wrong_question": 20,
+    "follow_up": 20,
+    "unanswerable": 20,
+    "cross_grade": 20
+  },
+  "machine_check_stats": {
+    "answer_in_block": 60,
+    "answer_not_applicable": 40,
+    "cross_grade_filtered_out": 17,
+    "cross_grade_absent": 3
+  },
+  "cases_needing_attention": [],
+  "discipline_note": "本报告仅机器核验（源完整性/答案与源一致性/真实分块关联），不替代教师对答案正确性与拒答预期的人工复核；正式评测需在教师终审后执行。"
+}
